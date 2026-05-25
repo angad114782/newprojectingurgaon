@@ -1,0 +1,61 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          dark: '#075B63',
+          DEFAULT: '#065B63',
+          bg: '#075E68',
+          deep: '#06616B',
+          accent: '#08C9A4',
+          'accent-alt': '#09C8A6',
+          mint: '#EAF8F5',
+          text: '#122326',
+          muted: '#5F7478',
+          border: '#DDEEEF',
+        },
+      },
+      fontFamily: {
+        display: ['var(--font-display)', 'Georgia', 'serif'],
+        body: ['var(--font-body)', 'system-ui', 'sans-serif'],
+      },
+      animation: {
+        'fade-up': 'fadeUp 0.6s ease-out forwards',
+        'fade-in': 'fadeIn 0.4s ease-out forwards',
+        'slide-in': 'slideIn 0.5s ease-out forwards',
+        'pulse-slow': 'pulse 3s infinite',
+        'marquee': 'marquee 25s linear infinite',
+      },
+      keyframes: {
+        fadeUp: {
+          '0%': { opacity: '0', transform: 'translateY(24px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideIn: {
+          '0%': { opacity: '0', transform: 'translateX(-20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
+      boxShadow: {
+        card: '0 4px 24px rgba(7,91,99,0.10)',
+        'card-hover': '0 8px 40px rgba(7,91,99,0.18)',
+        premium: '0 2px 16px rgba(7,91,99,0.12)',
+      },
+    },
+  },
+  plugins: [],
+};
