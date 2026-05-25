@@ -129,7 +129,7 @@ const PROJECTS = [
       { config: '4 BHK', area: '2,680 sqft', price: '₹6.5 Cr onwards' },
       { config: '4 BHK+Study', area: '3,000 sqft', price: '₹8.5 Cr onwards' },
     ],
-    possession: 'June 2027', totalUnits: 1,137, totalTowers: 12, totalArea: '25 Acres', floors: 'G+40',
+    possession: 'June 2027', totalUnits: 1137, totalTowers: 12, totalArea: '25 Acres', floors: 'G+40',
     rera: { number: 'RERA/GGM/2023/611', link: 'https://haryanarera.gov.in' },
     shortDescription: "DLF's luxury 4 BHK project on Golf Course Extension Road — sold 1,113 units at launch in 3 days.",
     description: "DLF The Arbour on Golf Course Extension Road made history by selling all 1,113 units in its first phase within 3 days of launch — at prices starting ₹7 Cr. This ultra-luxury development in Sector 63 offers spacious 4 BHK residences with premium amenities, resort-style clubhouse and DLF's guaranteed quality delivery on GCER's most coveted address.",

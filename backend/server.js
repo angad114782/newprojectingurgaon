@@ -12,6 +12,8 @@ const connectDB = require('./config/db');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // ─── Connect Database ────────────────────────────────────────────────────────
 connectDB().then(async () => {
   try {
@@ -48,6 +50,10 @@ const allowedOrigins = [
   'http://127.0.0.1:3001',
   'http://192.168.1.11:3000',
   'http://192.168.1.11:3001',
+
+  'https://newprojectsingurgaon.com',
+  'https://www.newprojectsingurgaon.com',
+
   'https://gurgaonrealty.com',
   'https://www.gurgaonrealty.com',
   'https://gurgaonrealty.in',
@@ -98,7 +104,9 @@ if (process.env.NODE_ENV === 'development') {
 // ─── Rate Limiting ───────────────────────────────────────────────────────────
 const generalLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 2000,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: 'Too many requests',
 });
 
