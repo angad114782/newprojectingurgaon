@@ -43,6 +43,9 @@ jobs:
             cd /var/www/gurgaon-realestate/frontend
             npm install
 
+            echo "⚙️ Write production env..."
+            printf 'NEXT_PUBLIC_API_URL=http://localhost:5007/api\nNEXT_PUBLIC_WS_URL=https://newprojectsingurgaon.com\n' > /var/www/gurgaon-realestate/frontend/.env.local
+
             echo "🏗️ Frontend build..."
             npm run build
 
@@ -52,7 +55,9 @@ jobs:
             echo "💾 Save PM2..."
             pm2 save
 
-            echo "🔄 Reload Nginx..."
+            echo "🔄 Configure Nginx WebSocket proxy..."
+            python3 /var/www/gurgaon-realestate/.github/scripts/nginx_ws_patch.py
+
             nginx -t
             systemctl reload nginx
 
