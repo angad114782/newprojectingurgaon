@@ -145,6 +145,7 @@ const sendUserThankYouWhatsApp = async (lead) => {
 // ─── Send admin WhatsApp notification when a new lead arrives ─────────────────
 // WhatsApp Cloud API requires an approved template for the FIRST message.
 // Template variables map: {{1}}=name, {{2}}=mobile, {{3}}=project, {{4}}=budget, {{5}}=location
+// cfg.adminNumber supports comma-separated numbers: "919XXXXXXXXX,918XXXXXXXXX"
 const sendAdminLeadNotification = async (lead) => {
   const cfg = await getWaSettings();
   if (!cfg.configured || !cfg.adminNumber) {
@@ -165,11 +166,16 @@ const sendAdminLeadNotification = async (lead) => {
     },
   ];
 
-  try {
-    await sendWACloudTemplate(cfg, cfg.adminNumber, cfg.templateName, cfg.templateLanguage, components);
-    console.log(`[WhatsApp] Admin template notification sent to ${cfg.adminNumber}`);
-  } catch (err) {
-    console.error('[WhatsApp] Admin notification failed:', err.response?.data || err.message);
+  // Support comma-separated admin numbers
+  const adminNumbers = String(cfg.adminNumber).split(',').map((n) => n.trim()).filter(Boolean);
+
+  for (const adminNum of adminNumbers) {
+    try {
+      await sendWACloudTemplate(cfg, adminNum, cfg.templateName, cfg.templateLanguage, components);
+      console.log(`[WhatsApp] Admin template notification sent to ${adminNum}`);
+    } catch (err) {
+      console.error(`[WhatsApp] Admin notification failed for ${adminNum}:`, err.response?.data || err.message);
+    }
   }
 };
 

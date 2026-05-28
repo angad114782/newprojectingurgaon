@@ -296,7 +296,7 @@ export default function AdminPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics'>('leads');
   const socketRef = useRef<Socket | null>(null);
   const [liveNotif, setLiveNotif] = useState<string | null>(null);
 
@@ -319,6 +319,10 @@ export default function AdminPage() {
   const [csvImporting, setCsvImporting] = useState(false);
   const [csvResult, setCsvResult] = useState<any>(null);
   const [csvSkipImages, setCsvSkipImages] = useState(false);
+
+  // Analytics state
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   // Site Settings state
   const [siteSettings, setSiteSettings] = useState<any>(null);
@@ -409,6 +413,17 @@ export default function AdminPage() {
     if (d.success) setSiteSettings(d.settings);
   }, [token, authH]);
 
+  const fetchAnalytics = useCallback(async () => {
+    if (!token) return;
+    setAnalyticsLoading(true);
+    try {
+      const r = await fetch(`${API}/admin/analytics`, { headers: authH() });
+      const d = await r.json();
+      if (d.success) setAnalytics(d.data);
+    } catch { /* silently fail */ }
+    finally { setAnalyticsLoading(false); }
+  }, [token, authH]);
+
   const saveSiteSettings = async () => {
     if (!siteSettings) return;
     setSettingsSaving(true);
@@ -445,6 +460,7 @@ export default function AdminPage() {
 
   useEffect(() => { if (token) { fetchLeads(); fetchProjects(); fetchSiteSettings(); } }, [token]);
   useEffect(() => { if (token) fetchLeads(); }, [leadFilter]);
+  useEffect(() => { if (activeTab === 'analytics' && !analytics) fetchAnalytics(); }, [activeTab, analytics, fetchAnalytics]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); setLoginError('');
@@ -681,6 +697,10 @@ export default function AdminPage() {
             <button onClick={() => setActiveTab('conversion')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'conversion' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
               🎯 Conversion
+            </button>
+            <button onClick={() => setActiveTab('analytics')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'analytics' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
+              📊 Analytics
             </button>
           </div>
         </div>
@@ -986,7 +1006,7 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <label className="text-xs text-brand-muted mb-1 block">Admin WhatsApp Number</label>
-                  <input className="input-field text-sm" placeholder="919999999999 (country code + number, no +)"
+                  <input className="input-field text-sm" placeholder="919XXXXXXXXX,918XXXXXXXXX (comma separated for multiple)"
                     value={siteSettings.whatsappCloud?.adminNumber || ''}
                     onChange={(e) => setSiteSettings({ ...siteSettings, whatsappCloud: { ...siteSettings.whatsappCloud, adminNumber: e.target.value } })} />
                 </div>
@@ -1286,6 +1306,58 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* Google Search Console */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <SectionHeader title="Google Search Console" icon="🔍" />
+              <p className="text-xs text-brand-muted mb-4">GSC connect karo taaki search queries, impressions aur rankings dekh sako admin analytics mein.</p>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Site URL (exactly as in GSC)</label>
+                  <input className="input-field text-sm" placeholder="https://www.newprojectsingurgaon.com"
+                    value={siteSettings.googleSearchConsole?.siteUrl || ''}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, googleSearchConsole: { ...siteSettings.googleSearchConsole, siteUrl: e.target.value } })} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Service Account JSON (Google Cloud Console se download karo)</label>
+                  <textarea rows={4} className="input-field text-xs resize-none font-mono"
+                    placeholder={'{"type":"service_account","project_id":"...","private_key":"..."}'}
+                    value={siteSettings.googleSearchConsole?.serviceAccountJson || ''}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, googleSearchConsole: { ...siteSettings.googleSearchConsole, serviceAccountJson: e.target.value, connected: false } })} />
+                  <p className="text-xs text-brand-muted mt-1">Google Cloud Console → IAM → Service Accounts → Create Key (JSON) → content paste karo yahan</p>
+                </div>
+                {siteSettings.googleSearchConsole?.connected && (
+                  <div className="flex items-center gap-2 text-xs text-green-600 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
+                    <span>✅ GSC Connected:</span>
+                    <span className="font-mono">{siteSettings.googleSearchConsole.siteUrl}</span>
+                  </div>
+                )}
+                <div className="flex justify-end">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const r = await fetch(`${API}/admin/gsc/verify`, {
+                          method: 'POST', headers: authH(),
+                          body: JSON.stringify({
+                            siteUrl: siteSettings.googleSearchConsole?.siteUrl,
+                            serviceAccountJson: siteSettings.googleSearchConsole?.serviceAccountJson,
+                          }),
+                        });
+                        const d = await r.json();
+                        if (d.success) {
+                          setSiteSettings({ ...siteSettings, googleSearchConsole: { ...siteSettings.googleSearchConsole, connected: true } });
+                          alert('GSC Connected! ✅ ' + d.message);
+                        } else {
+                          alert('GSC Error: ' + d.message);
+                        }
+                      } catch { alert('Network error'); }
+                    }}
+                    className="text-xs bg-blue-50 text-blue-700 border border-blue-200 font-semibold px-4 py-2 rounded-xl hover:bg-blue-600 hover:text-white transition-colors">
+                    🔍 Verify & Connect GSC
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* RERA Info */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <SectionHeader title="RERA Registration (Footer mein dikhega)" icon="🏛️" />
@@ -1520,6 +1592,235 @@ export default function AdminPage() {
             })()}
 
             <div className="pb-24" />
+          </div>
+        )}
+
+        {/* ── ANALYTICS TAB ── */}
+        {activeTab === 'analytics' && (
+          <div className="space-y-6">
+            {analyticsLoading ? (
+              <div className="p-10 text-center text-brand-muted text-sm">Loading analytics...</div>
+            ) : !analytics ? (
+              <div className="p-10 text-center">
+                <div className="text-4xl mb-3">📊</div>
+                <p className="text-brand-muted text-sm mb-4">No analytics data yet. Leads must be collected first.</p>
+                <button onClick={fetchAnalytics} className="btn-primary text-sm">Refresh Analytics</button>
+              </div>
+            ) : (
+              <>
+                {/* Conversion Rate */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Total Leads', value: analytics.conversionRate?.total ?? 0, bg: 'bg-white' },
+                    { label: 'Engaged Leads', value: analytics.conversionRate?.totalEngaged ?? 0, bg: 'bg-blue-50' },
+                    { label: 'Verified (OTP)', value: analytics.conversionRate?.verified ?? 0, bg: 'bg-green-50' },
+                    { label: 'Conversion Rate', value: `${analytics.conversionRate?.rate ?? 0}%`, bg: 'bg-yellow-50' },
+                  ].map((s) => (
+                    <div key={s.label} className={`${s.bg} rounded-xl p-4 border border-gray-200 text-center`}>
+                      <div className="text-2xl font-bold text-brand-text">{s.value}</div>
+                      <div className="text-brand-muted text-xs mt-0.5">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Lead Sources */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Lead Sources (UTM)" icon="📡" />
+                    {(analytics.utmSources || []).length === 0 ? (
+                      <p className="text-brand-muted text-xs">No UTM data yet.</p>
+                    ) : (() => {
+                      const total = (analytics.utmSources as any[]).reduce((s: number, r: any) => s + r.count, 0);
+                      return (
+                        <div className="space-y-2">
+                          {(analytics.utmSources as any[]).map((r: any) => {
+                            const pct = total > 0 ? Math.round((r.count / total) * 100) : 0;
+                            return (
+                              <div key={r._id}>
+                                <div className="flex justify-between text-xs mb-0.5">
+                                  <span className="font-medium text-brand-text">{r._id || 'Direct/Unknown'}</span>
+                                  <span className="text-brand-muted">{r.count} ({pct}%)</span>
+                                </div>
+                                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                  <div className="h-full bg-brand-accent rounded-full" style={{ width: `${pct}%` }} />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Device Breakdown */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Device Breakdown" icon="📱" />
+                    {(analytics.deviceBreakdown || []).length === 0 ? (
+                      <p className="text-brand-muted text-xs">No device data yet.</p>
+                    ) : (() => {
+                      const total = (analytics.deviceBreakdown as any[]).reduce((s: number, r: any) => s + r.count, 0);
+                      return (
+                        <div className="space-y-2">
+                          {(analytics.deviceBreakdown as any[]).map((r: any) => {
+                            const pct = total > 0 ? Math.round((r.count / total) * 100) : 0;
+                            return (
+                              <div key={r._id}>
+                                <div className="flex justify-between text-xs mb-0.5">
+                                  <span className="font-medium text-brand-text capitalize">{r._id || 'Unknown'}</span>
+                                  <span className="text-brand-muted">{r.count} ({pct}%)</span>
+                                </div>
+                                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                  <div className={`h-full rounded-full ${r._id === 'mobile' ? 'bg-green-400' : 'bg-blue-400'}`} style={{ width: `${pct}%` }} />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Top Projects by Interest */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Top Projects by Interest" icon="🏢" />
+                    {(analytics.topProjects || []).length === 0 ? (
+                      <p className="text-brand-muted text-xs">No project interest data yet.</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {(analytics.topProjects as any[]).map((r: any, i: number) => (
+                          <div key={r._id} className="flex items-center gap-3 text-sm">
+                            <span className="w-5 h-5 rounded-full bg-brand-dark text-white text-xs flex items-center justify-center font-bold flex-shrink-0">{i + 1}</span>
+                            <span className="flex-1 text-brand-text truncate">{r._id}</span>
+                            <span className="text-brand-muted text-xs font-semibold">{r.count} leads</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Top Locations */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Top Locations by Preference" icon="📍" />
+                    {(analytics.topLocations || []).length === 0 ? (
+                      <p className="text-brand-muted text-xs">No location preference data yet.</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {(analytics.topLocations as any[]).map((r: any, i: number) => (
+                          <div key={r._id} className="flex items-center gap-3 text-sm">
+                            <span className="w-5 h-5 rounded-full bg-brand-accent text-brand-dark text-xs flex items-center justify-center font-bold flex-shrink-0">{i + 1}</span>
+                            <span className="flex-1 text-brand-text truncate">{r._id}</span>
+                            <span className="text-brand-muted text-xs font-semibold">{r.count} leads</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Budget Distribution */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Budget Distribution" icon="💰" />
+                    {(analytics.budgetDist || []).length === 0 ? (
+                      <p className="text-brand-muted text-xs">No budget data yet.</p>
+                    ) : (() => {
+                      const total = (analytics.budgetDist as any[]).reduce((s: number, r: any) => s + r.count, 0);
+                      return (
+                        <div className="space-y-2">
+                          {(analytics.budgetDist as any[]).map((r: any) => {
+                            const pct = total > 0 ? Math.round((r.count / total) * 100) : 0;
+                            return (
+                              <div key={r._id}>
+                                <div className="flex justify-between text-xs mb-0.5">
+                                  <span className="font-medium text-brand-text">{r._id}</span>
+                                  <span className="text-brand-muted">{r.count} ({pct}%)</span>
+                                </div>
+                                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                  <div className="h-full bg-purple-400 rounded-full" style={{ width: `${pct}%` }} />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Daily Leads (30 days sparkline) */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Daily Leads — Last 30 Days" icon="📈" />
+                    {(analytics.dailyLeads || []).length === 0 ? (
+                      <p className="text-brand-muted text-xs">No data for last 30 days.</p>
+                    ) : (() => {
+                      const maxCount = Math.max(...(analytics.dailyLeads as any[]).map((r: any) => r.count), 1);
+                      return (
+                        <div className="space-y-1">
+                          <div className="flex items-end gap-0.5 h-16">
+                            {(analytics.dailyLeads as any[]).map((r: any) => (
+                              <div key={r._id} className="flex-1 bg-brand-accent rounded-t" style={{ height: `${Math.round((r.count / maxCount) * 100)}%`, minHeight: '2px' }} title={`${r._id}: ${r.count}`} />
+                            ))}
+                          </div>
+                          <div className="flex justify-between text-xs text-brand-muted">
+                            <span>{(analytics.dailyLeads as any[])[0]?._id?.slice(5)}</span>
+                            <span>{(analytics.dailyLeads as any[])[(analytics.dailyLeads as any[]).length - 1]?._id?.slice(5)}</span>
+                          </div>
+                          <p className="text-xs text-brand-muted text-center">
+                            Total: {(analytics.dailyLeads as any[]).reduce((s: number, r: any) => s + r.count, 0)} leads in last 30 days
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Most Viewed Pages */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Most Viewed Pages" icon="👁️" />
+                    {(analytics.pagesViewed || []).length === 0 ? (
+                      <p className="text-brand-muted text-xs">No page view data yet.</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {(analytics.pagesViewed as any[]).map((r: any, i: number) => (
+                          <div key={r._id} className="flex items-center gap-2 text-xs">
+                            <span className="text-brand-muted w-4 text-right">{i + 1}.</span>
+                            <span className="flex-1 font-mono text-brand-text truncate text-xs">{r._id || '/'}</span>
+                            <span className="text-brand-muted font-semibold">{r.views}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Most Viewed Projects */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Most Viewed Projects" icon="🏗️" />
+                    {(analytics.projectsViewed || []).length === 0 ? (
+                      <p className="text-brand-muted text-xs">No project view data yet.</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {(analytics.projectsViewed as any[]).map((r: any, i: number) => (
+                          <div key={r._id} className="flex items-center gap-2 text-xs">
+                            <span className="text-brand-muted w-4 text-right">{i + 1}.</span>
+                            <span className="flex-1 text-brand-text truncate">{r._id}</span>
+                            <span className="text-brand-muted font-semibold">{r.views} views</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* GSC Top Queries — shown if GSC is connected */}
+                {siteSettings?.googleSearchConsole?.connected && (
+                  <GscDataPanel token={token!} authH={authH} API={API} />
+                )}
+
+                <div className="flex justify-end">
+                  <button onClick={() => { setAnalytics(null); fetchAnalytics(); }} className="btn-outline text-sm">
+                    🔄 Refresh Analytics
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -1932,5 +2233,71 @@ function BackToTop() {
     >
       ↑
     </button>
+  );
+}
+
+function GscDataPanel({ authH, API }: { token?: string; authH: () => Record<string, string>; API: string }) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const fetchGsc = async () => {
+    setLoading(true); setError('');
+    try {
+      const r = await fetch(`${API}/admin/gsc/data`, { headers: authH() });
+      const d = await r.json();
+      if (d.success) setData(d.data);
+      else setError(d.message || 'Failed to fetch GSC data');
+    } catch { setError('Network error'); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchGsc(); }, []);
+
+  if (loading) return <div className="bg-white rounded-2xl border border-gray-200 p-5 text-center text-sm text-brand-muted">Loading GSC data...</div>;
+  if (error) return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-5">
+      <p className="text-red-600 text-sm">{error}</p>
+      <button onClick={fetchGsc} className="btn-outline text-xs mt-2">Retry</button>
+    </div>
+  );
+  if (!data) return null;
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 border-b border-gray-100 pb-3 mb-1 w-full">
+          <span className="text-lg">🔍</span>
+          <h3 className="font-display font-semibold text-brand-text text-sm uppercase tracking-wide flex-1">Google Search Console — Top Queries</h3>
+          <span className="text-xs text-brand-muted">{data.dateRange?.startDate} → {data.dateRange?.endDate}</span>
+        </div>
+      </div>
+      {(data.queries || []).length === 0 ? (
+        <p className="text-brand-muted text-xs">No query data available.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead><tr className="text-brand-muted uppercase tracking-wide text-left border-b border-gray-100">
+              <th className="py-2 pr-4">Query</th>
+              <th className="py-2 pr-3 text-right">Clicks</th>
+              <th className="py-2 pr-3 text-right">Impressions</th>
+              <th className="py-2 pr-3 text-right">CTR</th>
+              <th className="py-2 text-right">Position</th>
+            </tr></thead>
+            <tbody>
+              {(data.queries as any[]).map((r: any, i: number) => (
+                <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
+                  <td className="py-2 pr-4 text-brand-text font-medium">{r.keys?.[0] || '—'}</td>
+                  <td className="py-2 pr-3 text-right text-green-700 font-semibold">{r.clicks ?? 0}</td>
+                  <td className="py-2 pr-3 text-right text-brand-muted">{r.impressions ?? 0}</td>
+                  <td className="py-2 pr-3 text-right text-blue-600">{r.ctr != null ? `${(r.ctr * 100).toFixed(1)}%` : '—'}</td>
+                  <td className="py-2 text-right text-brand-muted">{r.position != null ? r.position.toFixed(1) : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }

@@ -148,6 +148,13 @@ const SiteSettingsSchema = new mongoose.Schema({
     priceGate: { enabled: { type: Boolean, default: true } },
   },
 
+  // Google Search Console integration
+  googleSearchConsole: {
+    siteUrl: { type: String, default: '' },
+    serviceAccountJson: { type: String, default: '' }, // JSON as string (sensitive — service account credentials)
+    connected: { type: Boolean, default: false },
+  },
+
   // Hero section — fully admin-configurable
   heroTagline: { type: String, default: "Gurgaon's #1 Real Estate Advisory" },
   heroTitle: { type: String, default: 'New Projects in Gurgaon 2025' },

@@ -593,4 +593,223 @@ router.get('/reports/project', async (req, res) => {
   }
 });
 
+// ─── Analytics ───────────────────────────────────────────────────────────────
+router.get('/analytics', async (req, res) => {
+  try {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    const [
+      utmSources,
+      topProjects,
+      topLocations,
+      budgetDist,
+      deviceBreakdown,
+      dailyLeads,
+      pagesViewed,
+      projectsViewed,
+      totalLeads,
+      verifiedLeads,
+    ] = await Promise.all([
+      // Lead sources by UTM
+      Lead.aggregate([
+        { $group: { _id: '$utmSource', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 },
+      ]),
+      // Top projects by interest
+      Lead.aggregate([
+        { $match: { interestedProject: { $exists: true, $ne: null, $ne: '' } } },
+        { $group: { _id: '$interestedProject', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 },
+      ]),
+      // Top locations
+      Lead.aggregate([
+        { $match: { preferredLocation: { $exists: true, $ne: null, $ne: '' } } },
+        { $group: { _id: '$preferredLocation', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 },
+      ]),
+      // Budget distribution
+      Lead.aggregate([
+        { $match: { budget: { $exists: true, $ne: null, $ne: '' } } },
+        { $group: { _id: '$budget', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+      ]),
+      // Device breakdown
+      Lead.aggregate([
+        { $group: { _id: '$deviceType', count: { $sum: 1 } } },
+      ]),
+      // Daily leads for last 30 days
+      Lead.aggregate([
+        { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+      // Most viewed pages (unwind pagesViewed array)
+      Lead.aggregate([
+        { $unwind: '$pagesViewed' },
+        { $group: { _id: '$pagesViewed', views: { $sum: 1 } } },
+        { $sort: { views: -1 } },
+        { $limit: 10 },
+      ]),
+      // Most viewed projects (unwind projectsViewed array)
+      Lead.aggregate([
+        { $unwind: '$projectsViewed' },
+        { $group: { _id: '$projectsViewed', views: { $sum: 1 } } },
+        { $sort: { views: -1 } },
+        { $limit: 10 },
+      ]),
+      // Total leads with any score (proxy for visitors who engaged)
+      Lead.countDocuments({ score: { $gt: 0 } }),
+      // Verified leads
+      Lead.countDocuments({ isVerified: true }),
+    ]);
+
+    const totalCount = await Lead.countDocuments();
+
+    res.json({
+      success: true,
+      data: {
+        utmSources,
+        topProjects,
+        topLocations,
+        budgetDist,
+        deviceBreakdown,
+        dailyLeads,
+        pagesViewed,
+        projectsViewed,
+        conversionRate: {
+          totalEngaged: totalLeads,
+          verified: verifiedLeads,
+          total: totalCount,
+          rate: totalLeads > 0 ? ((verifiedLeads / totalLeads) * 100).toFixed(1) : '0',
+        },
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ─── Google Search Console ────────────────────────────────────────────────────
+router.post('/gsc/verify', authorize('admin'), async (req, res) => {
+  try {
+    const { siteUrl, serviceAccountJson } = req.body;
+    if (!siteUrl || !serviceAccountJson) {
+      return res.status(400).json({ success: false, message: 'siteUrl and serviceAccountJson are required' });
+    }
+
+    let serviceAccount;
+    try {
+      serviceAccount = JSON.parse(serviceAccountJson);
+    } catch {
+      return res.status(400).json({ success: false, message: 'Invalid JSON in serviceAccountJson' });
+    }
+
+    let google;
+    try {
+      ({ google } = require('googleapis'));
+    } catch {
+      return res.status(500).json({ success: false, message: 'googleapis package not installed. Run: npm install googleapis in backend.' });
+    }
+
+    const auth = new google.auth.GoogleAuth({
+      credentials: serviceAccount,
+      scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
+    });
+
+    const searchconsole = google.searchconsole({ version: 'v1', auth });
+    // List sites to verify connection
+    const sitesResp = await searchconsole.sites.list();
+    const sites = sitesResp.data.siteEntry || [];
+    const found = sites.find((s) => s.siteUrl === siteUrl || s.siteUrl === siteUrl + '/');
+
+    if (!found) {
+      return res.status(400).json({
+        success: false,
+        message: `Site "${siteUrl}" not found in GSC. Make sure the service account has access to this property.`,
+        availableSites: sites.map((s) => s.siteUrl),
+      });
+    }
+
+    // Save to SiteSettings
+    await SiteSettings.findOneAndUpdate(
+      {},
+      { $set: { 'googleSearchConsole.siteUrl': siteUrl, 'googleSearchConsole.serviceAccountJson': serviceAccountJson, 'googleSearchConsole.connected': true } },
+      { upsert: true }
+    );
+
+    res.json({ success: true, message: 'GSC connected successfully!', siteUrl: found.siteUrl });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.response?.data?.error?.message || err.message });
+  }
+});
+
+router.get('/gsc/data', authorize('admin'), async (req, res) => {
+  try {
+    const settings = await SiteSettings.findOne({}).lean();
+    if (!settings?.googleSearchConsole?.connected || !settings?.googleSearchConsole?.serviceAccountJson) {
+      return res.status(400).json({ success: false, message: 'GSC not connected. Configure in Settings tab first.' });
+    }
+
+    let google;
+    try {
+      ({ google } = require('googleapis'));
+    } catch {
+      return res.status(500).json({ success: false, message: 'googleapis package not installed. Run: npm install googleapis in backend.' });
+    }
+
+    let serviceAccount;
+    try {
+      serviceAccount = JSON.parse(settings.googleSearchConsole.serviceAccountJson);
+    } catch {
+      return res.status(500).json({ success: false, message: 'Stored GSC credentials are invalid JSON.' });
+    }
+
+    const auth = new google.auth.GoogleAuth({
+      credentials: serviceAccount,
+      scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
+    });
+
+    const searchconsole = google.searchconsole({ version: 'v1', auth });
+    const siteUrl = settings.googleSearchConsole.siteUrl;
+
+    const endDate = new Date().toISOString().split('T')[0];
+    const startDate = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    const [queriesResp, pagesResp, countriesResp] = await Promise.all([
+      searchconsole.searchanalytics.query({
+        siteUrl,
+        requestBody: { startDate, endDate, dimensions: ['query'], rowLimit: 10 },
+      }),
+      searchconsole.searchanalytics.query({
+        siteUrl,
+        requestBody: { startDate, endDate, dimensions: ['page'], rowLimit: 10 },
+      }),
+      searchconsole.searchanalytics.query({
+        siteUrl,
+        requestBody: { startDate, endDate, dimensions: ['country'], rowLimit: 10 },
+      }),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        queries: queriesResp.data.rows || [],
+        pages: pagesResp.data.rows || [],
+        countries: countriesResp.data.rows || [],
+        dateRange: { startDate, endDate },
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.response?.data?.error?.message || err.message });
+  }
+});
+
 module.exports = router;

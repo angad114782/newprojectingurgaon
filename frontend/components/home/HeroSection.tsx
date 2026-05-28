@@ -3,7 +3,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTracking } from '@/components/lead/TrackingProvider';
-import OTPModal from '@/components/lead/OTPModal';
 
 interface HeroProps {
   siteName?: string;
@@ -42,8 +41,7 @@ export default function HeroSection({
   stats = {},
   locations = [],
 }: HeroProps) {
-  const { trackCTA } = useTracking();
-  const [otpModal, setOtpModal] = useState(false);
+  const { trackCTA, openLeadModal } = useTracking();
   const [search, setSearch] = useState({ location: '', type: '', budget: '' });
 
   const wa = (whatsapp || '919999999999').replace(/[^+\d]/g, '');
@@ -171,7 +169,7 @@ export default function HeroSection({
           {/* CTAs — from admin heroCTAPrimary, heroCTASecondary, whatsapp */}
           <div className="flex flex-wrap gap-3 mb-10">
             <button
-              onClick={() => { trackCTA('site_visit_request'); setOtpModal(true); }}
+              onClick={() => { trackCTA('site_visit_request'); openLeadModal({ ctaType: 'site_visit_request' }); }}
               className="btn-primary text-sm flex items-center gap-2"
             >
               {heroCTAPrimary}
@@ -224,7 +222,7 @@ export default function HeroSection({
               <button
                 onClick={() => {
                   const el = document.getElementById('hero-mobile') as HTMLInputElement;
-                  if (el?.value.length === 10) { trackCTA('whatsapp_click'); setOtpModal(true); }
+                  if (el?.value.length === 10) { trackCTA('whatsapp_click'); openLeadModal({ ctaType: 'whatsapp_click', prefillData: { mobile: el.value } }); }
                 }}
                 className="btn-primary w-full text-sm"
               >
@@ -243,7 +241,6 @@ export default function HeroSection({
         </div>
       </div>
 
-      {otpModal && <OTPModal onClose={() => setOtpModal(false)} onSuccess={() => setOtpModal(false)} ctaType="site_visit_request" />}
     </section>
   );
 }
