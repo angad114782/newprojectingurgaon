@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import LeadForm from '@/components/home/LeadForm';
+import LeadCTA from '@/components/lead/LeadCTA';
 
 export const metadata: Metadata = {
   title: 'Residential Property in Gurgaon 2025 | 2/3 BHK Apartments, Luxury Homes',
@@ -53,7 +54,7 @@ export default function ResidentialPropertyPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               <a href="#types" className="btn-primary">Explore Property Types</a>
-              <button type="button" onClick={() => document.dispatchEvent(new CustomEvent("open-lead-modal", { detail: { ctaType: "site_visit_request" } }))} className="btn-white">Find Best Residential Property</button>
+              <LeadCTA ctaType="site_visit_request" className="btn-white">Find Best Residential Property</LeadCTA>
             </div>
           </div>
         </div>

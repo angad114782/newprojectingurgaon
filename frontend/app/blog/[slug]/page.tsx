@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import LeadCTA from '@/components/lead/LeadCTA';
 
 const BLOGS: Record<string, any> = {
   'best-sectors-to-invest-in-gurgaon': {
@@ -167,7 +168,7 @@ export default function BlogPostPage({ params }: Props) {
           <div className="mt-12 bg-brand-dark rounded-2xl p-6 text-white">
             <h3 className="font-display font-bold text-lg mb-2">Need Help Finding the Right Property?</h3>
             <p className="text-white/70 text-sm mb-4">Our advisors will match you with verified projects based on your budget, location preference and investment goals.</p>
-            <button type="button" onClick={() => document.dispatchEvent(new CustomEvent("open-lead-modal", { detail: { ctaType: "site_visit_request" } }))} className="btn-primary">Get Free Advisory →</button>
+            <LeadCTA ctaType="site_visit_request" className="btn-primary">Get Free Advisory →</LeadCTA>
           </div>
 
           <div className="mt-10">

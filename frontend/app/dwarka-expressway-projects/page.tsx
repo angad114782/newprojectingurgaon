@@ -4,6 +4,7 @@ import Image from 'next/image';
 import LeadForm from '@/components/home/LeadForm';
 import { fetchProjectsWithFallback } from '@/lib/api-projects';
 import { InternalLinksBlock } from '@/components/home/HomeSections';
+import LeadCTA from '@/components/lead/LeadCTA';
 
 const DEFAULT_IMG = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80';
 
@@ -76,7 +77,7 @@ export default async function DwarkaExpresswayPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               <a href="#projects" className="btn-primary">View Projects</a>
-              <button type="button" onClick={() => document.dispatchEvent(new CustomEvent("open-lead-modal", { detail: { ctaType: "site_visit_request" } }))} className="btn-white">Get Expert Advice</button>
+              <LeadCTA ctaType="site_visit_request" className="btn-white">Get Expert Advice</LeadCTA>
             </div>
           </div>
         </div>

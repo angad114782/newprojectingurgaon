@@ -4,6 +4,7 @@ import Link from 'next/link';
 import LeadForm from '@/components/home/LeadForm';
 import { fetchApiProjects } from '@/lib/api-projects';
 import { fetchSettings } from '@/lib/settings';
+import LeadCTA from '@/components/lead/LeadCTA';
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = headers();
@@ -90,7 +91,7 @@ export default async function NewLaunchPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               <a href="#projects" className="btn-primary">View New Launch Projects</a>
-              <button type="button" onClick={() => document.dispatchEvent(new CustomEvent("open-lead-modal", { detail: { ctaType: "price_list" } }))} className="btn-white">Get Latest Price List</button>
+              <LeadCTA ctaType="price_list" className="btn-white">Get Latest Price List</LeadCTA>
             </div>
           </div>
         </div>
