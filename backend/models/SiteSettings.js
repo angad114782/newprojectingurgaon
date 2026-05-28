@@ -150,8 +150,9 @@ const SiteSettingsSchema = new mongoose.Schema({
 
   // Google Search Console integration
   googleSearchConsole: {
+    verificationCode: { type: String, default: '' }, // meta tag content= value for domain verification
     siteUrl: { type: String, default: '' },
-    serviceAccountJson: { type: String, default: '' }, // JSON as string (sensitive — service account credentials)
+    serviceAccountJson: { type: String, default: '' }, // JSON as string (sensitive)
     connected: { type: Boolean, default: false },
   },
 

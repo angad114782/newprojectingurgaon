@@ -2254,85 +2254,146 @@ export default function AdminPage() {
       )}
 
       {/* ── GSC TAB ── */}
-      {activeTab === 'gsc' && (
-        <div className="max-w-3xl mx-auto space-y-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-700">
-            <strong>Google Search Console</strong> connect karo — website ke search queries, impressions aur rankings dekho directly admin mein.
-          </div>
+      {activeTab === 'gsc' && siteSettings && (() => {
+        const gsc = (siteSettings as any).googleSearchConsole || {};
+        const setGsc = (patch: any) => setSiteSettings({ ...siteSettings, googleSearchConsole: { ...gsc, ...patch } } as any);
+        const phase1Done = !!gsc.verificationCode;
+        const phase2Done = !!(gsc.siteUrl && gsc.serviceAccountJson);
 
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
-            <SectionHeader title="Step 1 — Google Search Console mein Website Add Karo" icon="1️⃣" />
-            <div className="space-y-3 text-sm text-brand-muted">
-              <p>1. <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="text-brand-accent underline">search.google.com/search-console</a> pe jaao</p>
-              <p>2. <strong className="text-brand-text">Add Property</strong> → URL prefix → <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">https://newprojectsingurgaon.com</code> enter karo</p>
-              <p>3. Verification ke liye <strong className="text-brand-text">HTML Tag</strong> method choose karo → meta tag copy karo</p>
-              <p>4. Woh meta tag website ke <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">&lt;head&gt;</code> mein add karo (neeche field mein paste karo, hum auto-add kar denge)</p>
+        return (
+          <div className="max-w-3xl mx-auto space-y-5">
+
+            {/* Overview banner */}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-800">
+              <p className="font-semibold mb-1">Google Search Console — 2 step process:</p>
+              <div className="flex gap-6 text-xs">
+                <span className={phase1Done ? 'text-green-700 font-semibold' : ''}>
+                  {phase1Done ? '✅' : '⏳'} Phase 1: Domain verify karo
+                </span>
+                <span className={phase2Done ? 'text-green-700 font-semibold' : 'text-gray-400'}>
+                  {phase2Done ? '✅' : '🔒'} Phase 2: API connect karo (phase 1 ke baad)
+                </span>
+              </div>
             </div>
-            {siteSettings && (
+
+            {/* ─── PHASE 1 ─── */}
+            <div className="bg-white rounded-2xl border-2 border-blue-200 p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                <div>
+                  <h3 className="font-semibold text-brand-text">Domain Verify Karo</h3>
+                  <p className="text-xs text-brand-muted">GSC verification code website ke head mein auto-add hoga</p>
+                </div>
+                {phase1Done && <span className="ml-auto text-green-600 text-sm font-semibold">✅ Code saved</span>}
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm text-brand-muted">
+                <p>a. <a href="https://search.google.com/search-console/welcome" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-medium">search.google.com/search-console</a> pe jaao</p>
+                <p>b. <strong className="text-brand-text">Add Property</strong> → URL prefix → <code className="bg-white border px-1.5 py-0.5 rounded text-xs">https://newprojectsingurgaon.com</code></p>
+                <p>c. Verification method: <strong className="text-brand-text">HTML Tag</strong> choose karo</p>
+                <p>d. Meta tag milega aise: <code className="bg-white border px-1.5 py-0.5 rounded text-xs">&lt;meta name="google-site-verification" content="<strong>XXXX</strong>"&gt;</code></p>
+                <p>e. Sirf <strong className="text-brand-text">content= wali value</strong> copy karo aur neeche paste karo</p>
+              </div>
+
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">GSC Verification Meta Tag Content (only the content= value)</label>
-                <input className="input-field font-mono text-sm" placeholder="aBcDeFgHiJkLmNoPqRsTuVwXyZ123456789" />
-                <p className="text-xs text-brand-muted mt-1">Example: <code>&lt;meta name="google-site-verification" content="<strong>PASTE_THIS_PART</strong>" /&gt;</code></p>
+                <label className="block text-xs font-semibold text-brand-text mb-1">
+                  Verification Code (content= value only)
+                </label>
+                <input className="input-field font-mono text-sm" placeholder="QhE_Qi0mWkHs8hZaQuqSd7quscJ4mPPnWPf-4NNW0kc"
+                  value={gsc.verificationCode || ''}
+                  onChange={(e) => setGsc({ verificationCode: e.target.value.trim() })} />
+                {gsc.verificationCode && (
+                  <p className="text-xs text-brand-muted mt-1">
+                    Website head mein yeh add hoga: <code className="bg-gray-100 px-1">&lt;meta name="google-site-verification" content="{gsc.verificationCode}"&gt;</code>
+                  </p>
+                )}
+              </div>
+
+              <button onClick={saveSiteSettings} disabled={settingsSaving || !gsc.verificationCode}
+                className="btn-primary text-sm disabled:opacity-50">
+                {settingsSaving ? '⏳ Saving...' : '✓ Save & Add to Website Head'}
+              </button>
+
+              {phase1Done && (
+                <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-700 space-y-2">
+                  <p className="font-semibold">✅ Code website mein add ho gaya!</p>
+                  <p className="text-xs">Ab GSC dashboard mein jaao → <strong>Verify</strong> button click karo. Verification hone ke baad Phase 2 complete karo.</p>
+                  <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer"
+                    className="inline-block bg-green-600 text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-green-700 transition-colors">
+                    GSC Dashboard Mein Verify Karo →
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* ─── PHASE 2 ─── */}
+            <div className={`bg-white rounded-2xl border-2 p-6 space-y-4 ${phase1Done ? 'border-brand-border' : 'border-gray-100 opacity-60'}`}>
+              <div className="flex items-center gap-3">
+                <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${phase1Done ? 'bg-brand-dark text-white' : 'bg-gray-200 text-gray-400'}`}>2</span>
+                <div>
+                  <h3 className="font-semibold text-brand-text">API Access — Data Admin Mein Dekho</h3>
+                  <p className="text-xs text-brand-muted">{phase1Done ? 'Domain verify hone ke baad yeh step karo' : '⚠️ Phase 1 complete karo pehle'}</p>
+                </div>
+                {phase2Done && <span className="ml-auto text-green-600 text-sm font-semibold">✅ Connected</span>}
+              </div>
+
+              {phase1Done && (
+                <>
+                  <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm text-brand-muted">
+                    <p>a. <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-medium">console.cloud.google.com</a> → New Project banao</p>
+                    <p>b. <strong className="text-brand-text">APIs & Services → Enable APIs → Search Console API</strong> enable karo</p>
+                    <p>c. <strong className="text-brand-text">Credentials → Service Account</strong> banao → email note karo (xxx@project.iam.gserviceaccount.com)</p>
+                    <p>d. GSC → Settings → Users & Permissions → <strong className="text-brand-text">Add User</strong> → service account email → <strong>Read</strong> permission</p>
+                    <p>e. Cloud Console → Service Account → <strong className="text-brand-text">Keys → Add Key → JSON</strong> download karo</p>
+                    <p>f. JSON neeche paste karo:</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-brand-text mb-1">GSC Property URL</label>
+                      <input className="input-field text-sm" placeholder="https://newprojectsingurgaon.com"
+                        value={gsc.siteUrl || ''}
+                        onChange={(e) => setGsc({ siteUrl: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-brand-text mb-1">Service Account JSON</label>
+                      <textarea rows={5} className="input-field text-xs font-mono resize-none"
+                        placeholder='{"type":"service_account","project_id":"my-project","private_key_id":"abc","private_key":"-----BEGIN RSA PRIVATE KEY-----\n...","client_email":"gsc@my-project.iam.gserviceaccount.com",...}'
+                        value={gsc.serviceAccountJson || ''}
+                        onChange={(e) => setGsc({ serviceAccountJson: e.target.value })} />
+                      <p className="text-xs text-orange-600 mt-1">⚠️ Sensitive credentials — securely encrypted hoga. Kisi se share mat karo.</p>
+                    </div>
+                    <button onClick={saveSiteSettings} disabled={settingsSaving || !gsc.siteUrl || !gsc.serviceAccountJson}
+                      className="btn-primary text-sm disabled:opacity-50">
+                      {settingsSaving ? '⏳ Saving...' : '✓ Save & Connect GSC API'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* ─── PHASE 3 ─── */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-3">
+              <SectionHeader title="Sitemap Submit Karo (once verified)" icon="🗺️" />
+              <div className="bg-gray-50 rounded-xl p-3 font-mono text-xs text-brand-muted">
+                newprojectsingurgaon.com/sitemap.xml
+              </div>
+              <p className="text-xs text-brand-muted">GSC Dashboard → Sitemaps → Submit. Google 2-3 din mein index karna start karta hai.</p>
+              <div className="flex gap-3">
+                <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="btn-primary text-sm">Open GSC →</a>
+                <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="btn-outline text-sm">View Sitemap</a>
+              </div>
+            </div>
+
+            {phase2Done && (
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-700">
+                🎉 GSC fully connected! Analytics tab mein jaao → Search Console data dekhenge.
+                <button onClick={() => setActiveTab('analytics')} className="ml-3 underline font-semibold">Go to Analytics →</button>
               </div>
             )}
           </div>
-
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
-            <SectionHeader title="Step 2 — Service Account Connect Karo (GSC API Access)" icon="2️⃣" />
-            <div className="space-y-3 text-sm text-brand-muted">
-              <p>1. <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="text-brand-accent underline">console.cloud.google.com</a> pe jaao</p>
-              <p>2. New Project banao → <strong className="text-brand-text">APIs & Services → Enable APIs</strong> → <em>Google Search Console API</em> enable karo</p>
-              <p>3. <strong className="text-brand-text">Credentials → Create Credentials → Service Account</strong> banao</p>
-              <p>4. Service account ko GSC mein <strong className="text-brand-text">Settings → Users → Add User</strong> se add karo (Read permission)</p>
-              <p>5. Service Account → Keys → Add Key → JSON → download karo</p>
-              <p>6. Neeche JSON paste karo:</p>
-            </div>
-            {siteSettings && (
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-medium text-brand-muted mb-1">GSC Property URL</label>
-                  <input className="input-field text-sm" placeholder="https://newprojectsingurgaon.com"
-                    value={(siteSettings as any).googleSearchConsole?.siteUrl || ''}
-                    onChange={(e) => setSiteSettings({ ...siteSettings, googleSearchConsole: { ...(siteSettings as any).googleSearchConsole, siteUrl: e.target.value } } as any)} />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-brand-muted mb-1">Service Account JSON</label>
-                  <textarea rows={6} className="input-field text-xs font-mono resize-none" placeholder='{"type":"service_account","project_id":"...","private_key":"..."}'
-                    value={(siteSettings as any).googleSearchConsole?.serviceAccountJson || ''}
-                    onChange={(e) => setSiteSettings({ ...siteSettings, googleSearchConsole: { ...(siteSettings as any).googleSearchConsole, serviceAccountJson: e.target.value } } as any)} />
-                  <p className="text-xs text-red-600 mt-1">⚠️ Sensitive — JSON yahan paste karo, securely stored hoga</p>
-                </div>
-                <button onClick={saveSiteSettings} disabled={settingsSaving} className="btn-primary text-sm">
-                  {settingsSaving ? '⏳ Saving...' : '✓ Save GSC Settings'}
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <SectionHeader title="Step 3 — Sitemap Submit Karo" icon="3️⃣" />
-            <div className="space-y-3 text-sm text-brand-muted">
-              <p>GSC Dashboard → Sitemaps → Submit:</p>
-              <div className="bg-gray-50 rounded-xl p-3 font-mono text-xs space-y-1">
-                <p>newprojectsingurgaon.com/sitemap.xml</p>
-              </div>
-              <p>Sitemap automatically generate hota hai Next.js se. Submit karne ke baad Google 2-3 din mein index karna start karta hai.</p>
-            </div>
-            <div className="mt-4 flex gap-3">
-              <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="btn-primary text-sm">Open GSC Dashboard →</a>
-              <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="btn-outline text-sm">View Sitemap</a>
-            </div>
-          </div>
-
-          {/* Analytics Tab redirect */}
-          {(siteSettings as any)?.googleSearchConsole?.siteUrl && (siteSettings as any)?.googleSearchConsole?.serviceAccountJson && (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-700">
-              ✅ GSC configured! Analytics tab mein jaao → GSC data dikhega.
-              <button onClick={() => setActiveTab('analytics')} className="ml-3 underline font-semibold">Go to Analytics →</button>
-            </div>
-          )}
-        </div>
-      )}
+        );
+      })()}
 
       {/* ── BRANDING TAB ── */}
       {activeTab === 'branding' && siteSettings && (

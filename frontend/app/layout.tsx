@@ -68,6 +68,10 @@ export async function generateMetadata(): Promise<Metadata> {
       'rating': 'general',
       'revisit-after': '3 days',
       'language': 'English',
+      // GSC verification — auto-added from admin settings
+      ...((settings as any).googleSearchConsole?.verificationCode
+        ? { 'google-site-verification': (settings as any).googleSearchConsole.verificationCode }
+        : {}),
     },
   };
 }
