@@ -140,16 +140,20 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroImageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85',
 };
 
-// Server-side fetch with Next.js cache (5 min revalidate)
+// Server-side fetch — 30s revalidate so admin changes reflect quickly
 export async function fetchSettings(): Promise<SiteSettings> {
   try {
     const res = await fetch(`${API}/settings`, {
-      next: { revalidate: 300 },
+      next: { revalidate: 30 },
     });
     if (!res.ok) return DEFAULT_SETTINGS;
     const data = await res.json();
     if (data?.success && data.data) {
-      return { ...DEFAULT_SETTINGS, ...data.data };
+      // Strip undefined so DEFAULT_SETTINGS values are preserved for missing fields
+      const clean = Object.fromEntries(
+        Object.entries(data.data).filter(([, v]) => v !== undefined && v !== null)
+      );
+      return { ...DEFAULT_SETTINGS, ...clean } as SiteSettings;
     }
     return DEFAULT_SETTINGS;
   } catch {

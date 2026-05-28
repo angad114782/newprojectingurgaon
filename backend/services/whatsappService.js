@@ -94,31 +94,36 @@ const sendWACloudTemplate = async (cfg, toNumber, templateName, languageCode, co
 };
 
 // ─── Send Thank You WhatsApp to USER after OTP verification ──────────────────
-// Template: thank_you_enquiry
-// Variables: {{1}}=name  {{2}}=project  {{3}}=phone
+// Primary: thank_you_enquiry template (needs Meta approval)
+// Fallback: plain text message (works within 24-hr service window after OTP)
 const sendUserThankYouWhatsApp = async (lead) => {
   if (!lead.mobile || !lead.whatsappConsent) return;
 
   const cfg = await getWaSettings();
-  const name = (lead.name || 'there').split(' ')[0];
+  const firstName = (lead.name || 'there').split(' ')[0];
   const project = lead.interestedProject || 'New Projects in Gurgaon';
 
+  // Plain text fallback message (used if template not approved yet)
+  const textMessage =
+    `Hi ${firstName}! 🎉\n\n` +
+    `Thank you for your enquiry about *${project}*.\n\n` +
+    `✅ Your request has been received.\n` +
+    `📞 Our advisor will call you within *2 hours*.\n\n` +
+    `To speak now, call: ${cfg.sitePhone}\n\n` +
+    `_RERA Verified | Zero Brokerage | Free Site Visit_`;
+
   if (!cfg.configured) {
-    // Dev mode: print what would be sent
-    console.log(
-      `📱 [WA Thank You MOCK] To: +91${lead.mobile}\n` +
-      `Template: ${cfg.thankYouTemplateName}\n` +
-      `Params: {{1}}=${name}, {{2}}=${project}, {{3}}=${cfg.sitePhone}`
-    );
+    console.log(`📱 [WA Thank You MOCK] To: +91${lead.mobile}\n${textMessage}`);
     return;
   }
 
+  // Try approved template first, fall back to text message
   try {
     const components = [
       {
         type: 'body',
         parameters: [
-          { type: 'text', text: name },
+          { type: 'text', text: firstName },
           { type: 'text', text: project },
           { type: 'text', text: cfg.sitePhone },
         ],
@@ -126,8 +131,14 @@ const sendUserThankYouWhatsApp = async (lead) => {
     ];
     await sendWACloudTemplate(cfg, lead.mobile, cfg.thankYouTemplateName, cfg.templateLanguage, components);
     console.log(`[WhatsApp] Thank you template sent to ${lead.mobile}`);
-  } catch (err) {
-    console.error('[WhatsApp] Thank you send failed:', err.response?.data || err.message);
+  } catch (templateErr) {
+    console.warn(`[WhatsApp] Template "${cfg.thankYouTemplateName}" not approved yet — sending text fallback`);
+    try {
+      await sendWACloudMessage(cfg, lead.mobile, textMessage);
+      console.log(`[WhatsApp] Thank you text message sent to ${lead.mobile}`);
+    } catch (textErr) {
+      console.error('[WhatsApp] Thank you fallback also failed:', textErr.response?.data || textErr.message);
+    }
   }
 };
 
