@@ -62,6 +62,20 @@ export interface SiteSettings {
   };
   faqs: Array<{ _id?: string; q: string; a: string }>;
   heroImages: string[];
+  reraNumber: string;
+  reraLink: string;
+  conversion: {
+    urgencyBanner: { enabled: boolean; message: string; linkText: string; linkHref: string };
+    liveActivity: { enabled: boolean; firstDelay: number; interval: number; duration: number; cities: string[]; names: string[]; actions: string[] };
+    viewingCount: { enabled: boolean; minCount: number; maxCount: number };
+    scarcityBadge: { enabled: boolean; units: number };
+    priceCountdown: { enabled: boolean };
+    exitPopup: { enabled: boolean; title: string; offerText: string; ctaText: string };
+    scrollModal: { enabled: boolean; triggerPercent: number };
+    trustStrip: { enabled: boolean; signals: Array<{ icon: string; text: string }> };
+    roiCalculator: { enabled: boolean };
+    priceGate: { enabled: boolean };
+  };
   heroTagline: string;
   heroTitle: string;
   heroTitleAccent: string;
@@ -72,10 +86,10 @@ export interface SiteSettings {
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
-  siteName: 'GurgaonRealty',
+  siteName: 'New Projects in Gurgaon',
   phone: '+91-9999999999',
   whatsapp: '919999999999',
-  email: 'info@gurgaonrealty.in',
+  email: 'info@newprojectsingurgaon.com',
   address: 'DLF Cyber City, Gurgaon, Haryana 122002',
   streetAddress: 'DLF Cyber City',
   postalCode: '122002',
@@ -103,6 +117,20 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   social: { facebook: '', instagram: '', youtube: '', linkedin: '', twitter: '' },
   faqs: [],
   heroImages: [],
+  reraNumber: '',
+  reraLink: 'https://haryanarera.gov.in',
+  conversion: {
+    urgencyBanner: { enabled: true, message: 'Price hike alert: Dwarka Expressway projects raising prices by 5–8% in June 2026.', linkText: "Lock today's price →", linkHref: '#lead-form' },
+    liveActivity: { enabled: true, firstDelay: 8000, interval: 22000, duration: 4500, cities: ['Delhi', 'Noida', 'Faridabad', 'Mumbai', 'Bangalore', 'Hyderabad', 'Pune', 'Chandigarh'], names: ['Rahul S.', 'Priya K.', 'Amit V.', 'Neha G.', 'Vikram M.', 'Sunita R.', 'Rohit B.', 'Anjali T.'], actions: ['just requested the price list', 'booked a free site visit', 'downloaded the brochure', 'asked about payment plans', 'enquired about floor plans', 'checked unit availability'] },
+    viewingCount: { enabled: true, minCount: 18, maxCount: 55 },
+    scarcityBadge: { enabled: true, units: 4 },
+    priceCountdown: { enabled: true },
+    exitPopup: { enabled: true, title: "Wait! Don't Miss This", offerText: 'Get ₹2 Lakh off on pre-launch booking price — exclusive for today\'s visitors', ctaText: 'Get ₹2 Lakh Off — Send on WhatsApp 💬' },
+    scrollModal: { enabled: true, triggerPercent: 60 },
+    trustStrip: { enabled: true, signals: [{ icon: '🏆', text: '4,200+ Families Helped' }, { icon: '✅', text: 'RERA Verified Projects Only' }, { icon: '🎓', text: 'Certified Property Advisors' }, { icon: '💯', text: 'Zero Brokerage for Buyers' }, { icon: '⚡', text: '2-Hour Response Guarantee' }, { icon: '🔒', text: 'Your Data is Private' }] },
+    roiCalculator: { enabled: true },
+    priceGate: { enabled: true },
+  },
   heroTagline: "Gurgaon's #1 Real Estate Advisory",
   heroTitle: 'New Projects in Gurgaon 2025',
   heroTitleAccent: '',

@@ -90,7 +90,7 @@ export default async function NewLaunchPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               <a href="#projects" className="btn-primary">View New Launch Projects</a>
-              <a href="#lead-form" className="btn-white">Get Latest Price List</a>
+              <button type="button" onClick={() => document.dispatchEvent(new CustomEvent("open-lead-modal", { detail: { ctaType: "price_list" } }))} className="btn-white">Get Latest Price List</button>
             </div>
           </div>
         </div>

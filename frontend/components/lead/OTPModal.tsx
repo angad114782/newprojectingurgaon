@@ -1,10 +1,10 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { XMarkIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { useTracking } from './TrackingProvider';
 import toast from 'react-hot-toast';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
 
 interface OTPModalProps {
   isOpen?: boolean;
@@ -40,6 +40,35 @@ export default function OTPModal({ isOpen, onClose, onSuccess, ctaType, projectN
     whatsappConsent: true,
   });
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Reset form state every time modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setStep('details');
+      setOtp(['', '', '', '', '', '']);
+      setFormData({
+        name: prefillData?.name || '',
+        mobile: prefillData?.mobile || '',
+        email: prefillData?.email || '',
+        budget: '',
+        preferredLocation: '',
+        buyingPurpose: '',
+        timeline: '',
+        interestedProject: prefillData?.interestedProject || projectName || '',
+        whatsappConsent: true,
+      });
+    }
+  }, [isOpen]);
+
+  // ESC key to close
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
 
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;

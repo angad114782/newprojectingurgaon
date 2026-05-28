@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const SiteSettingsSchema = new mongoose.Schema({
-  siteName: { type: String, default: 'GurgaonRealty' },
+  siteName: { type: String, default: 'New Projects in Gurgaon' },
   phone: { type: String, default: '+91-9999999999' },
   whatsapp: { type: String, default: '919999999999' },
-  email: { type: String, default: 'info@gurgaonrealty.in' },
+  email: { type: String, default: 'info@newprojectsingurgaon.com' },
   address: { type: String, default: 'DLF Cyber City, Gurgaon, Haryana 122002' },
   streetAddress: { type: String, default: 'DLF Cyber City' },
   postalCode: { type: String, default: '122002' },
@@ -88,7 +88,64 @@ const SiteSettingsSchema = new mongoose.Schema({
     adminNumber: { type: String, default: '' },
     templateName: { type: String, default: 'lead_notification' },
     otpTemplateName: { type: String, default: 'otp_verification' },
+    thankYouTemplateName: { type: String, default: 'thank_you_enquiry' },
     templateLanguage: { type: String, default: 'en' },
+  },
+
+  // RERA Info (shown in footer)
+  reraNumber: { type: String, default: '' },
+  reraLink: { type: String, default: 'https://haryanarera.gov.in' },
+
+  // Conversion / Psych Triggers — fully admin-configurable
+  conversion: {
+    urgencyBanner: {
+      enabled: { type: Boolean, default: true },
+      message: { type: String, default: 'Price hike alert: Dwarka Expressway projects raising prices by 5–8% in June 2026.' },
+      linkText: { type: String, default: 'Lock today\'s price →' },
+      linkHref: { type: String, default: '#lead-form' },
+    },
+    liveActivity: {
+      enabled: { type: Boolean, default: true },
+      firstDelay: { type: Number, default: 8000 },
+      interval: { type: Number, default: 22000 },
+      duration: { type: Number, default: 4500 },
+      cities: { type: [String], default: ['Delhi', 'Noida', 'Faridabad', 'Mumbai', 'Bangalore', 'Hyderabad', 'Pune', 'Chandigarh'] },
+      names: { type: [String], default: ['Rahul S.', 'Priya K.', 'Amit V.', 'Neha G.', 'Vikram M.', 'Sunita R.', 'Rohit B.', 'Anjali T.'] },
+      actions: { type: [String], default: ['just requested the price list', 'booked a free site visit', 'downloaded the brochure', 'asked about payment plans', 'enquired about floor plans', 'checked unit availability'] },
+    },
+    viewingCount: {
+      enabled: { type: Boolean, default: true },
+      minCount: { type: Number, default: 18 },
+      maxCount: { type: Number, default: 55 },
+    },
+    scarcityBadge: {
+      enabled: { type: Boolean, default: true },
+      units: { type: Number, default: 4 },
+    },
+    priceCountdown: { enabled: { type: Boolean, default: true } },
+    exitPopup: {
+      enabled: { type: Boolean, default: true },
+      title: { type: String, default: "Wait! Don't Miss This" },
+      offerText: { type: String, default: 'Get ₹2 Lakh off on pre-launch booking price — exclusive for today\'s visitors' },
+      ctaText: { type: String, default: 'Get ₹2 Lakh Off — Send on WhatsApp 💬' },
+    },
+    scrollModal: {
+      enabled: { type: Boolean, default: true },
+      triggerPercent: { type: Number, default: 60 },
+    },
+    trustStrip: {
+      enabled: { type: Boolean, default: true },
+      signals: { type: [{ icon: String, text: String }], default: [
+        { icon: '🏆', text: '4,200+ Families Helped' },
+        { icon: '✅', text: 'RERA Verified Projects Only' },
+        { icon: '🎓', text: 'Certified Property Advisors' },
+        { icon: '💯', text: 'Zero Brokerage for Buyers' },
+        { icon: '⚡', text: '2-Hour Response Guarantee' },
+        { icon: '🔒', text: 'Your Data is Private' },
+      ]},
+    },
+    roiCalculator: { enabled: { type: Boolean, default: true } },
+    priceGate: { enabled: { type: Boolean, default: true } },
   },
 
   // Hero section — fully admin-configurable

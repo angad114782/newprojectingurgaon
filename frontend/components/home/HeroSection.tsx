@@ -29,7 +29,7 @@ const TYPES = ['All Types', 'New Launch', 'Pre Launch', 'Under Construction', 'R
 const BUDGETS = ['Any Budget', 'Under ₹50L', '₹50L – ₹1 Cr', '₹1 Cr – ₹2 Cr', '₹2 Cr – ₹5 Cr', '₹5 Cr – ₹10 Cr', '₹10 Cr+'];
 
 export default function HeroSection({
-  siteName = 'GurgaonRealty',
+  siteName = 'New Projects in Gurgaon',
   phone = '+91-9999999999',
   whatsapp = '919999999999',
   heroTagline = "Gurgaon's #1 Real Estate Advisory",

@@ -19,8 +19,9 @@ const getWaSettings = async () => {
         adminNumber: settings.whatsappCloud.adminNumber || '',
         templateName: settings.whatsappCloud.templateName || 'lead_notification',
         otpTemplateName: settings.whatsappCloud.otpTemplateName || 'otp_verification',
+        thankYouTemplateName: settings.whatsappCloud.thankYouTemplateName || 'thank_you_enquiry',
         templateLanguage: settings.whatsappCloud.templateLanguage || 'en',
-        siteName: settings.siteName || 'GurgaonRealty',
+        siteName: settings.siteName || 'New Projects in Gurgaon',
         sitePhone: settings.phone || '+91-9999999999',
         configured: true,
       };
@@ -34,8 +35,9 @@ const getWaSettings = async () => {
       adminNumber: process.env.WA_ADMIN_NUMBER || '',
       templateName: process.env.WA_TEMPLATE_NAME || 'lead_notification',
       otpTemplateName: process.env.WA_OTP_TEMPLATE_NAME || 'otp_verification',
+      thankYouTemplateName: process.env.WA_THANKYOU_TEMPLATE_NAME || 'thank_you_enquiry',
       templateLanguage: 'en',
-      siteName: process.env.SITE_NAME || 'GurgaonRealty',
+      siteName: process.env.SITE_NAME || 'New Projects in Gurgaon',
       sitePhone: process.env.SITE_PHONE || '+91-9999999999',
       configured: !!(process.env.WA_PHONE_NUMBER_ID && process.env.WA_ACCESS_TOKEN),
     };
@@ -91,6 +93,44 @@ const sendWACloudTemplate = async (cfg, toNumber, templateName, languageCode, co
   return resp.data;
 };
 
+// ─── Send Thank You WhatsApp to USER after OTP verification ──────────────────
+// Template: thank_you_enquiry
+// Variables: {{1}}=name  {{2}}=project  {{3}}=phone
+const sendUserThankYouWhatsApp = async (lead) => {
+  if (!lead.mobile || !lead.whatsappConsent) return;
+
+  const cfg = await getWaSettings();
+  const name = (lead.name || 'there').split(' ')[0];
+  const project = lead.interestedProject || 'New Projects in Gurgaon';
+
+  if (!cfg.configured) {
+    // Dev mode: print what would be sent
+    console.log(
+      `📱 [WA Thank You MOCK] To: +91${lead.mobile}\n` +
+      `Template: ${cfg.thankYouTemplateName}\n` +
+      `Params: {{1}}=${name}, {{2}}=${project}, {{3}}=${cfg.sitePhone}`
+    );
+    return;
+  }
+
+  try {
+    const components = [
+      {
+        type: 'body',
+        parameters: [
+          { type: 'text', text: name },
+          { type: 'text', text: project },
+          { type: 'text', text: cfg.sitePhone },
+        ],
+      },
+    ];
+    await sendWACloudTemplate(cfg, lead.mobile, cfg.thankYouTemplateName, cfg.templateLanguage, components);
+    console.log(`[WhatsApp] Thank you template sent to ${lead.mobile}`);
+  } catch (err) {
+    console.error('[WhatsApp] Thank you send failed:', err.response?.data || err.message);
+  }
+};
+
 // ─── Send admin WhatsApp notification when a new lead arrives ─────────────────
 // WhatsApp Cloud API requires an approved template for the FIRST message.
 // Template variables map: {{1}}=name, {{2}}=mobile, {{3}}=project, {{4}}=budget, {{5}}=location
@@ -125,25 +165,25 @@ const sendAdminLeadNotification = async (lead) => {
 // ─── Message Templates (for lead follow-up) ──────────────────────────────────
 const templates = {
   brochureRequested: ({ name, projectName }) =>
-    `Hi ${name || 'there'}! 👋\n\nThanks for your interest in *${projectName}*.\n\nI'm sharing the latest brochure, price range and floor plans. Would you like to compare this with 2 similar projects nearby?\n\nReply *YES* to get a detailed comparison, or *CALL* to speak with our advisor. 😊\n\n_${name ? `— ${name}` : ''} | GurgaonRealty_`,
+    `Hi ${name || 'there'}! 👋\n\nThanks for your interest in *${projectName}*.\n\nI'm sharing the latest brochure, price range and floor plans. Would you like to compare this with 2 similar projects nearby?\n\nReply *YES* to get a detailed comparison, or *CALL* to speak with our advisor. 😊\n\n_${name ? `— ${name}` : ''} | New Projects in Gurgaon_`,
 
   priceListRequested: ({ name, projectName, priceRange }) =>
-    `Hi ${name || 'there'}! 🏡\n\nThe latest price range for *${projectName}*:\n📌 ${priceRange || 'Price on request'}\n\nPrices are subject to availability. Would you like to book a free site visit to get the best deal?\n\nReply *VISIT* to schedule one. ✅\n\n_GurgaonRealty – Transparent Pricing, Zero Brokerage_`,
+    `Hi ${name || 'there'}! 🏡\n\nThe latest price range for *${projectName}*:\n📌 ${priceRange || 'Price on request'}\n\nPrices are subject to availability. Would you like to book a free site visit to get the best deal?\n\nReply *VISIT* to schedule one. ✅\n\n_New Projects in Gurgaon – Transparent Pricing, Zero Brokerage_`,
 
   revisitProject: ({ name, projectName }) =>
-    `Hi ${name || 'there'}! 👋\n\nI noticed you've been looking at *${projectName}* again. Looks like it's caught your attention!\n\nWould you like me to share a detailed comparison with 2 similar options in the same budget range?\n\nReply *COMPARE* and I'll send it right away. 📊\n\n_GurgaonRealty_`,
+    `Hi ${name || 'there'}! 👋\n\nI noticed you've been looking at *${projectName}* again. Looks like it's caught your attention!\n\nWould you like me to share a detailed comparison with 2 similar options in the same budget range?\n\nReply *COMPARE* and I'll send it right away. 📊\n\n_New Projects in Gurgaon_`,
 
   investmentAngle: ({ name, location }) =>
-    `Hi ${name || 'there'}! 📈\n\nFor investment in *${location}*, here's what matters most:\n✅ Entry price vs current market rate\n✅ Expected rental yield: 3–4% p.a.\n✅ Appreciation potential: 15–25% in 3 years\n✅ Possession timeline & builder track record\n\nWant me to send a quick investment comparison for top 3 projects? Reply *INVEST*.\n\n_GurgaonRealty – Smart Property Investment_`,
+    `Hi ${name || 'there'}! 📈\n\nFor investment in *${location}*, here's what matters most:\n✅ Entry price vs current market rate\n✅ Expected rental yield: 3–4% p.a.\n✅ Appreciation potential: 15–25% in 3 years\n✅ Possession timeline & builder track record\n\nWant me to send a quick investment comparison for top 3 projects? Reply *INVEST*.\n\n_New Projects in Gurgaon – Smart Property Investment_`,
 
   selfUseAngle: ({ name, projectName }) =>
-    `Hi ${name || 'there'}! 🏠\n\nFor your home at *${projectName}*, here's what you'll love:\n✅ Spacious floor plans with natural light\n✅ Premium amenities – pool, gym, kids' zone\n✅ Close to schools, hospitals & metro\n✅ 24/7 security & gated community\n\nWant to book a free site visit? Reply *VISIT* and we'll set it up! 🌿\n\n_GurgaonRealty – Home You'll Love_`,
+    `Hi ${name || 'there'}! 🏠\n\nFor your home at *${projectName}*, here's what you'll love:\n✅ Spacious floor plans with natural light\n✅ Premium amenities – pool, gym, kids' zone\n✅ Close to schools, hospitals & metro\n✅ 24/7 security & gated community\n\nWant to book a free site visit? Reply *VISIT* and we'll set it up! 🌿\n\n_New Projects in Gurgaon – Home You'll Love_`,
 
   siteVisitConfirm: ({ name, projectName, date, sitePhone }) =>
-    `Hi ${name || 'there'}! ✅\n\nYour free site visit for *${projectName}* is confirmed!\n📅 Date: ${date || 'To be confirmed'}\n📍 We'll send you the exact meeting point.\n\nOur property advisor will pick you up and give you a full tour.\n\nFor any changes, call: ${sitePhone || '+91-9999999999'}\n\n_GurgaonRealty – Your Trusted Advisor_`,
+    `Hi ${name || 'there'}! ✅\n\nYour free site visit for *${projectName}* is confirmed!\n📅 Date: ${date || 'To be confirmed'}\n📍 We'll send you the exact meeting point.\n\nOur property advisor will pick you up and give you a full tour.\n\nFor any changes, call: ${sitePhone || '+91-9999999999'}\n\n_New Projects in Gurgaon – Your Trusted Advisor_`,
 
   followUp: ({ name }) =>
-    `Hi ${name || 'there'}! 👋\n\nJust checking in – did you get a chance to review the property details I shared?\n\nIf you have any questions about pricing, location or availability, I'm here to help.\n\nReply *CALL* to speak with our advisor or *MORE* for more options. 😊\n\n_GurgaonRealty_`,
+    `Hi ${name || 'there'}! 👋\n\nJust checking in – did you get a chance to review the property details I shared?\n\nIf you have any questions about pricing, location or availability, I'm here to help.\n\nReply *CALL* to speak with our advisor or *MORE* for more options. 😊\n\n_New Projects in Gurgaon_`,
 };
 
 // ─── Send lead WhatsApp message (follow-up automations) ──────────────────────
@@ -254,6 +294,7 @@ const buildWhatsAppURL = (phone, message) => {
 module.exports = {
   sendWhatsAppMessage,
   sendAdminLeadNotification,
+  sendUserThankYouWhatsApp,
   sendOTPViaWhatsApp,
   triggerAutomation,
   testWaConnection,

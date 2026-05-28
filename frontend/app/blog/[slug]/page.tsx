@@ -56,7 +56,7 @@ const BLOGS: Record<string, any> = {
     category: 'Legal & RERA', date: 'December 2024', readTime: '5 min',
     intro: 'RERA (Real Estate Regulatory Authority) is your biggest protection as a property buyer in Gurgaon. Before you book any project, verify its RERA status on the Haryana RERA portal. Here\'s exactly how to do it.',
     sections: [
-      { heading: 'Step 1: Visit Haryana RERA Portal', content: 'Go to haryanarera.gov.in. This is the official Haryana RERA website. Look for the "Projects" section in the navigation. All RERA-registered projects in Haryana (including Gurgaon) are listed here with full details.', link: '/new-projects-in-gurgaon', linkText: 'View RERA Verified Projects on GurgaonRealty →' },
+      { heading: 'Step 1: Visit Haryana RERA Portal', content: 'Go to haryanarera.gov.in. This is the official Haryana RERA website. Look for the "Projects" section in the navigation. All RERA-registered projects in Haryana (including Gurgaon) are listed here with full details.', link: '/new-projects-in-gurgaon', linkText: 'View RERA Verified Projects on New Projects in Gurgaon →' },
       { heading: 'Step 2: Search by Project Name or RERA Number', content: 'Use the search function to find your project. Enter the project name or the RERA registration number provided by the developer. Verify: Registration number, Project name, Builder name, Completion date, Land area, and Number of units.', link: '/new-launch-projects-in-gurgaon', linkText: 'New Launch Projects — All RERA Verified →' },
       { heading: 'Key Red Flags to Watch For', content: 'Be cautious if: the project is not found on RERA (illegal), the possession date is significantly past the current date, the builder has multiple RERA complaints on the portal, or the project details don\'t match what the builder told you.', link: '/residential-property-in-gurgaon', linkText: 'Safe, Verified Residential Properties →' },
     ],
@@ -90,9 +90,9 @@ type Props = { params: { slug: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const blog = BLOGS[params.slug];
-  if (!blog) return { title: 'Blog | GurgaonRealty' };
+  if (!blog) return { title: 'Blog | New Projects in Gurgaon' };
   return {
-    title: `${blog.title} | GurgaonRealty Blog`,
+    title: `${blog.title} | New Projects in Gurgaon Blog`,
     description: blog.intro.substring(0, 155),
     alternates: { canonical: `/blog/${params.slug}` },
   };
@@ -116,8 +116,8 @@ export default function BlogPostPage({ params }: Props) {
     '@type': 'Article',
     headline: blog.title,
     datePublished: blog.date,
-    author: { '@type': 'Organization', name: 'GurgaonRealty' },
-    publisher: { '@type': 'Organization', name: 'GurgaonRealty', url: 'https://www.gurgaonrealty.in' },
+    author: { '@type': 'Organization', name: 'New Projects in Gurgaon' },
+    publisher: { '@type': 'Organization', name: 'New Projects in Gurgaon', url: 'https://www.newprojectsingurgaon.com' },
   };
 
   return (
@@ -167,7 +167,7 @@ export default function BlogPostPage({ params }: Props) {
           <div className="mt-12 bg-brand-dark rounded-2xl p-6 text-white">
             <h3 className="font-display font-bold text-lg mb-2">Need Help Finding the Right Property?</h3>
             <p className="text-white/70 text-sm mb-4">Our advisors will match you with verified projects based on your budget, location preference and investment goals.</p>
-            <Link href="/#lead-form" className="btn-primary">Get Free Advisory →</Link>
+            <button type="button" onClick={() => document.dispatchEvent(new CustomEvent("open-lead-modal", { detail: { ctaType: "site_visit_request" } }))} className="btn-primary">Get Free Advisory →</button>
           </div>
 
           <div className="mt-10">

@@ -2,8 +2,10 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { io, Socket } from 'socket.io-client';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:5007';
 
 // ── Types ──────────────────────────────────────────────────
 type Lead = {
@@ -288,9 +290,15 @@ function SectionHeader({ title, icon }: { title: string; icon: string }) {
 // ── Main Admin Page Component ────────────────────────────────
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
+  const [loginMode, setLoginMode] = useState<'email' | 'otp'>('email');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [otpForm, setOtpForm] = useState({ mobile: '', otp: '' });
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion'>('leads');
+  const socketRef = useRef<Socket | null>(null);
+  const [liveNotif, setLiveNotif] = useState<string | null>(null);
 
   // Leads state
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -321,6 +329,42 @@ export default function AdminPage() {
   const [activeSection, setActiveSection] = useState('basic');
 
   useEffect(() => { const t = localStorage.getItem('admin_token'); if (t) setToken(t); }, []);
+
+  // ── WebSocket: real-time lead/project updates ──────────────
+  useEffect(() => {
+    if (!token) return;
+    const socket = io(WS_URL, { transports: ['websocket', 'polling'], auth: { token } });
+    socketRef.current = socket;
+
+    socket.on('connect', () => console.log('🔌 Admin socket connected'));
+
+    socket.on('lead:new', ({ lead }: { lead: Lead }) => {
+      setLeads((prev) => [lead, ...prev.filter((l) => l._id !== lead._id)]);
+      setStats((prev) => prev ? { ...prev, total: prev.total + 1, new: prev.new + 1 } : prev);
+      setLiveNotif(`New lead: ${lead.name || lead.mobile}`);
+      setTimeout(() => setLiveNotif(null), 5000);
+    });
+
+    socket.on('lead:updated', ({ lead }: { lead: Lead }) => {
+      setLeads((prev) => prev.map((l) => l._id === lead._id ? lead : l));
+    });
+
+    socket.on('project:created', ({ project }: { project: any }) => {
+      setProjects((prev) => [project, ...prev]);
+      setLiveNotif(`New project added: ${project.name}`);
+      setTimeout(() => setLiveNotif(null), 5000);
+    });
+
+    socket.on('project:updated', ({ project }: { project: any }) => {
+      setProjects((prev) => prev.map((p) => p._id === project._id ? project : p));
+    });
+
+    socket.on('project:deleted', ({ id }: { id: string }) => {
+      setProjects((prev) => prev.filter((p) => p._id !== id));
+    });
+
+    return () => { socket.disconnect(); };
+  }, [token]);
 
   const authH = useCallback(() => ({ Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }), [token]);
 
@@ -409,6 +453,27 @@ export default function AdminPage() {
       const d = await res.json();
       if (d.success && d.token) { localStorage.setItem('admin_token', d.token); setToken(d.token); }
       else setLoginError(d.message || 'Login failed. Check credentials.');
+    } catch { setLoginError('Cannot connect to server. Is backend running?'); }
+  };
+
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault(); setLoginError(''); setOtpSending(true);
+    try {
+      const res = await fetch(`${API}/admin/send-otp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mobile: otpForm.mobile }) });
+      const d = await res.json();
+      if (d.success) { setOtpSent(true); }
+      else setLoginError(d.message || 'Failed to send OTP');
+    } catch { setLoginError('Cannot connect to server. Is backend running?'); }
+    finally { setOtpSending(false); }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault(); setLoginError('');
+    try {
+      const res = await fetch(`${API}/admin/verify-otp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mobile: otpForm.mobile, otp: otpForm.otp }) });
+      const d = await res.json();
+      if (d.success && d.token) { localStorage.setItem('admin_token', d.token); setToken(d.token); }
+      else setLoginError(d.message || 'Invalid OTP. Try again.');
     } catch { setLoginError('Cannot connect to server. Is backend running?'); }
   };
 
@@ -524,18 +589,69 @@ export default function AdminPage() {
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm">
         <div className="text-center mb-6">
           <div className="w-12 h-12 bg-brand-dark rounded-xl flex items-center justify-center mx-auto mb-3 text-white font-bold text-lg">GR</div>
-          <h1 className="text-xl font-display font-bold text-brand-text">GurgaonRealty CRM</h1>
+          <h1 className="text-xl font-display font-bold text-brand-text">New Projects in Gurgaon CRM</h1>
           <p className="text-brand-muted text-sm mt-1">Admin Panel</p>
         </div>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div><label className="block text-xs font-medium text-brand-muted mb-1">Email</label>
-            <input type="email" value={loginForm.email} onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })} className="input-field" placeholder="admin@gurgaonrealty.com" required /></div>
-          <div><label className="block text-xs font-medium text-brand-muted mb-1">Password</label>
-            <input type="password" value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} className="input-field" required /></div>
-          {loginError && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{loginError}</p>}
-          <button type="submit" className="btn-primary w-full">Login</button>
-        </form>
-        <p className="text-brand-muted text-xs text-center mt-4">Default: admin@gurgaonrealty.com / Admin@123</p>
+
+        {/* Login Mode Toggle */}
+        <div className="flex rounded-xl overflow-hidden border border-gray-200 mb-5">
+          {/* <button onClick={() => { setLoginMode('email'); setLoginError(''); setOtpSent(false); }}
+            className={`flex-1 py-2 text-sm font-medium transition-all ${loginMode === 'email' ? 'bg-brand-dark text-white' : 'bg-white text-brand-muted hover:bg-gray-50'}`}>
+            Email & Password
+          </button> */}
+          <button onClick={() => { setLoginMode('otp'); setLoginError(''); setOtpSent(false); }}
+            className={`flex-1 py-2 text-sm font-medium transition-all ${loginMode === 'otp' ? 'bg-brand-dark text-white' : 'bg-white text-brand-muted hover:bg-gray-50'}`}>
+            Mobile OTP
+          </button>
+        </div>
+
+        {/* {loginMode === 'email' ? (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div><label className="block text-xs font-medium text-brand-muted mb-1">Email</label>
+              <input type="email" value={loginForm.email} onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })} className="input-field" placeholder="admin@newprojectsingurgaon.com" required /></div>
+            <div><label className="block text-xs font-medium text-brand-muted mb-1">Password</label>
+              <input type="password" value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} className="input-field" required /></div>
+            {loginError && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{loginError}</p>}
+            <button type="submit" className="btn-primary w-full">Login</button>
+          </form>
+        ) : ( */}
+          <div className="space-y-4">
+            {!otpSent ? (
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Admin Mobile Number</label>
+                  <input type="tel" value={otpForm.mobile} onChange={(e) => setOtpForm({ ...otpForm, mobile: e.target.value.replace(/\D/g, '') })}
+                    className="input-field" placeholder="9999999999" maxLength={10} required />
+                  <p className="text-xs text-brand-muted mt-1">OTP WhatsApp pe aayega</p>
+                </div>
+                {loginError && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{loginError}</p>}
+                <button type="submit" disabled={otpSending || otpForm.mobile.length < 10} className="btn-primary w-full disabled:opacity-50">
+                  {otpSending ? 'Sending OTP...' : 'Send OTP on WhatsApp'}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-700">
+                  OTP {otpForm.mobile} pe bheja gaya hai
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">6-Digit OTP</label>
+                  <input type="text" inputMode="numeric" value={otpForm.otp}
+                    onChange={(e) => setOtpForm({ ...otpForm, otp: e.target.value.replace(/\D/g, '') })}
+                    className="input-field text-center text-2xl font-bold tracking-widest" placeholder="000000" maxLength={6} autoFocus required />
+                </div>
+                {loginError && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{loginError}</p>}
+                <button type="submit" disabled={otpForm.otp.length !== 6} className="btn-primary w-full disabled:opacity-50">
+                  Verify & Login
+                </button>
+                <button type="button" onClick={() => { setOtpSent(false); setOtpForm({ ...otpForm, otp: '' }); setLoginError(''); }}
+                  className="w-full text-xs text-brand-muted underline text-center">
+                  Resend OTP
+                </button>
+              </form>
+            )}
+          </div>
+        {/* )} */}
       </div>
     </div>
   );
@@ -547,7 +663,7 @@ export default function AdminPage() {
         <div className="flex items-center gap-4">
           <span className="font-display font-semibold text-sm flex items-center gap-2">
             <span className="bg-brand-accent text-brand-dark w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center">GR</span>
-            GurgaonRealty CRM
+            New Projects in Gurgaon CRM
           </span>
           <div className="flex gap-1">
             <button onClick={() => setActiveTab('leads')}
@@ -562,6 +678,10 @@ export default function AdminPage() {
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'settings' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
               ⚙️ Site Settings
             </button>
+            <button onClick={() => setActiveTab('conversion')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'conversion' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
+              🎯 Conversion
+            </button>
           </div>
         </div>
         <div className="flex gap-3 text-xs">
@@ -569,6 +689,14 @@ export default function AdminPage() {
           <button onClick={() => { localStorage.removeItem('admin_token'); setToken(null); }} className="text-white/60 hover:text-white">Logout</button>
         </div>
       </div>
+
+      {/* Live Notification Banner */}
+      {liveNotif && (
+        <div className="bg-green-500 text-white text-sm font-medium px-5 py-2.5 flex items-center justify-between animate-pulse">
+          <span>🔔 {liveNotif}</span>
+          <button onClick={() => setLiveNotif(null)} className="text-white/80 hover:text-white ml-4">×</button>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Stats */}
@@ -800,9 +928,13 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <label className="text-xs text-brand-muted mb-1 block">Password</label>
-                  <input className="input-field text-sm" placeholder="Hostinger email password" type="password"
-                    value={siteSettings.smtp?.pass || ''}
-                    onChange={(e) => setSiteSettings({ ...siteSettings, smtp: { ...siteSettings.smtp, pass: e.target.value } })} />
+                  <input className="input-field text-sm" type="password"
+                    placeholder={siteSettings.smtp?.pass === '••••••••' ? '(Already set — leave blank to keep)' : 'Hostinger email password'}
+                    value={siteSettings.smtp?.pass === '••••••••' ? '' : (siteSettings.smtp?.pass || '')}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, smtp: { ...siteSettings.smtp, pass: e.target.value || '••••••••' } })} />
+                  {siteSettings.smtp?.pass === '••••••••' && (
+                    <p className="text-xs text-green-600 mt-0.5">Password already saved</p>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs text-brand-muted mb-1 block">From Email</label>
@@ -844,9 +976,13 @@ export default function AdminPage() {
                 </div>
                 <div className="sm:col-span-2">
                   <label className="text-xs text-brand-muted mb-1 block">Access Token (Permanent)</label>
-                  <input className="input-field text-sm" placeholder="EAAxxxxxxxx... (System User token)" type="password"
-                    value={siteSettings.whatsappCloud?.accessToken || ''}
-                    onChange={(e) => setSiteSettings({ ...siteSettings, whatsappCloud: { ...siteSettings.whatsappCloud, accessToken: e.target.value } })} />
+                  <input className="input-field text-sm" type="password"
+                    placeholder={siteSettings.whatsappCloud?.accessToken === '••••••••' ? '(Already set — leave blank to keep)' : 'EAAxxxxxxxx... (System User token)'}
+                    value={siteSettings.whatsappCloud?.accessToken === '••••••••' ? '' : (siteSettings.whatsappCloud?.accessToken || '')}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, whatsappCloud: { ...siteSettings.whatsappCloud, accessToken: e.target.value || '••••••••' } })} />
+                  {siteSettings.whatsappCloud?.accessToken === '••••••••' && (
+                    <p className="text-xs text-green-600 mt-0.5">Token already saved</p>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs text-brand-muted mb-1 block">Admin WhatsApp Number</label>
@@ -868,12 +1004,65 @@ export default function AdminPage() {
                     onChange={(e) => setSiteSettings({ ...siteSettings, whatsappCloud: { ...siteSettings.whatsappCloud, otpTemplateName: e.target.value } })} />
                   <p className="text-xs text-brand-muted mt-1">User ko OTP is template se jaata hai.</p>
                 </div>
+                <div>
+                  <label className="text-xs text-brand-muted mb-1 block">Thank You Template Name</label>
+                  <input className="input-field text-sm" placeholder="thank_you_enquiry"
+                    value={(siteSettings as any).whatsappCloud?.thankYouTemplateName || 'thank_you_enquiry'}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, whatsappCloud: { ...siteSettings.whatsappCloud, thankYouTemplateName: e.target.value } } as any)} />
+                  <p className="text-xs text-brand-muted mt-1">Lead verify hone ke baad user ko thanks message jaata hai.</p>
+                </div>
               </div>
               <div className="flex justify-end">
                 <button onClick={testWhatsApp}
                   className="text-xs bg-green-50 text-green-700 border border-green-200 font-semibold px-4 py-2 rounded-xl hover:bg-green-500 hover:text-white transition-colors">
                   🔌 Test WhatsApp Connection
                 </button>
+              </div>
+
+              {/* Templates Reference */}
+              <div className="mt-5 border-t border-gray-100 pt-5">
+                <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-3">📋 Templates — Meta Business Manager mein yahi create karo</p>
+                <div className="space-y-3">
+                  {[
+                    {
+                      name: 'otp_verification',
+                      category: 'AUTHENTICATION',
+                      badge: 'bg-blue-100 text-blue-700',
+                      vars: '{{1}} = OTP code',
+                      body: `*{{1}}* is your OTP for New Projects in Gurgaon.\nValid for 5 minutes. Do not share this code.`,
+                      button: 'Copy Code button (type: OTP, {{1}})',
+                    },
+                    {
+                      name: 'lead_notification',
+                      category: 'UTILITY',
+                      badge: 'bg-orange-100 text-orange-700',
+                      vars: '{{1}}=Name  {{2}}=Mobile  {{3}}=Project  {{4}}=Budget  {{5}}=Location',
+                      body: `🔔 *New Lead Alert!*\n\n👤 Name: {{1}}\n📱 Mobile: {{2}}\n🏢 Project: {{3}}\n💰 Budget: {{4}}\n📍 Location: {{5}}\n\nLogin to CRM to follow up immediately.`,
+                      button: null,
+                    },
+                    {
+                      name: 'thank_you_enquiry',
+                      category: 'UTILITY',
+                      badge: 'bg-green-100 text-green-700',
+                      vars: '{{1}}=Name  {{2}}=Project  {{3}}=Phone',
+                      body: `Hi {{1}}! 🎉\n\nThank you for your enquiry about *{{2}}*.\n\n✅ Your request has been received.\n📞 Our advisor will call you within 2 hours.\n\nTo speak now, call: {{3}}\n\n_RERA Verified | Zero Brokerage | Free Site Visit_`,
+                      button: null,
+                    },
+                  ].map((t) => (
+                    <div key={t.name} className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <code className="font-mono text-sm font-bold text-brand-dark">{t.name}</code>
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${t.badge}`}>{t.category}</span>
+                      </div>
+                      <p className="text-xs text-brand-muted mb-2">Variables: <span className="font-mono text-brand-dark">{t.vars}</span></p>
+                      <pre className="text-xs bg-white border border-gray-200 rounded-lg p-3 whitespace-pre-wrap font-sans text-brand-muted leading-relaxed">{t.body}</pre>
+                      {t.button && <p className="text-xs text-blue-600 mt-2 font-medium">Button: {t.button}</p>}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-brand-muted mt-3 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                  ⚠️ Meta Business Manager → WhatsApp → Message Templates → Create Template → Category select karo → Upar wala content paste karo → Submit for review (24-48 hours approval)
+                </p>
               </div>
             </div>
 
@@ -1097,13 +1286,240 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Save Button */}
-            <div className="flex justify-end pb-6">
-              <button onClick={saveSiteSettings} disabled={settingsSaving}
-                className="btn-primary min-w-[160px] disabled:opacity-50">
-                {settingsSaving ? '⏳ Saving…' : '✓ Save All Settings'}
-              </button>
+            {/* RERA Info */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <SectionHeader title="RERA Registration (Footer mein dikhega)" icon="🏛️" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">RERA Registration Number</label>
+                  <input className="input-field" placeholder="HRERA/GGM/2024/XXX" value={siteSettings.reraNumber || ''}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, reraNumber: e.target.value })} />
+                  <p className="text-xs text-brand-muted mt-1">Footer mein "RERA Reg. No: XXXXX" dikhega</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">RERA Verify Link</label>
+                  <input className="input-field" placeholder="https://haryanarera.gov.in" value={siteSettings.reraLink || 'https://haryanarera.gov.in'}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, reraLink: e.target.value })} />
+                </div>
+              </div>
             </div>
+
+            <div className="pb-24" />
+          </div>
+        )}
+
+        {/* ── CONVERSION TAB ── */}
+        {activeTab === 'conversion' && siteSettings && (
+          <div className="space-y-5">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-700">
+              <strong>Conversion Tools</strong> — Yahan se sabhi psychological triggers control karo. Changes save hote hi live ho jaate hain.
+            </div>
+
+            {/* Helper for toggle row */}
+            {(() => {
+              const conv = (siteSettings as any).conversion || {};
+              const setConv = (key: string, val: any) => setSiteSettings({ ...siteSettings, conversion: { ...conv, [key]: { ...conv[key], ...val } } } as any);
+
+              const Toggle = ({ label, desc, ck, fk }: { label: string; desc: string; ck: string; fk?: string }) => (
+                <label className="flex items-center justify-between cursor-pointer p-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors">
+                  <div>
+                    <div className="text-sm font-medium text-brand-text">{label}</div>
+                    <div className="text-xs text-brand-muted">{desc}</div>
+                  </div>
+                  <div className="relative ml-3 flex-shrink-0">
+                    <input type="checkbox" className="sr-only" checked={!!(conv[ck]?.[fk || 'enabled'] ?? true)}
+                      onChange={(e) => setConv(ck, { [fk || 'enabled']: e.target.checked })} />
+                    <div className={`w-10 h-5 rounded-full transition-colors ${conv[ck]?.[fk || 'enabled'] !== false ? 'bg-brand-accent' : 'bg-gray-300'}`}>
+                      <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${conv[ck]?.[fk || 'enabled'] !== false ? 'translate-x-5' : ''}`} />
+                    </div>
+                  </div>
+                </label>
+              );
+
+              return (
+                <>
+                  {/* Urgency Banner */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Urgency Banner (top of page)" icon="🔥" />
+                    <div className="space-y-3">
+                      <Toggle ck="urgencyBanner" label="Enable Urgency Banner" desc="Page ke top pe red banner dikhta hai" />
+                      <div>
+                        <label className="text-xs text-brand-muted block mb-1">Message</label>
+                        <input className="input-field text-sm" value={conv.urgencyBanner?.message || ''}
+                          onChange={(e) => setConv('urgencyBanner', { message: e.target.value })}
+                          placeholder="Price hike alert: Dwarka Expressway..." />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs text-brand-muted block mb-1">Link Text</label>
+                          <input className="input-field text-sm" value={conv.urgencyBanner?.linkText || ''}
+                            onChange={(e) => setConv('urgencyBanner', { linkText: e.target.value })} placeholder="Lock today's price →" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-brand-muted block mb-1">Link URL</label>
+                          <input className="input-field text-sm" value={conv.urgencyBanner?.linkHref || ''}
+                            onChange={(e) => setConv('urgencyBanner', { linkHref: e.target.value })} placeholder="#lead-form" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Activity Toast */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Live Activity Toast (bottom-left popup)" icon="👥" />
+                    <div className="space-y-3">
+                      <Toggle ck="liveActivity" label="Enable Live Activity Toast" desc="'Rahul S. from Delhi just requested price list' popup" />
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="text-xs text-brand-muted block mb-1">First Delay (ms)</label>
+                          <input type="number" className="input-field text-sm" value={conv.liveActivity?.firstDelay ?? 8000}
+                            onChange={(e) => setConv('liveActivity', { firstDelay: Number(e.target.value) })} />
+                        </div>
+                        <div>
+                          <label className="text-xs text-brand-muted block mb-1">Interval (ms)</label>
+                          <input type="number" className="input-field text-sm" value={conv.liveActivity?.interval ?? 22000}
+                            onChange={(e) => setConv('liveActivity', { interval: Number(e.target.value) })} />
+                        </div>
+                        <div>
+                          <label className="text-xs text-brand-muted block mb-1">Show Duration (ms)</label>
+                          <input type="number" className="input-field text-sm" value={conv.liveActivity?.duration ?? 4500}
+                            onChange={(e) => setConv('liveActivity', { duration: Number(e.target.value) })} />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs text-brand-muted block mb-1">Cities (comma separated)</label>
+                        <input className="input-field text-sm" value={(conv.liveActivity?.cities || []).join(', ')}
+                          onChange={(e) => setConv('liveActivity', { cities: e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) })}
+                          placeholder="Delhi, Noida, Mumbai, Bangalore..." />
+                      </div>
+                      <div>
+                        <label className="text-xs text-brand-muted block mb-1">Names (comma separated)</label>
+                        <input className="input-field text-sm" value={(conv.liveActivity?.names || []).join(', ')}
+                          onChange={(e) => setConv('liveActivity', { names: e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) })}
+                          placeholder="Rahul S., Priya K., Amit V...." />
+                      </div>
+                      <div>
+                        <label className="text-xs text-brand-muted block mb-1">Actions (comma separated)</label>
+                        <textarea rows={2} className="input-field text-sm resize-none" value={(conv.liveActivity?.actions || []).join(', ')}
+                          onChange={(e) => setConv('liveActivity', { actions: e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) })}
+                          placeholder="just requested the price list, booked a free site visit..." />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Viewing Count */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Live Viewing Count (project pages)" icon="👁️" />
+                    <div className="space-y-3">
+                      <Toggle ck="viewingCount" label="Enable Viewing Count" desc="'43 people viewing this right now' badge" />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs text-brand-muted block mb-1">Min Count</label>
+                          <input type="number" className="input-field text-sm" value={conv.viewingCount?.minCount ?? 18}
+                            onChange={(e) => setConv('viewingCount', { minCount: Number(e.target.value) })} />
+                        </div>
+                        <div>
+                          <label className="text-xs text-brand-muted block mb-1">Max Count</label>
+                          <input type="number" className="input-field text-sm" value={conv.viewingCount?.maxCount ?? 55}
+                            onChange={(e) => setConv('viewingCount', { maxCount: Number(e.target.value) })} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Scarcity Badge */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Scarcity Badge" icon="🔴" />
+                    <div className="space-y-3">
+                      <Toggle ck="scarcityBadge" label="Enable Scarcity Badge" desc="'Only 4 units left at this price' badge" />
+                      <div>
+                        <label className="text-xs text-brand-muted block mb-1">Default Units Left</label>
+                        <input type="number" className="input-field text-sm w-32" value={conv.scarcityBadge?.units ?? 4}
+                          onChange={(e) => setConv('scarcityBadge', { units: Number(e.target.value) })} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Price Countdown */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Price Countdown Timer" icon="⏱️" />
+                    <Toggle ck="priceCountdown" label="Enable Price Countdown" desc="'Current pricing valid for HH:MM:SS' timer — expires end of day" />
+                  </div>
+
+                  {/* Exit Popup */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Exit Intent Popup" icon="🎁" />
+                    <div className="space-y-3">
+                      <Toggle ck="exitPopup" label="Enable Exit Intent Popup" desc="User mouse top pe jaaye ya 88% scroll kare toh popup aata hai" />
+                      <div>
+                        <label className="text-xs text-brand-muted block mb-1">Popup Title</label>
+                        <input className="input-field text-sm" value={conv.exitPopup?.title || ''}
+                          onChange={(e) => setConv('exitPopup', { title: e.target.value })} placeholder="Wait! Don't Miss This" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-brand-muted block mb-1">Offer Text</label>
+                        <input className="input-field text-sm" value={conv.exitPopup?.offerText || ''}
+                          onChange={(e) => setConv('exitPopup', { offerText: e.target.value })} placeholder="Get ₹2 Lakh off on pre-launch..." />
+                      </div>
+                      <div>
+                        <label className="text-xs text-brand-muted block mb-1">CTA Button Text</label>
+                        <input className="input-field text-sm" value={conv.exitPopup?.ctaText || ''}
+                          onChange={(e) => setConv('exitPopup', { ctaText: e.target.value })} placeholder="Get ₹2 Lakh Off — Send on WhatsApp 💬" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Scroll Modal */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Scroll Trigger Modal" icon="📜" />
+                    <div className="space-y-3">
+                      <Toggle ck="scrollModal" label="Enable Scroll Modal" desc="User X% scroll kare toh bottom sheet popup aata hai" />
+                      <div>
+                        <label className="text-xs text-brand-muted block mb-1">Trigger at Scroll % (default: 60)</label>
+                        <input type="number" className="input-field text-sm w-32" min={10} max={95} value={conv.scrollModal?.triggerPercent ?? 60}
+                          onChange={(e) => setConv('scrollModal', { triggerPercent: Number(e.target.value) })} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trust Strip */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Trust Signals Strip (marquee bar)" icon="✅" />
+                    <div className="space-y-3">
+                      <Toggle ck="trustStrip" label="Enable Trust Strip" desc="Header ke neeche scrolling trust signals bar" />
+                      <div>
+                        <label className="text-xs text-brand-muted block mb-2">Signals</label>
+                        <div className="space-y-2">
+                          {(conv.trustStrip?.signals || []).map((s: any, i: number) => (
+                            <div key={i} className="flex gap-2 items-center">
+                              <input className="input-field text-sm w-16" value={s.icon || ''} placeholder="🏆"
+                                onChange={(e) => { const arr = [...(conv.trustStrip?.signals || [])]; arr[i] = { ...arr[i], icon: e.target.value }; setConv('trustStrip', { signals: arr }); }} />
+                              <input className="input-field text-sm flex-1" value={s.text || ''} placeholder="4,200+ Families Helped"
+                                onChange={(e) => { const arr = [...(conv.trustStrip?.signals || [])]; arr[i] = { ...arr[i], text: e.target.value }; setConv('trustStrip', { signals: arr }); }} />
+                              <button onClick={() => { const arr = (conv.trustStrip?.signals || []).filter((_: any, idx: number) => idx !== i); setConv('trustStrip', { signals: arr }); }}
+                                className="text-red-400 hover:text-red-600 font-bold text-lg px-1">×</button>
+                            </div>
+                          ))}
+                          <button onClick={() => { const arr = [...(conv.trustStrip?.signals || []), { icon: '⭐', text: 'New Signal' }]; setConv('trustStrip', { signals: arr }); }}
+                            className="text-xs bg-brand-dark text-white px-3 py-1.5 rounded-lg hover:bg-brand-accent hover:text-brand-dark transition-all">+ Add Signal</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ROI Calculator + Price Gate */}
+                  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                    <SectionHeader title="Other Features" icon="🔧" />
+                    <div className="space-y-2">
+                      <Toggle ck="roiCalculator" label="ROI Calculator" desc="Investment return calculator on project pages" />
+                      <Toggle ck="priceGate" label="Price Gate" desc="Price blur karke mobile number maango phir dikhaao" />
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
+
+            <div className="pb-24" />
           </div>
         )}
       </div>
@@ -1128,7 +1544,7 @@ export default function AdminPage() {
               ))}
               <div className="pt-3 space-y-2">
                 <a href={`tel:${selectedLead.mobile || ''}`} className="btn-primary w-full text-center block">📞 Call Lead</a>
-                <a href={`https://wa.me/91${(selectedLead.mobile || '').replace(/\D/g, '')}?text=Hi ${selectedLead.name || 'there'}, this is GurgaonRealty. Following up on your property enquiry.`}
+                <a href={`https://wa.me/91${(selectedLead.mobile || '').replace(/\D/g, '')}?text=Hi ${selectedLead.name || 'there'}, this is New Projects in Gurgaon. Following up on your property enquiry.`}
                   target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 bg-green-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-green-600 transition-colors">
                   💬 WhatsApp Lead
@@ -1415,7 +1831,7 @@ export default function AdminPage() {
                   <div>
                     <label className="block text-xs font-medium text-brand-muted mb-1">Meta Title (max 60 chars)</label>
                     <input className="input-field" value={form.metaTitle} onChange={(e) => setF('metaTitle', e.target.value)}
-                      placeholder={`${form.name} — Price, Floor Plans & Details | GurgaonRealty`} />
+                      placeholder={`${form.name} — Price, Floor Plans & Details | New Projects in Gurgaon`} />
                     <p className="text-brand-muted text-xs mt-1">{(form.metaTitle || '').length}/60</p>
                   </div>
                   <div>
@@ -1464,7 +1880,7 @@ export default function AdminPage() {
             {/* Modal Footer */}
             <div className="border-t border-gray-100 px-6 py-4 flex items-center justify-between bg-gray-50 rounded-b-2xl">
               <div className="flex gap-2">
-                {FORM_SECTIONS.map((s, i) => (
+                {FORM_SECTIONS.map((s) => (
                   <button key={s.id} onClick={() => setActiveSection(s.id)}
                     className={`w-2.5 h-2.5 rounded-full transition-all ${activeSection === s.id ? 'bg-brand-dark scale-125' : 'bg-gray-300 hover:bg-gray-400'}`} />
                 ))}
@@ -1480,6 +1896,41 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* ── STICKY SAVE BAR (Settings + Conversion tabs) ── */}
+      {(activeTab === 'settings' || activeTab === 'conversion') && siteSettings && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-t border-gray-200 shadow-xl px-5 py-3 flex items-center justify-between">
+          <p className="text-xs text-brand-muted hidden sm:block">
+            {activeTab === 'settings' ? '⚙️ Site Settings' : '🎯 Conversion Settings'} — changes live honge save ke baad
+          </p>
+          <button onClick={saveSiteSettings} disabled={settingsSaving}
+            className="btn-primary px-8 py-2.5 text-sm disabled:opacity-50 ml-auto">
+            {settingsSaving ? '⏳ Saving…' : '✓ Save Changes'}
+          </button>
+        </div>
+      )}
+
+      {/* ── BACK TO TOP ── */}
+      <BackToTop />
     </div>
+  );
+}
+
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const handler = () => setShow(window.scrollY > 400);
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+  if (!show) return null;
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      className="fixed bottom-20 right-5 z-50 w-11 h-11 bg-brand-dark text-white rounded-full shadow-lg flex items-center justify-center text-lg hover:bg-brand-accent hover:text-brand-dark transition-all duration-200 hover:scale-110"
+      aria-label="Back to top"
+    >
+      ↑
+    </button>
   );
 }

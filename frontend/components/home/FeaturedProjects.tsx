@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ProjectCard from '@/components/project/ProjectCard';
+import LeadCTA from '@/components/lead/LeadCTA';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
@@ -90,9 +91,9 @@ export default function FeaturedProjects({ phone }: { phone?: string }) {
                 className="btn-primary inline-flex items-center gap-2 text-base px-8 py-3">
                 📞 Call Now: {callPhone}
               </a>
-              <Link href="/#lead-form" className="btn-outline">
+              <LeadCTA ctaType="site_visit_request" className="btn-outline">
                 Request Callback →
-              </Link>
+              </LeadCTA>
             </div>
           </div>
         )}

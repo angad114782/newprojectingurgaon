@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Gurgaon Real Estate Blog | Property Investment Guides & Market Updates',
-  description: 'Read expert guides on buying property in Gurgaon — investment advice, sector analysis, RERA tips and market trends from GurgaonRealty advisors.',
+  description: 'Read expert guides on buying property in Gurgaon — investment advice, sector analysis, RERA tips and market trends from New Projects in Gurgaon advisors.',
   alternates: { canonical: '/blog' },
 };
 

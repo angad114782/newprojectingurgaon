@@ -5,7 +5,7 @@ import FeaturedProjects from '@/components/home/FeaturedProjects';
 import LeadForm from '@/components/home/LeadForm';
 import { LocationsSection, WhyChooseUs, BuilderLogos, TestimonialsSection, MarketStatsSection, FAQSection, InternalLinksBlock, LuxuryHighlightsStrip } from '@/components/home/HomeSections';
 import { ROICalculator } from '@/components/conversion/PsychTriggers';
-import { LocalBusinessSchema, FAQSchema } from '@/components/seo/SchemaMarkup';
+import { LocalBusinessSchema, FAQSchema, WebSiteSchema, SpeakableSchema } from '@/components/seo/SchemaMarkup';
 import { fetchSettings } from '@/lib/settings';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -58,18 +58,8 @@ export default async function HomePage() {
       <LocalBusinessSchema page="home" />
       <FAQSchema faqs={faqsForSchema} />
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: settings.siteName,
-        url: siteUrl,
-        description: `${settings.siteName} — Gurgaon's most trusted real estate advisory for new launch projects, premium properties and investment guidance.`,
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: `${siteUrl}/new-projects-in-gurgaon?q={search_term_string}`,
-          'query-input': 'required name=search_term_string',
-        },
-      }) }} />
+      <WebSiteSchema siteName={settings.siteName} siteUrl={siteUrl} />
+      <SpeakableSchema />
 
       {/* Hero — 100% dynamic from DB settings */}
       <HeroSection

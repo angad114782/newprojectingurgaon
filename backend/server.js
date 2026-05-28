@@ -1,6 +1,8 @@
 require('dotenv').config();
 
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -11,8 +13,31 @@ const path = require('path');
 const connectDB = require('./config/db');
 
 const app = express();
+const httpServer = http.createServer(app);
+
+// ─── Socket.io Setup ─────────────────────────────────────────────────────────
+const io = new Server(httpServer, {
+  cors: {
+    origin: true,
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+  transports: ['websocket', 'polling'],
+});
+
+// Make io accessible to routes
+app.set('io', io);
+
+io.on('connection', (socket) => {
+  console.log(`🔌 Admin connected: ${socket.id}`);
+  socket.join('admin-room');
+  socket.on('disconnect', () => {
+    console.log(`🔌 Admin disconnected: ${socket.id}`);
+  });
+});
 
 app.set('trust proxy', 1);
+app.disable('x-powered-by');
 
 // ─── Connect Database ────────────────────────────────────────────────────────
 connectDB().then(async () => {
@@ -43,8 +68,6 @@ connectDB().then(async () => {
 app.use(
   helmet({
     crossOriginEmbedderPolicy: false,
-
-    // Important for loading backend images on frontend localhost:3000
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
@@ -52,8 +75,6 @@ app.use(
 app.use(compression());
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
-// Allow any origin — domain is dynamic (multi-domain support)
-// Auth routes are protected by JWT, not CORS
 app.use(
   cors({
     origin: true,
@@ -70,7 +91,6 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Static Uploaded Images ──────────────────────────────────────────────────
-// URL example: http://localhost:5007/uploads/filename.webp
 app.use(
   '/uploads',
   express.static(path.join(__dirname, 'public/uploads'), {
@@ -104,6 +124,7 @@ const otpLimit = rateLimit({
 
 app.use('/api/', generalLimit);
 app.use('/api/leads/send-otp', otpLimit);
+app.use('/api/admin/send-otp', otpLimit);
 
 // ─── Health Check ────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => {
@@ -145,11 +166,12 @@ app.use((err, req, res, next) => {
 // ─── Start ───────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5007;
 
-app.listen(PORT, '0.0.0.0', () => {
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
   console.log(`📡 API Local: http://localhost:${PORT}/api`);
+  console.log(`🔌 WebSocket: ws://localhost:${PORT}`);
   console.log(`🖼️ Uploads: http://localhost:${PORT}/uploads`);
   console.log(`❤️  Health: http://localhost:${PORT}/health\n`);
 });
 
-module.exports = app;
+module.exports = { app, io };

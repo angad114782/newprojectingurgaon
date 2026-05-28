@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import LeadForm from '@/components/home/LeadForm';
+import LeadCTA from '@/components/lead/LeadCTA';
 
 const DEFAULT_IMG = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80';
 
@@ -56,7 +57,7 @@ export default function LocationPageTemplate({
             <p className="text-white/80 text-lg mb-8">{heroSubtitle}</p>
             <div className="flex flex-wrap gap-3">
               <a href="#projects" className="btn-primary">View Projects Here</a>
-              <a href="#lead-form" className="btn-white">Get Free Advisory</a>
+              <LeadCTA ctaType="site_visit_request" className="btn-white">Get Free Advisory</LeadCTA>
             </div>
           </div>
         </div>
@@ -175,7 +176,7 @@ export default function LocationPageTemplate({
           ) : (
             <div className="text-center py-12 bg-brand-mint/20 rounded-2xl border border-brand-border/40">
               <p className="text-brand-muted mb-4">Contact us to get a curated list of verified projects in this area.</p>
-              <a href="#lead-form" className="btn-primary">Get Project List</a>
+              <LeadCTA ctaType="brochure" className="btn-primary">Get Project List</LeadCTA>
             </div>
           )}
         </div>

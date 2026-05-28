@@ -60,7 +60,7 @@ async function downloadImageFromUrl(url, baseUrl) {
     const response = await axios.get(url, {
       responseType: 'stream',
       timeout: 20000,
-      headers: { 'User-Agent': 'Mozilla/5.0 GurgaonRealtyBot/1.0' },
+      headers: { 'User-Agent': 'Mozilla/5.0 New Projects in GurgaonBot/1.0' },
     });
     const writer = fs.createWriteStream(filepath);
     await new Promise((resolve, reject) => {
@@ -71,7 +71,7 @@ async function downloadImageFromUrl(url, baseUrl) {
     return `${baseUrl}/uploads/${filename}`;
   } catch (err) {
     console.error(`Image download failed (${url}):`, err.message);
-    return url; // keep original on failure
+    return url;
   }
 }
 
@@ -84,7 +84,15 @@ const csvUpload = multer({
   },
 });
 
-// Admin login
+// ─── Helper: mask sensitive settings fields ───────────────────────────────────
+function maskSettings(obj) {
+  const masked = JSON.parse(JSON.stringify(obj));
+  if (masked.smtp?.pass) masked.smtp.pass = '••••••••';
+  if (masked.whatsappCloud?.accessToken) masked.whatsappCloud.accessToken = '••••••••';
+  return masked;
+}
+
+// ─── Admin Login (email + password) ──────────────────────────────────────────
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -92,6 +100,72 @@ router.post('/login', async (req, res) => {
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
+    user.lastLogin = new Date();
+    await user.save();
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
+    res.json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ─── Helper: strip country code → 10-digit mobile ────────────────────────────
+function normalizeMobile(mobile) {
+  return String(mobile || '').replace(/\D/g, '').replace(/^91/, '').slice(-10);
+}
+
+// ─── Admin Login via Mobile OTP ───────────────────────────────────────────────
+router.post('/send-otp', async (req, res) => {
+  try {
+    const { mobile } = req.body;
+    if (!mobile) return res.status(400).json({ success: false, message: 'Mobile number required' });
+
+    const clean = normalizeMobile(mobile);
+    if (clean.length !== 10) return res.status(400).json({ success: false, message: 'Enter valid 10-digit mobile number' });
+
+    // Load admin number from SiteSettings (dynamic — set in WhatsApp Cloud API settings)
+    const SiteSettings = require('../models/SiteSettings');
+    const settings = await SiteSettings.findOne({}).lean();
+    const adminNo = normalizeMobile(settings?.whatsappCloud?.adminNumber || '');
+
+    // Also check User table as fallback
+    const userByMobile = await User.findOne({
+      mobile: { $in: [clean, `91${clean}`, `+91${clean}`] },
+      role: { $in: ['admin', 'manager'] },
+    });
+
+    const isSettingsAdmin = adminNo && adminNo === clean;
+    if (!isSettingsAdmin && !userByMobile) {
+      return res.status(403).json({ success: false, message: 'This number is not authorized as admin.' });
+    }
+
+    const { createAndSendOTP } = require('../services/otpService');
+    const email = userByMobile?.email || '';
+    const name = userByMobile?.name || 'Admin';
+    await createAndSendOTP({ mobile: clean, email, name });
+
+    const masked = `${'*'.repeat(6)}${clean.slice(-4)}`;
+    res.json({ success: true, message: `OTP sent to ${masked}` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { mobile, otp } = req.body;
+    if (!mobile || !otp) return res.status(400).json({ success: false, message: 'Mobile and OTP required' });
+
+    const clean = normalizeMobile(mobile);
+    const { verifyOTP } = require('../services/otpService');
+    const result = await verifyOTP({ mobile: clean, otp });
+    if (!result.success) return res.status(400).json({ success: false, message: result.message });
+
+    // Find user: first by mobile, then any admin as fallback (for settings-only auth)
+    let user = await User.findOne({ mobile: { $in: [clean, `91${clean}`, `+91${clean}`] } });
+    if (!user) user = await User.findOne({ role: 'admin' }).sort({ createdAt: 1 });
+    if (!user) return res.status(404).json({ success: false, message: 'No admin user found' });
+
     user.lastLogin = new Date();
     await user.save();
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
@@ -110,7 +184,6 @@ router.get('/dashboard', async (req, res) => {
     const now = new Date();
     const today = new Date(now.setHours(0, 0, 0, 0));
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const [totalLeads, todayLeads, weekLeads, verifiedLeads, hotLeads, priorityLeads, siteVisits, statusCounts, sourceStats, projectStats, locationStats] = await Promise.all([
       Lead.countDocuments(),
@@ -190,6 +263,11 @@ router.put('/leads/:id', async (req, res) => {
 
     const lead = await Lead.findByIdAndUpdate(req.params.id, updates, { new: true });
     if (!lead) return res.status(404).json({ success: false, message: 'Lead not found' });
+
+    // Emit real-time update to all admin clients
+    const io = req.app.get('io');
+    if (io) io.to('admin-room').emit('lead:updated', { lead });
+
     res.json({ success: true, data: lead });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -214,7 +292,6 @@ router.post('/leads/:id/whatsapp', async (req, res) => {
 router.get('/salesmen', authorize('admin', 'manager'), async (req, res) => {
   try {
     const users = await User.find({ role: 'salesman' }).select('-password');
-    // Add performance data
     const enriched = await Promise.all(users.map(async (u) => {
       const assigned = await Lead.countDocuments({ assignedTo: u._id });
       const converted = await Lead.countDocuments({ assignedTo: u._id, status: 'Booked' });
@@ -256,7 +333,7 @@ router.get('/projects/csv-template', authorize('admin', 'manager'), (req, res) =
     'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
     '35–45% (3Y)', '3.8%',
     'true', 'true',
-    'Sobha City Gurgaon | Price Floor Plans RERA | GurgaonRealty',
+    'Sobha City Gurgaon | Price Floor Plans RERA | New Projects in Gurgaon',
     'Sobha City by Sobha Limited in Sector 108. 3 & 4 BHK from ₹1.8 Cr.',
   ];
   const csv = [headers.join(','), sample.map(v => `"${v}"`).join(',')].join('\n');
@@ -304,7 +381,7 @@ router.post('/projects/import/csv', authorize('admin', 'manager'), csvUpload.sin
         }
 
         const statusList = ['New Launch', 'Pre Launch', 'Under Construction', 'Ready To Move'];
-        await Project.create({
+        const project = await Project.create({
           name: row.name,
           slug,
           builder: {
@@ -352,6 +429,11 @@ router.post('/projects/import/csv', authorize('admin', 'manager'), csvUpload.sin
           metaDescription: row.metaDescription || row.meta_description || '',
           metaKeywords: row.metaKeywords || row.meta_keywords || '',
         });
+
+        // Emit real-time event
+        const io = req.app.get('io');
+        if (io) io.to('admin-room').emit('project:created', { project });
+
         results.created++;
       } catch (err) {
         results.errors.push({ row: row.name || '(unknown)', error: err.message });
@@ -382,6 +464,10 @@ router.get('/projects', async (req, res) => {
 router.post('/projects', authorize('admin', 'manager'), async (req, res) => {
   try {
     const project = await Project.create(req.body);
+
+    const io = req.app.get('io');
+    if (io) io.to('admin-room').emit('project:created', { project });
+
     res.status(201).json({ success: true, data: project });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
@@ -391,6 +477,10 @@ router.post('/projects', authorize('admin', 'manager'), async (req, res) => {
 router.put('/projects/:id', authorize('admin', 'manager'), async (req, res) => {
   try {
     const project = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+
+    const io = req.app.get('io');
+    if (io) io.to('admin-room').emit('project:updated', { project });
+
     res.json({ success: true, data: project });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
@@ -400,6 +490,10 @@ router.put('/projects/:id', authorize('admin', 'manager'), async (req, res) => {
 router.delete('/projects/:id', authorize('admin'), async (req, res) => {
   try {
     await Project.findByIdAndDelete(req.params.id);
+
+    const io = req.app.get('io');
+    if (io) io.to('admin-room').emit('project:deleted', { id: req.params.id });
+
     res.json({ success: true, message: 'Project deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -413,11 +507,7 @@ router.get('/settings', async (req, res) => {
   try {
     let settings = await SiteSettings.findOne({});
     if (!settings) settings = await SiteSettings.create({});
-    // Never return SMTP password or WA token in plain text — mask them
-    const obj = settings.toObject();
-    if (obj.smtp?.pass) obj.smtp.pass = '••••••••';
-    if (obj.whatsappCloud?.accessToken) obj.whatsappCloud.accessToken = '••••••••';
-    res.json({ success: true, settings: obj });
+    res.json({ success: true, settings: maskSettings(settings.toObject()) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -426,6 +516,7 @@ router.get('/settings', async (req, res) => {
 router.put('/settings', authorize('admin'), async (req, res) => {
   try {
     const update = req.body;
+    // Skip update if masked placeholder is sent unchanged
     if (update.smtp?.pass === '••••••••') delete update.smtp.pass;
     if (update.whatsappCloud?.accessToken === '••••••••') delete update.whatsappCloud.accessToken;
 
@@ -437,7 +528,8 @@ router.put('/settings', authorize('admin'), async (req, res) => {
       require('../services/whatsappService')._invalidateCache?.();
     } catch (_) {}
 
-    res.json({ success: true, settings });
+    // Return masked settings (never expose real password/token after save)
+    res.json({ success: true, settings: maskSettings(settings.toObject()) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -447,7 +539,6 @@ router.put('/settings', authorize('admin'), async (req, res) => {
 router.post('/settings/test-smtp', authorize('admin'), async (req, res) => {
   try {
     const { testSmtpConnection } = require('../services/emailService');
-    // If password is masked, load from DB
     let { host, port, secure, user, pass, from } = req.body;
     if (pass === '••••••••') {
       const s = await SiteSettings.findOne({}).lean();

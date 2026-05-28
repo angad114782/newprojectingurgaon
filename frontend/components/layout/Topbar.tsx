@@ -1,6 +1,6 @@
 'use client';
-import Link from 'next/link';
 import { PhoneIcon, EnvelopeIcon, MapPinIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
+import LeadCTA from '@/components/lead/LeadCTA';
 
 interface TopbarProps {
   phone?: string;
@@ -11,7 +11,7 @@ interface TopbarProps {
 
 export default function Topbar({
   phone = '+91-9999999999',
-  email = 'info@gurgaonrealty.in',
+  email = 'info@newprojectsingurgaon.com',
   address = 'Gurgaon, Haryana',
   totalProjects = '150+',
 }: TopbarProps) {
@@ -40,9 +40,9 @@ export default function Topbar({
             <EnvelopeIcon className="w-3.5 h-3.5" />
             <span>{email}</span>
           </a>
-          <Link href="#lead-form" className="bg-brand-accent text-white font-semibold px-4 py-1.5 rounded-full text-xs hover:opacity-90 transition-opacity">
+          <LeadCTA ctaType="site_visit_request" className="bg-brand-accent text-white font-semibold px-4 py-1.5 rounded-full text-xs hover:opacity-90 transition-opacity">
             📅 Book Free Site Visit
-          </Link>
+          </LeadCTA>
         </div>
       </div>
     </div>

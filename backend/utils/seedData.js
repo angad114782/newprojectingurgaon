@@ -880,12 +880,12 @@ const seedAll = async () => {
     await Project.insertMany(PROJECTS);
     console.log(`✅ Inserted ${PROJECTS.length} projects (DLF, M3M, Krisumi, Godrej, Oberoi & more)`);
 
-    await User.create({ name: 'Admin', email: 'admin@gurgaonrealty.com', mobile: '9999999999', password: 'Admin@123', role: 'admin' });
-    await User.create({ name: 'Sales Manager', email: 'manager@gurgaonrealty.com', mobile: '9988776655', password: 'Manager@123', role: 'manager' });
-    await User.create({ name: 'Rahul Sharma', email: 'rahul@gurgaonrealty.com', mobile: '9876543210', password: 'Sales@123', role: 'salesman' });
+    await User.create({ name: 'Admin', email: 'admin@newprojectsingurgaon.com', mobile: '9999999999', password: 'Admin@123', role: 'admin' });
+    await User.create({ name: 'Sales Manager', email: 'manager@newprojectsingurgaon.com', mobile: '9988776655', password: 'Manager@123', role: 'manager' });
+    await User.create({ name: 'Rahul Sharma', email: 'rahul@newprojectsingurgaon.com', mobile: '9876543210', password: 'Sales@123', role: 'salesman' });
     console.log('✅ Created admin, manager and salesman users');
-    console.log('\n🔑 Admin: admin@gurgaonrealty.com / Admin@123');
-    console.log('🔑 Manager: manager@gurgaonrealty.com / Manager@123\n');
+    console.log('\n🔑 Admin: admin@newprojectsingurgaon.com / Admin@123');
+    console.log('🔑 Manager: manager@newprojectsingurgaon.com / Manager@123\n');
 
     process.exit(0);
   } catch (err) {
@@ -897,17 +897,17 @@ const seedAll = async () => {
 const seedSettings = async () => {
   const SiteSettings = require('../models/SiteSettings');
   await SiteSettings.create({
-    siteName: 'GurgaonRealty',
+    siteName: 'New Projects in Gurgaon',
     phone: '+91-9999999999',
     whatsapp: '919999999999',
-    email: 'info@gurgaonrealty.in',
+    email: 'info@newprojectsingurgaon.com',
     address: 'DLF Cyber City, Gurgaon, Haryana 122002',
     streetAddress: 'DLF Cyber City',
     postalCode: '122002',
     openingHours: 'Mon–Sun: 9 AM – 8 PM',
     geoLat: '28.4595',
     geoLng: '77.0266',
-    seoTitle: 'New Projects in Gurgaon 2025 | New Launch & Premium Property | GurgaonRealty',
+    seoTitle: 'New Projects in Gurgaon 2025 | New Launch & Premium Property | New Projects in Gurgaon',
     seoDescription: "Gurgaon's most trusted real estate advisory. Verified new launch projects, 2 BHK homes, luxury apartments on Dwarka Expressway, Golf Course Extension Road by DLF, M3M, Godrej, Oberoi. Free site visit. Zero brokerage.",
     seoKeywords: ['new projects in Gurgaon 2025', 'new launch projects in Gurgaon', 'property in Gurgaon', '2 bhk homes in Gurgaon', 'luxury apartments in Gurgaon', 'property on Dwarka Expressway', 'residential property in Gurgaon', 'DLF projects Gurgaon', 'M3M projects Gurgaon'],
     ogImage: '/og-home.jpg',
@@ -917,10 +917,10 @@ const seedSettings = async () => {
       reviewCount: '847', rating: '4.9',
     },
     testimonials: [
-      { name: 'Rajesh Mehta', city: 'Delhi', role: 'IT Professional', review: 'GurgaonRealty helped me compare 6 projects in Sector 106 and Sector 113 before I finalised Krisumi Waterside. Their zero-pressure approach and detailed price analysis saved me at least ₹8 Lakh.', rating: 5, avatar: 'R', project: 'Krisumi Waterside' },
-      { name: 'Priya Sharma', city: 'Gurgaon', role: 'Doctor', review: 'Found my dream 3 BHK on Dwarka Expressway through GurgaonRealty. The team organized 3 site visits in a single day without any sales pressure. Bought DLF Privana South with full confidence.', rating: 5, avatar: 'P', project: 'DLF Privana South' },
+      { name: 'Rajesh Mehta', city: 'Delhi', role: 'IT Professional', review: 'New Projects in Gurgaon helped me compare 6 projects in Sector 106 and Sector 113 before I finalised Krisumi Waterside. Their zero-pressure approach and detailed price analysis saved me at least ₹8 Lakh.', rating: 5, avatar: 'R', project: 'Krisumi Waterside' },
+      { name: 'Priya Sharma', city: 'Gurgaon', role: 'Doctor', review: 'Found my dream 3 BHK on Dwarka Expressway through New Projects in Gurgaon. The team organized 3 site visits in a single day without any sales pressure. Bought DLF Privana South with full confidence.', rating: 5, avatar: 'P', project: 'DLF Privana South' },
       { name: 'Ankit Gupta', city: 'Noida', role: 'NRI Investor', review: 'As an NRI, I needed someone trustworthy for investment property in Gurgaon. The ROI analysis and rental yield projections were data-driven and accurate. Invested in M3M Antalya Hills.', rating: 5, avatar: 'A', project: 'M3M Antalya Hills' },
-      { name: 'Sunita Kapoor', city: 'Faridabad', role: 'Business Owner', review: 'First-time homebuyer. GurgaonRealty explained RERA, payment plans and OC clearly. Zero brokerage is real — I paid nothing. Booked Sobha Altus in Sector 106.', rating: 5, avatar: 'S', project: 'Sobha Altus' },
+      { name: 'Sunita Kapoor', city: 'Faridabad', role: 'Business Owner', review: 'First-time homebuyer. New Projects in Gurgaon explained RERA, payment plans and OC clearly. Zero brokerage is real — I paid nothing. Booked Sobha Altus in Sector 106.', rating: 5, avatar: 'S', project: 'Sobha Altus' },
     ],
     locations: [
       { name: 'Dwarka Expressway', projects: '35+', icon: '🛣️', href: '/dwarka-expressway-projects', highlight: 'Fastest Growing', img: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=70', color: 'from-blue-900/80' },
@@ -937,12 +937,12 @@ const seedSettings = async () => {
       { name: 'Emaar' }, { name: 'Tata' }, { name: 'Signature Global' }, { name: 'Hero Homes' },
       { name: 'Krisumi' }, { name: 'Elan' }, { name: 'Smartworld' }, { name: 'Shapoorji' },
     ],
-    social: { facebook: 'https://facebook.com/gurgaonrealty', instagram: 'https://instagram.com/gurgaonrealty', youtube: '', linkedin: '', twitter: '' },
+    social: { facebook: 'https://facebook.com/newprojectsingurgaon', instagram: 'https://instagram.com/newprojectsingurgaon', youtube: '', linkedin: '', twitter: '' },
     faqs: [
       { q: 'What are new launch projects in Gurgaon?', a: 'New launch projects in Gurgaon are freshly announced residential developments that have received RERA registration and opened bookings for the first time. They offer the best entry pricing — typically 10–25% below what the same project will cost in 12–18 months.' },
       { q: 'Which is the best location to invest in Gurgaon in 2025?', a: 'Dwarka Expressway (Sectors 99–115), Golf Course Extension Road and SPR Road are the top investment zones in 2025, with 15–45% appreciation potential driven by metro expansion, airport proximity and corporate demand.' },
-      { q: 'Is there any fee for using GurgaonRealty?', a: 'No. Our advisory, site visits, price comparisons and documentation support are completely free for buyers. We earn only from verified builders, never from you.' },
-      { q: 'How do I verify a project\'s RERA registration?', a: 'Visit haryanarera.gov.in and search by project name or RERA number. All projects listed on GurgaonRealty are RERA-verified before listing.' },
+      { q: 'Is there any fee for using New Projects in Gurgaon?', a: 'No. Our advisory, site visits, price comparisons and documentation support are completely free for buyers. We earn only from verified builders, never from you.' },
+      { q: 'How do I verify a project\'s RERA registration?', a: 'Visit haryanarera.gov.in and search by project name or RERA number. All projects listed on New Projects in Gurgaon are RERA-verified before listing.' },
       { q: 'What is the difference between new launch and ready-to-move?', a: 'New launch offers lower pricing but requires 3–4 year wait. Ready-to-move has higher pricing but immediate possession and rental income potential.' },
       { q: 'What is the minimum budget to buy in Gurgaon?', a: 'Properties in Gurgaon start from ₹40 Lakh for 1BHK in New Gurgaon (Sector 37D) under DDJAY scheme. Premium 2BHK on Dwarka Expressway start from ₹80 Lakh. Luxury options from ₹2 Cr.' },
     ],

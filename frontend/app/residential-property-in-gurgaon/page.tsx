@@ -53,7 +53,7 @@ export default function ResidentialPropertyPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               <a href="#types" className="btn-primary">Explore Property Types</a>
-              <a href="#lead-form" className="btn-white">Find Best Residential Property</a>
+              <button type="button" onClick={() => document.dispatchEvent(new CustomEvent("open-lead-modal", { detail: { ctaType: "site_visit_request" } }))} className="btn-white">Find Best Residential Property</button>
             </div>
           </div>
         </div>

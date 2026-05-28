@@ -1,7 +1,7 @@
 // Advanced Schema Markup for SEO + AIO (AI Overview) + GEO (Generative Engine Optimization)
-// This makes the site rank in Google SGE, ChatGPT, Perplexity and other AI search engines
+// Targets Google SGE, ChatGPT, Perplexity, Gemini, Claude and voice search
 
-const SITE_URL = (typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL) || 'https://www.gurgaonrealty.in';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
 
 interface ProjectSchemaProps {
   name: string;
@@ -81,15 +81,15 @@ export function LocalBusinessSchema({ page = 'home', locationName }: LocalBusine
   const schema = {
     '@context': 'https://schema.org',
     '@type': ['RealEstateAgent', 'LocalBusiness'],
-    name: 'GurgaonRealty',
+    name: 'New Projects in Gurgaon',
     alternateName: 'Gurgaon Realty — Property Advisory',
     description:
-      'GurgaonRealty is Gurgaon\'s most trusted real estate advisory platform helping buyers find verified new launch, pre-launch and ready-to-move properties. Free site visit support, transparent pricing, RERA-verified projects.',
+      'New Projects in Gurgaon is Gurgaon\'s most trusted real estate advisory platform helping buyers find verified new launch, pre-launch and ready-to-move properties. Free site visit support, transparent pricing, RERA-verified projects.',
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
     image: `${SITE_URL}/og-image.jpg`,
     telephone: '+91-99999-99999',
-    email: 'info@gurgaonrealty.in',
+    email: 'info@newprojectsingurgaon.com',
     foundingDate: '2020',
     areaServed: [
       { '@type': 'City', name: 'Gurgaon' },
@@ -135,7 +135,7 @@ export function LocalBusinessSchema({ page = 'home', locationName }: LocalBusine
         author: { '@type': 'Person', name: 'Rajesh Mehta' },
         reviewRating: { '@type': 'Rating', ratingValue: '5' },
         reviewBody:
-          'GurgaonRealty helped me compare 6 projects in one weekend site visit. Booked DLF and got the exact price as quoted — zero surprises.',
+          'New Projects in Gurgaon helped me compare 6 projects in one weekend site visit. Booked DLF and got the exact price as quoted — zero surprises.',
         datePublished: '2024-11-15',
       },
       {
@@ -148,10 +148,10 @@ export function LocalBusinessSchema({ page = 'home', locationName }: LocalBusine
       },
     ],
     sameAs: [
-      'https://www.facebook.com/gurgaonrealty',
-      'https://www.instagram.com/gurgaonrealty',
-      'https://www.youtube.com/@gurgaonrealty',
-      'https://www.linkedin.com/company/gurgaonrealty',
+      'https://www.facebook.com/newprojectsingurgaon',
+      'https://www.instagram.com/newprojectsingurgaon',
+      'https://www.youtube.com/@newprojectsingurgaon',
+      'https://www.linkedin.com/company/newprojectsingurgaon',
     ],
   };
 
@@ -221,12 +221,12 @@ export function ArticleSchema({
     dateModified: dateModified || datePublished,
     author: {
       '@type': 'Organization',
-      name: 'GurgaonRealty',
+      name: 'New Projects in Gurgaon',
       url: SITE_URL,
     },
     publisher: {
       '@type': 'Organization',
-      name: 'GurgaonRealty',
+      name: 'New Projects in Gurgaon',
       url: SITE_URL,
       logo: {
         '@type': 'ImageObject',
@@ -311,7 +311,7 @@ export function HowToSchema({
 // Add these to layout.tsx head via metadata export
 export const AIO_META = {
   // Tells AI crawlers this is authoritative real estate data
-  'application-name': 'GurgaonRealty',
+  'application-name': 'New Projects in Gurgaon',
   'theme-color': '#075B63',
   // AI-specific signals
   'robots': 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
@@ -321,7 +321,6 @@ export const AIO_META = {
 export function GEOContentHints({ location, priceRange, builders }: {
   location: string; priceRange: string; builders: string[];
 }) {
-  // Hidden semantic enrichment for AI parsers — structured facts
   return (
     <div className="sr-only" aria-hidden="true">
       <span itemProp="name">{location} real estate</span>
@@ -331,4 +330,95 @@ export function GEOContentHints({ location, priceRange, builders }: {
       <span itemProp="serviceType">Real Estate Advisory</span>
     </div>
   );
+}
+
+// ── 9. WebSite Schema (SearchAction + AI entity recognition) ──────────────────
+export function WebSiteSchema({ siteName, siteUrl }: { siteName?: string; siteUrl?: string }) {
+  const url = siteUrl || SITE_URL;
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${url}/#website`,
+    name: siteName || 'New Projects in Gurgaon',
+    url,
+    description: "Gurgaon's most trusted real estate advisory. RERA verified new launch, luxury & premium residential projects. Zero brokerage. Free site visit.",
+    inLanguage: 'en-IN',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: { '@type': 'EntryPoint', urlTemplate: `${url}/new-projects-in-gurgaon?q={search_term_string}` },
+      'query-input': 'required name=search_term_string',
+    },
+    publisher: {
+      '@type': 'Organization',
+      '@id': `${url}/#organization`,
+      name: siteName || 'New Projects in Gurgaon',
+      url,
+      logo: { '@type': 'ImageObject', url: `${url}/logo.png`, width: 200, height: 60 },
+      sameAs: ['https://www.facebook.com/newprojectsingurgaon', 'https://www.instagram.com/newprojectsingurgaon', 'https://www.youtube.com/@newprojectsingurgaon', 'https://www.linkedin.com/company/newprojectsingurgaon'],
+    },
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+}
+
+// ── 10. Speakable Schema (voice search + AI assistants) ───────────────────────
+export function SpeakableSchema() {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', 'h2', '.speakable'] },
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+}
+
+// ── 11. ItemList Schema (for listing pages — AI indexes all projects) ──────────
+export function ItemListSchema({ items, name, url }: {
+  items: Array<{ name: string; slug: string; position: number }>;
+  name: string; url: string;
+}) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name,
+    url,
+    numberOfItems: items.length,
+    itemListElement: items.map((item) => ({
+      '@type': 'ListItem',
+      position: item.position,
+      name: item.name,
+      url: `${SITE_URL}/project/${item.slug}`,
+    })),
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+}
+
+// ── 12. Product Schema for property (richer Google snippets) ─────────────────
+export function PropertyProductSchema({ project }: { project: {
+  name: string; slug: string; price: string; priceMin?: number;
+  location: string; builder: string; status: string; heroImage?: string;
+  description?: string; rera?: string;
+}}) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: project.name,
+    description: project.description || `${project.name} by ${project.builder} in ${project.location}, Gurgaon.`,
+    image: project.heroImage || `${SITE_URL}/og-home.jpg`,
+    brand: { '@type': 'Brand', name: project.builder },
+    url: `${SITE_URL}/project/${project.slug}`,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'INR',
+      price: project.priceMin ? project.priceMin * 100000 : 0,
+      priceValidUntil: new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+      availability: project.status === 'Ready To Move' ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
+      seller: { '@type': 'Organization', name: 'New Projects in Gurgaon', url: SITE_URL },
+    },
+    additionalProperty: [
+      { '@type': 'PropertyValue', name: 'RERA Number', value: project.rera || 'Applied' },
+      { '@type': 'PropertyValue', name: 'Location', value: project.location },
+      { '@type': 'PropertyValue', name: 'Developer', value: project.builder },
+      { '@type': 'PropertyValue', name: 'Status', value: project.status },
+    ],
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
 }

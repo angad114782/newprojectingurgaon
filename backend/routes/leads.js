@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Lead = require('../models/Lead');
 const { createAndSendOTP, verifyOTP } = require('../services/otpService');
-const { triggerAutomation, sendAdminLeadNotification } = require('../services/whatsappService');
+const { triggerAutomation, sendAdminLeadNotification, sendUserThankYouWhatsApp } = require('../services/whatsappService');
 const { sendLeadNotificationEmail, sendLeadWelcomeEmail } = require('../services/emailService');
 const { v4: uuidv4 } = require('uuid');
 
@@ -138,6 +138,10 @@ router.post('/verify-otp', async (req, res) => {
     lead.addEvent('otp_verified', 'User verified mobile OTP', '', 5);
     await lead.save();
 
+    // Notify admin room in real-time
+    const io = req.app.get('io');
+    if (io) io.to('admin-room').emit('lead:new', { lead });
+
     // Generate token and respond immediately — don't block on notifications
     const jwt = require('jsonwebtoken');
     const token = jwt.sign({ leadId: lead._id, visitorId: lead.visitorId }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -147,6 +151,7 @@ router.post('/verify-otp', async (req, res) => {
     sendLeadNotificationEmail(lead).catch(e => console.error('Email notify error:', e.message));
     sendLeadWelcomeEmail(lead).catch(e => console.error('Welcome email error:', e.message));
     sendAdminLeadNotification(lead).catch(e => console.error('WA admin error:', e.message));
+    sendUserThankYouWhatsApp(lead).catch(e => console.error('WA thankyou error:', e.message));
     if (lead.whatsappConsent) {
       if (lead.buyingPurpose === 'Investment') {
         triggerAutomation(lead, 'investment_intent', { location: lead.preferredLocation || lead.interestedLocation || 'Gurgaon' }).catch(() => {});
@@ -186,6 +191,10 @@ router.post('/submit', async (req, res) => {
 
     lead.addEvent('form_submitted', 'Lead form submitted', sourcePage, 15);
     await lead.save();
+
+    // Notify admin room in real-time
+    const io = req.app.get('io');
+    if (io) io.to('admin-room').emit('lead:new', { lead });
 
     res.json({ success: true, message: 'Thank you! Our advisor will contact you shortly.', leadId: lead._id });
 

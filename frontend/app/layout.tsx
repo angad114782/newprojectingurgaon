@@ -8,7 +8,7 @@ import Footer from '@/components/layout/Footer';
 import MobileBottomCTA from '@/components/layout/MobileBottomCTA';
 import StickyButtons from '@/components/layout/StickyButtons';
 import { TrackingProvider } from '@/components/lead/TrackingProvider';
-import { UrgencyBanner, TrustStrip, LiveActivityToast } from '@/components/conversion/PsychTriggers';
+import { UrgencyBanner, TrustStrip, LiveActivityToast, BackToTopButton } from '@/components/conversion/PsychTriggers';
 import { fetchSettings } from '@/lib/settings';
 
 function getSiteUrl(host: string | null): string {
@@ -25,49 +25,50 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = getSiteUrl(host);
   const settings = await fetchSettings();
 
+  const siteName = settings.siteName || 'New Projects in Gurgaon';
   const title = settings.seoTitle ||
-    `New Projects in Gurgaon 2025 | New Launch & Premium Property | ${settings.siteName}`;
+    `New Projects in Gurgaon 2025 | Luxury Apartments & New Launch Property | ${siteName}`;
   const description = settings.seoDescription ||
-    `${settings.siteName} — Gurgaon's most trusted real estate advisory. Verified new launch projects, 2 BHK homes, luxury apartments on Dwarka Expressway, Golf Course Extension Road by DLF, M3M, Godrej, Oberoi. Free site visit. Zero brokerage.`;
+    `${siteName} — Verified new launch & luxury projects in Gurgaon by DLF, M3M, Godrej, Sobha, Emaar. 3 BHK & 4 BHK on Dwarka Expressway, Golf Course Road from ₹1.5 Cr. Free site visit. Zero brokerage. RERA verified.`;
   const keywords = settings.seoKeywords?.length ? settings.seoKeywords : [
-    'new projects in Gurgaon 2025', 'new launch projects in Gurgaon', 'property in Gurgaon',
-    '2 bhk homes in Gurgaon', 'luxury apartments in Gurgaon', 'property on Dwarka Expressway',
-    'residential property in Gurgaon', 'DLF projects Gurgaon', 'M3M projects Gurgaon',
+    'new projects in gurgaon 2025', 'new launch projects gurgaon', 'luxury apartments gurgaon',
+    'property in gurgaon', '3 bhk gurgaon', '4 bhk gurgaon', 'dwarka expressway projects',
+    'golf course road property', 'dlf new project gurgaon', 'm3m gurgaon', 'residential property gurgaon',
+    'gurgaon real estate', 'buy flat in gurgaon', 'rera verified projects gurgaon',
   ];
   const ogImage = settings.ogImage?.startsWith('http') ? settings.ogImage : `${siteUrl}${settings.ogImage || '/og-home.jpg'}`;
 
   return {
     metadataBase: new URL(siteUrl),
-    title: {
-      default: title,
-      template: `%s | ${settings.siteName}`,
-    },
+    title: { default: title, template: `%s | ${siteName}` },
     description,
     keywords,
-    authors: [{ name: settings.siteName }],
-    creator: settings.siteName,
-    publisher: settings.siteName,
+    authors: [{ name: siteName, url: siteUrl }],
+    creator: siteName,
+    publisher: siteName,
+    category: 'Real Estate',
     robots: {
       index: true, follow: true,
       googleBot: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large', 'max-video-preview': -1 },
     },
     openGraph: {
-      type: 'website',
-      locale: 'en_IN',
-      url: siteUrl,
-      siteName: settings.siteName,
-      title,
-      description,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: `New Projects in Gurgaon — ${settings.siteName}` }],
+      type: 'website', locale: 'en_IN', url: siteUrl, siteName,
+      title, description,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `New Projects in Gurgaon 2025 — ${siteName}` }],
     },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [ogImage],
-    },
+    twitter: { card: 'summary_large_image', title, description, images: [ogImage], site: '@newprojectsingurgaon' },
     alternates: { canonical: siteUrl },
     icons: { icon: '/favicon.ico', apple: '/apple-touch-icon.png' },
+    // AIO/GEO: structured signals for AI crawlers
+    other: {
+      'geo.region': 'IN-HR',
+      'geo.placename': 'Gurgaon',
+      'geo.position': '28.4595;77.0266',
+      'ICBM': '28.4595, 77.0266',
+      'rating': 'general',
+      'revisit-after': '3 days',
+      'language': 'English',
+    },
   };
 }
 
@@ -118,6 +119,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           rel="stylesheet"
         />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          '@id': `${siteUrl}/#website`,
+          name: settings.siteName,
+          url: siteUrl,
+          description: "Gurgaon's most trusted real estate advisory. RERA verified new launch projects. Zero brokerage. Free site visit.",
+          inLanguage: 'en-IN',
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: { '@type': 'EntryPoint', urlTemplate: `${siteUrl}/new-projects-in-gurgaon?q={search_term_string}` },
+            'query-input': 'required name=search_term_string',
+          },
+        }) }} />
         {ga4Id && (
           <>
             <script async src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`} />
@@ -131,7 +146,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <TrackingProvider>
-          <UrgencyBanner />
+          <UrgencyBanner config={settings.conversion?.urgencyBanner} />
           <Topbar
             phone={settings.phone}
             email={settings.email}
@@ -139,7 +154,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             totalProjects={settings.marketStats?.totalProjects}
           />
           <Header phone={settings.phone} siteName={settings.siteName} />
-          <TrustStrip />
+          <TrustStrip config={settings.conversion?.trustStrip} />
           <main>{children}</main>
           <Footer
             phone={settings.phone}
@@ -149,10 +164,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             address={settings.address}
             openingHours={settings.openingHours}
             social={settings.social}
+            reraNumber={settings.reraNumber}
+            reraLink={settings.reraLink}
           />
           <MobileBottomCTA phone={settings.phone} whatsapp={settings.whatsapp} />
           <StickyButtons phone={settings.phone} whatsapp={settings.whatsapp} />
-          <LiveActivityToast />
+          <LiveActivityToast config={settings.conversion?.liveActivity} />
+          <BackToTopButton />
           <Toaster
             position="top-right"
             toastOptions={{

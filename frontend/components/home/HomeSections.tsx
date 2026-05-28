@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import LeadCTA from '@/components/lead/LeadCTA';
 import Image from 'next/image';
 import { MapPinIcon, StarIcon } from '@heroicons/react/24/solid';
 import { fetchSettings } from '@/lib/settings';
@@ -116,7 +117,7 @@ export async function WhyChooseUs() {
               className="bg-white text-brand-dark font-semibold px-6 py-3 rounded-xl text-sm hover:bg-brand-mint transition-colors">
               📞 {phone}
             </a>
-            <Link href="/#lead-form" className="btn-primary text-sm">Get Free Advisory →</Link>
+            <LeadCTA ctaType="site_visit_request" className="btn-primary text-sm">Get Free Advisory →</LeadCTA>
           </div>
         </div>
       </div>
@@ -155,7 +156,7 @@ export async function BuilderLogos() {
                   {inner}
                 </a>
               ) : (
-                <Link key={b.name} href={`/new-projects-in-gurgaon?builder=${encodeURIComponent(b.name)}`} className={cls + ' group'}>
+                <Link key={b.name} href="/new-projects-in-gurgaon" className={cls + ' group'}>
                   {inner}
                 </Link>
               );

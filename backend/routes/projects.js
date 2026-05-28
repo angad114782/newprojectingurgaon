@@ -25,6 +25,7 @@ router.get('/', async (req, res) => {
       Project.countDocuments(query),
     ]);
 
+    res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
     res.json({ success: true, data: projects, total, page: Number(page), pages: Math.ceil(total / limit) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -57,6 +58,7 @@ router.get('/:slug', async (req, res) => {
       $or: [{ microLocation: project.microLocation }, { status: project.status }],
     }).limit(3);
 
+    res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600');
     res.json({ success: true, data: project, similar });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

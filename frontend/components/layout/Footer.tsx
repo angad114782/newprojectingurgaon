@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ALL_SEO_PAGES } from '@/lib/projects';
+import LeadCTA from '@/components/lead/LeadCTA';
 
 const NAV_LINKS = [
   { label: 'New Launch Projects Gurgaon', href: '/new-launch-projects-in-gurgaon' },
@@ -25,16 +26,20 @@ interface FooterProps {
   siteName?: string;
   address?: string;
   openingHours?: string;
+  reraNumber?: string;
+  reraLink?: string;
   social?: { facebook?: string; instagram?: string; youtube?: string; linkedin?: string; twitter?: string };
 }
 
 export default function Footer({
   phone = '+91-9999999999',
-  email = 'info@gurgaonrealty.in',
+  email = 'info@newprojectsingurgaon.com',
   whatsapp = '919999999999',
-  siteName = 'GurgaonRealty',
+  siteName = 'New Projects in Gurgaon',
   address = 'Cyber City, Gurgaon, Haryana',
   openingHours = 'Mon–Sun: 9 AM – 8 PM',
+  reraNumber = '',
+  reraLink = 'https://haryanarera.gov.in',
   social = {},
 }: FooterProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
@@ -145,21 +150,27 @@ export default function Footer({
             <h3 className="font-display font-semibold text-sm uppercase tracking-wide text-white/80 mb-4">Resources & Tools</h3>
             <ul className="space-y-2">
               {[
-                { label: 'Investment Calculator', href: '/#lead-form' },
-                { label: 'Free Site Visit', href: '/#lead-form' },
-                { label: 'Get Price List', href: '/#lead-form' },
-                { label: 'Download Brochure', href: '/#lead-form' },
+                { label: 'Investment Calculator', modal: true, ctaType: 'price_list' },
+                { label: 'Free Site Visit', modal: true, ctaType: 'site_visit_request' },
+                { label: 'Get Price List', modal: true, ctaType: 'price_list' },
+                { label: 'Download Brochure', modal: true, ctaType: 'brochure' },
                 { label: 'Property Blog', href: '/blog' },
                 { label: 'Best Sectors 2025', href: '/blog/best-sectors-to-invest-in-gurgaon' },
                 { label: 'Dwarka Expressway Guide', href: '/blog/dwarka-expressway-investment-guide' },
                 { label: 'New Launch vs RTM', href: '/blog/new-launch-vs-ready-to-move-property' },
                 { label: 'How to Check RERA', href: '/blog/how-to-check-rera-before-buying-property' },
                 { label: 'Best Builders Guide', href: '/blog/best-builders-in-gurgaon' },
-              ].map((l) => (
-                <li key={l.href + l.label}>
-                  <Link href={l.href} className="text-white/60 text-sm hover:text-brand-accent transition-colors hover:pl-1 duration-200 block">
-                    {l.label}
-                  </Link>
+              ].map((l: any) => (
+                <li key={l.label}>
+                  {l.modal ? (
+                    <LeadCTA ctaType={l.ctaType} className="text-white/60 text-sm hover:text-brand-accent transition-colors hover:pl-1 duration-200 block text-left w-full">
+                      {l.label}
+                    </LeadCTA>
+                  ) : (
+                    <Link href={l.href} className="text-white/60 text-sm hover:text-brand-accent transition-colors hover:pl-1 duration-200 block">
+                      {l.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -188,6 +199,12 @@ export default function Footer({
           <div>
             <p className="text-white/40 text-xs">© {new Date().getFullYear()} {siteName}. All rights reserved.</p>
             <p className="text-white/30 text-xs mt-1">Real estate advisory for new projects in Gurgaon. RERA verified. Zero brokerage.</p>
+            {reraNumber && (
+              <a href={reraLink} target="_blank" rel="noopener noreferrer"
+                className="text-white/30 hover:text-brand-accent text-xs mt-1 block transition-colors">
+                RERA Reg. No: {reraNumber}
+              </a>
+            )}
           </div>
           <div className="flex items-center gap-4">
             <a href={waLink} target="_blank" rel="noopener noreferrer"
@@ -200,7 +217,7 @@ export default function Footer({
               <a href={social.instagram} target="_blank" rel="noopener noreferrer"
                 className="text-white/40 hover:text-brand-accent text-xs transition-colors">Instagram</a>
             )}
-            <a href="https://haryanarera.gov.in" target="_blank" rel="noopener noreferrer"
+            <a href={reraLink} target="_blank" rel="noopener noreferrer"
               className="text-white/40 hover:text-brand-accent text-xs transition-colors">Verify on RERA →</a>
             <Link href="/admin" className="text-white/20 hover:text-white/40 text-xs transition-colors">Admin</Link>
           </div>

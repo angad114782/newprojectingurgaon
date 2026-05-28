@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
       const created = await SiteSettings.create({});
       settings = created.toObject();
     }
-    res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+    res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600, stale-if-error=86400');
     res.json({ success: true, data: settings });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -34,6 +34,7 @@ router.put('/', protect, async (req, res) => {
       settings.markModified('faqs');
       settings.markModified('heroImages');
       settings.markModified('seoKeywords');
+      settings.markModified('conversion');
     }
     await settings.save();
     res.json({ success: true, data: settings });

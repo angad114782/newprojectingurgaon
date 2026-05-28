@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Bars3Icon, XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { PhoneIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
+import LeadCTA from '@/components/lead/LeadCTA';
 
 const navLinks = [
   {
@@ -33,7 +34,7 @@ const navLinks = [
   },
 ];
 
-export default function Header({ phone = '{phone}', siteName = 'GurgaonRealty' }: { phone?: string; siteName?: string }) {
+export default function Header({ phone = '{phone}', siteName = 'New Projects in Gurgaon' }: { phone?: string; siteName?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -117,9 +118,9 @@ export default function Header({ phone = '{phone}', siteName = 'GurgaonRealty' }
               <PhoneIcon className="w-4 h-4" />
               {phone}
             </a>
-            <Link href="#lead-form" className="btn-primary text-sm py-2.5 px-5">
+            <LeadCTA ctaType="site_visit_request" className="btn-primary text-sm py-2.5 px-5">
               Free Site Visit
-            </Link>
+            </LeadCTA>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -164,9 +165,9 @@ export default function Header({ phone = '{phone}', siteName = 'GurgaonRealty' }
               <a href={`tel:${phone.replace(/[^+\d]/g, '')}`} className="btn-outline w-full justify-center text-sm py-2.5">
                 📞 Call Us
               </a>
-              <Link href="#lead-form" className="btn-primary w-full justify-center text-sm py-2.5">
+              <LeadCTA ctaType="site_visit_request" className="btn-primary w-full justify-center text-sm py-2.5">
                 📅 Free Site Visit
-              </Link>
+              </LeadCTA>
             </div>
           </div>
         </div>
