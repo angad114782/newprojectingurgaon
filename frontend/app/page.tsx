@@ -5,7 +5,7 @@ import FeaturedProjects from '@/components/home/FeaturedProjects';
 import LeadForm from '@/components/home/LeadForm';
 import { LocationsSection, WhyChooseUs, BuilderLogos, TestimonialsSection, MarketStatsSection, FAQSection, InternalLinksBlock, LuxuryHighlightsStrip } from '@/components/home/HomeSections';
 import { ROICalculator } from '@/components/conversion/PsychTriggers';
-import { LocalBusinessSchema, FAQSchema, WebSiteSchema, SpeakableSchema } from '@/components/seo/SchemaMarkup';
+import { FAQSchema, SpeakableSchema } from '@/components/seo/SchemaMarkup';
 import { fetchSettings } from '@/lib/settings';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -55,10 +55,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <LocalBusinessSchema page="home" />
       <FAQSchema faqs={faqsForSchema} />
-
-      <WebSiteSchema siteName={settings.siteName} siteUrl={siteUrl} />
       <SpeakableSchema />
 
       {/* Hero — 100% dynamic from DB settings */}

@@ -83,14 +83,29 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const settings = await fetchSettings();
   const ga4Id = settings.ga4Id || process.env.NEXT_PUBLIC_GA4_ID || '';
 
+  const sameAsLinks = [
+    settings.social?.facebook,
+    settings.social?.instagram,
+    settings.social?.youtube,
+    settings.social?.linkedin,
+    settings.social?.twitter,
+  ].filter(Boolean);
+
   const schema = {
     '@context': 'https://schema.org',
     '@type': ['RealEstateAgent', 'LocalBusiness'],
+    '@id': `${siteUrl}/#organization`,
     name: settings.siteName,
+    alternateName: 'Gurgaon Realty — Property Advisory',
     description: `${settings.siteName} — Gurgaon's most trusted real estate advisory for new launch projects, luxury apartments and premium residential property. Free advisory. Zero brokerage.`,
     url: siteUrl,
+    logo: { '@type': 'ImageObject', url: `${siteUrl}/logo.png`, width: 200, height: 60 },
+    image: `${siteUrl}/og-home.jpg`,
     telephone: settings.phone,
     email: settings.email,
+    foundingDate: '2020',
+    currenciesAccepted: 'INR',
+    paymentAccepted: 'Cash, Online Transfer, Cheque',
     address: {
       '@type': 'PostalAddress',
       streetAddress: settings.streetAddress || 'DLF Cyber City',
@@ -99,18 +114,29 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       postalCode: settings.postalCode || '122002',
       addressCountry: 'IN',
     },
-    geo: { '@type': 'GeoCoordinates', latitude: settings.geoLat, longitude: settings.geoLng },
-    openingHours: 'Mo-Su 09:00-20:00',
+    geo: { '@type': 'GeoCoordinates', latitude: settings.geoLat || '28.4595', longitude: settings.geoLng || '77.0266' },
+    openingHoursSpecification: [
+      { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '09:00', closes: '20:00' },
+      { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Sunday', opens: '10:00', closes: '18:00' },
+    ],
     priceRange: '₹₹₹',
-    areaServed: { '@type': 'City', name: 'Gurgaon' },
-    ...(settings.social?.facebook || settings.social?.instagram ? {
-      sameAs: [
-        settings.social.facebook,
-        settings.social.instagram,
-        settings.social.youtube,
-        settings.social.linkedin,
-      ].filter(Boolean),
+    areaServed: [
+      { '@type': 'City', name: 'Gurgaon' },
+      { '@type': 'AdministrativeArea', name: 'Haryana' },
+    ],
+    ...(settings.marketStats?.rating && settings.marketStats?.reviewCount ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: settings.marketStats.rating,
+        reviewCount: settings.marketStats.reviewCount.replace(/\D/g, '') || '100',
+        bestRating: '5',
+        worstRating: '1',
+      },
     } : {}),
+    ...(settings.googleBusinessProfile ? {
+      hasMap: settings.googleBusinessProfile,
+      sameAs: [...sameAsLinks, settings.googleBusinessProfile].filter(Boolean),
+    } : sameAsLinks.length ? { sameAs: sameAsLinks } : {}),
   };
 
   return (
@@ -131,6 +157,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           url: siteUrl,
           description: "Gurgaon's most trusted real estate advisory. RERA verified new launch projects. Zero brokerage. Free site visit.",
           inLanguage: 'en-IN',
+          publisher: { '@id': `${siteUrl}/#organization` },
           potentialAction: {
             '@type': 'SearchAction',
             target: { '@type': 'EntryPoint', urlTemplate: `${siteUrl}/new-projects-in-gurgaon?q={search_term_string}` },

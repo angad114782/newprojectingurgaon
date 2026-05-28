@@ -64,6 +64,7 @@ export interface SiteSettings {
   heroImages: string[];
   reraNumber: string;
   reraLink: string;
+  googleBusinessProfile: string;
   conversion: {
     urgencyBanner: { enabled: boolean; message: string; linkText: string; linkHref: string };
     liveActivity: { enabled: boolean; firstDelay: number; interval: number; duration: number; cities: string[]; names: string[]; actions: string[] };
@@ -119,6 +120,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroImages: [],
   reraNumber: '',
   reraLink: 'https://haryanarera.gov.in',
+  googleBusinessProfile: '',
   conversion: {
     urgencyBanner: { enabled: true, message: 'Price hike alert: Dwarka Expressway projects raising prices by 5–8% in June 2026.', linkText: "Lock today's price →", linkHref: '#lead-form' },
     liveActivity: { enabled: true, firstDelay: 8000, interval: 22000, duration: 4500, cities: ['Delhi', 'Noida', 'Faridabad', 'Mumbai', 'Bangalore', 'Hyderabad', 'Pune', 'Chandigarh'], names: ['Rahul S.', 'Priya K.', 'Amit V.', 'Neha G.', 'Vikram M.', 'Sunita R.', 'Rohit B.', 'Anjali T.'], actions: ['just requested the price list', 'booked a free site visit', 'downloaded the brochure', 'asked about payment plans', 'enquired about floor plans', 'checked unit availability'] },

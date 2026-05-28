@@ -1431,6 +1431,24 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* Google Business Profile */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <SectionHeader title="Google Business Profile (Local SEO)" icon="📍" />
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">Google Business Profile URL</label>
+                <input
+                  className="input-field"
+                  placeholder="https://maps.google.com/?cid=XXXXXXX"
+                  value={(siteSettings as any).googleBusinessProfile || ''}
+                  onChange={(e) => setSiteSettings({ ...siteSettings, googleBusinessProfile: e.target.value } as any)}
+                />
+                <p className="text-xs text-brand-muted mt-1">
+                  Google Business Profile link — schema mein hasMap property set hogi. "Near me" searches ke liye must hai.
+                  Google Maps pe apna listing kholo → Share → Copy link.
+                </p>
+              </div>
+            </div>
+
             <div className="pb-24" />
           </div>
         )}
