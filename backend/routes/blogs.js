@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Blog = require('../models/Blog');
-const auth = require('../middleware/auth');
+const { protect: auth } = require('../middleware/auth');
 
 const SUMMARY_FIELDS = 'title slug excerpt heroImage category author.name date readTime status';
 
