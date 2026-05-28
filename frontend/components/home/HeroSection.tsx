@@ -4,32 +4,77 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTracking } from '@/components/lead/TrackingProvider';
 import OTPModal from '@/components/lead/OTPModal';
-import { MARKET_STATS } from '@/lib/projects';
 
-const LOCATIONS = ['Dwarka Expressway', 'Golf Course Extension', 'SPR Road', 'Sector 113', 'Sector 106', 'New Gurgaon', 'Sohna Road'];
+interface HeroProps {
+  siteName?: string;
+  phone?: string;
+  whatsapp?: string;
+  heroTagline?: string;
+  heroTitle?: string;
+  heroTitleAccent?: string;
+  heroSubtitle?: string;
+  heroCTAPrimary?: string;
+  heroCTASecondary?: string;
+  heroImageUrl?: string;
+  stats?: {
+    totalProjects?: string;
+    familiesHelped?: string;
+    avgAppreciation?: string;
+    topBuilders?: string;
+  };
+  locations?: Array<{ name: string; href: string }>;
+}
+
 const TYPES = ['All Types', 'New Launch', 'Pre Launch', 'Under Construction', 'Ready To Move'];
-const BUDGETS = ['Any Budget', 'Under ₹50L', '₹50L – ₹1 Cr', '₹1 Cr – ₹2 Cr', '₹2 Cr – ₹5 Cr', '₹5 Cr+'];
+const BUDGETS = ['Any Budget', 'Under ₹50L', '₹50L – ₹1 Cr', '₹1 Cr – ₹2 Cr', '₹2 Cr – ₹5 Cr', '₹5 Cr – ₹10 Cr', '₹10 Cr+'];
 
-export default function HeroSection() {
+export default function HeroSection({
+  siteName = 'GurgaonRealty',
+  phone = '+91-9999999999',
+  whatsapp = '919999999999',
+  heroTagline = "Gurgaon's #1 Real Estate Advisory",
+  heroTitle = 'New Projects in Gurgaon 2025',
+  heroTitleAccent = '',
+  heroSubtitle = '150+ verified new launch, pre-launch and ready-to-move properties. Free site visit. Transparent pricing. RERA approved.',
+  heroCTAPrimary = '🏠 Book Free Site Visit',
+  heroCTASecondary = 'View New Launches →',
+  heroImageUrl = 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85',
+  stats = {},
+  locations = [],
+}: HeroProps) {
   const { trackCTA } = useTracking();
   const [otpModal, setOtpModal] = useState(false);
   const [search, setSearch] = useState({ location: '', type: '', budget: '' });
 
+  const wa = (whatsapp || '919999999999').replace(/[^+\d]/g, '');
+  const ph = (phone || '+91-9999999999').replace(/[^+\d]/g, '');
+
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (search.location) params.set('location', search.location);
-    if (search.type) params.set('status', search.type);
-    if (search.budget) params.set('budget', search.budget);
+    if (search.type && search.type !== 'All Types') params.set('status', search.type);
+    if (search.budget && search.budget !== 'Any Budget') params.set('budget', search.budget);
     window.location.href = `/new-projects-in-gurgaon?${params.toString()}`;
   };
 
+  // Split hero title — first word(s) are primary, accent part is highlighted
+  const accentText = heroTitleAccent || '';
+  const baseTitle = heroTitle || 'New Projects in Gurgaon 2025';
+
+  const statsCards = [
+    { value: stats.totalProjects || '150+', label: 'Verified Projects' },
+    { value: stats.familiesHelped || '4,200+', label: 'Families Helped' },
+    { value: stats.avgAppreciation || '32%', label: 'Avg Appreciation' },
+    { value: stats.topBuilders || '50+', label: 'Top Builders' },
+  ];
+
   return (
     <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden">
-      {/* Background image */}
+      {/* Background image — from admin heroImageUrl */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85"
-          alt="Luxury apartments in Gurgaon"
+          src={heroImageUrl || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85'}
+          alt={`Luxury apartments in Gurgaon — ${siteName}`}
           fill
           priority
           className="object-cover object-center"
@@ -39,32 +84,37 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/60 via-transparent to-transparent" />
       </div>
 
-      {/* Dot pattern overlay */}
       <div className="absolute inset-0 dot-pattern opacity-20 z-[1]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-16 md:py-20 w-full">
         <div className="max-w-3xl">
-          {/* Badge */}
+          {/* Tagline badge — from admin heroTagline */}
           <div className="inline-flex items-center gap-2 bg-brand-accent/20 border border-brand-accent/40 text-brand-accent text-xs font-semibold px-4 py-2 rounded-full mb-6">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-accent" />
             </span>
-            Gurgaon's #1 Real Estate Advisory — 4,200+ Families Helped
+            {heroTagline} — {stats.familiesHelped || '4,200+'} Families Helped
           </div>
 
-          {/* Headline */}
+          {/* H1 — from admin heroTitle + heroTitleAccent */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-white leading-[1.1] mb-5">
-            New Projects in
-            <span className="block text-brand-accent">Gurgaon 2025</span>
+            {accentText ? (
+              <>
+                {baseTitle}
+                <span className="block text-brand-accent">{accentText}</span>
+              </>
+            ) : (
+              baseTitle
+            )}
           </h1>
 
+          {/* Subtitle — from admin heroSubtitle */}
           <p className="text-white/80 text-lg md:text-xl leading-relaxed mb-8 max-w-2xl">
-            150+ verified new launch, pre-launch and ready-to-move properties.
-            Free site visit support. Transparent pricing. RERA approved.
+            {heroSubtitle}
           </p>
 
-          {/* Search Bar */}
+          {/* Search Bar — locations from admin settings.locations */}
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-3">
               <div className="border-b sm:border-b-0 sm:border-r border-gray-100">
@@ -77,7 +127,10 @@ export default function HeroSection() {
                   className="w-full px-4 pb-3 text-brand-text text-sm font-medium bg-transparent border-0 outline-none cursor-pointer"
                 >
                   <option value="">All Locations</option>
-                  {LOCATIONS.map((l) => <option key={l}>{l}</option>)}
+                  {locations.length > 0
+                    ? locations.map((l) => <option key={l.name} value={l.name}>{l.name}</option>)
+                    : ['Dwarka Expressway', 'Golf Course Extension', 'SPR Road', 'Sector 113', 'Sector 106', 'New Gurgaon', 'Sohna Road'].map((l) => <option key={l}>{l}</option>)
+                  }
                 </select>
               </div>
               <div className="border-b sm:border-b-0 sm:border-r border-gray-100">
@@ -115,19 +168,19 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* CTAs */}
+          {/* CTAs — from admin heroCTAPrimary, heroCTASecondary, whatsapp */}
           <div className="flex flex-wrap gap-3 mb-10">
             <button
               onClick={() => { trackCTA('site_visit_request'); setOtpModal(true); }}
               className="btn-primary text-sm flex items-center gap-2"
             >
-              🏠 Book Free Site Visit
+              {heroCTAPrimary}
             </button>
             <Link href="/new-launch-projects-in-gurgaon" className="btn-white text-sm">
-              View New Launches →
+              {heroCTASecondary}
             </Link>
             <a
-              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919999999999'}?text=Hi, I am looking for property in Gurgaon. Please help me.`}
+              href={`https://wa.me/${wa}?text=${encodeURIComponent(`Hi, I am looking for property in Gurgaon. Please help me.`)}`}
               target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 bg-green-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors"
             >
@@ -135,14 +188,9 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* Stats Grid */}
+          {/* Stats Grid — all from admin marketStats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {[
-              { value: MARKET_STATS.totalProjects, label: 'Verified Projects' },
-              { value: MARKET_STATS.familiesHelped, label: 'Families Helped' },
-              { value: MARKET_STATS.avgAppreciation, label: 'Avg Appreciation' },
-              { value: MARKET_STATS.topBuilders, label: 'Top Builders' },
-            ].map((s) => (
+            {statsCards.map((s) => (
               <div key={s.label} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-4 py-3 text-white">
                 <div className="text-2xl font-display font-bold text-brand-accent">{s.value}</div>
                 <div className="text-white/70 text-xs mt-0.5">{s.label}</div>
@@ -187,6 +235,9 @@ export default function HeroSection() {
                 <span>·</span>
                 <span>⚡ 2-hr response</span>
               </div>
+              <a href={`tel:${ph}`} className="flex items-center justify-center gap-2 text-brand-dark text-xs font-semibold hover:text-brand-accent transition-colors">
+                📞 {phone}
+              </a>
             </div>
           </div>
         </div>

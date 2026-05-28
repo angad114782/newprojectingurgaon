@@ -16,7 +16,8 @@ import {
   FAQSchema,
 } from '@/components/seo/SchemaMarkup';
 import { InternalLinksBlock } from '@/components/home/HomeSections';
-import { ALL_PROJECTS } from '@/lib/projects';
+import { headers } from 'next/headers';
+import { fetchSettings } from '@/lib/settings';
 import {
   fetchProjectBySlug,
   fetchRelatedByCorridor,
@@ -67,68 +68,47 @@ const safeText = (value: any, fallback = '') => {
   return String(value);
 };
 
-// Fetch from API, fallback to static lib
 async function getProject(slug: string) {
-  const apiProject = await fetchProjectBySlug(slug);
-  if (apiProject) return apiProject;
-  return ALL_PROJECTS.find((p) => p.slug === slug) || null;
+  return await fetchProjectBySlug(slug);
 }
 
 export async function generateStaticParams() {
   const apiSlugs = await fetchAllProjectSlugs();
-  const staticSlugs = ALL_PROJECTS.map((p) => p.slug);
-  const all = Array.from(new Set([...apiSlugs, ...staticSlugs]));
-  return all.map((slug) => ({ slug }));
+  return apiSlugs.map((slug) => ({ slug }));
 }
 
 export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const project = await getProject(params.slug);
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
+  const siteUrl = `${proto}://${host}`;
+  const [project, settings] = await Promise.all([getProject(params.slug), fetchSettings()]);
 
   if (!project) {
-    return {
-      title: 'Project Not Found | GurgaonRealty',
-    };
+    return { title: `Project Not Found | ${settings.siteName}` };
   }
 
   const builderName = getBuilderName(project.builder);
   const configurations = safeArray(project.configurations);
-
   const p = project as any;
-  const title =
-    p.metaTitle ||
-    `${project.name} Gurgaon | Price, Floor Plans, RERA`;
-
-  const description =
-    p.metaDescription ||
-    `${project.name} by ${builderName} in ${project.location}. ${configurations
-      .slice(0, 2)
-      .join(', ')} available from ${p.price || p.priceDisplay || 'Price on Request'}. Get price list, floor plans, RERA details and free site visit.`;
+  const title = p.metaTitle || `${project.name} Gurgaon | Price, Floor Plans, RERA | ${settings.siteName}`;
+  const description = p.metaDescription || `${project.name} by ${builderName} in ${project.location}. ${configurations.slice(0, 2).join(', ')} available from ${p.price || p.priceDisplay || 'Price on Request'}. Get price list, floor plans, RERA details and free site visit.`;
+  const pageUrl = `${siteUrl}/project/${params.slug}`;
 
   return {
     title,
     description,
-    keywords:
-      p.metaKeywords ||
-      `${project.name}, ${builderName}, ${project.name} Gurgaon, ${project.sector} Gurgaon property, ${project.corridor} projects, new projects in Gurgaon`,
+    keywords: p.metaKeywords || `${project.name}, ${builderName}, ${project.name} Gurgaon, ${project.sector} Gurgaon property, ${project.corridor} projects, new projects in Gurgaon`,
     openGraph: {
       title,
       description,
-      url: `https://www.gurgaonrealty.in/project/${params.slug}`,
+      url: pageUrl,
       type: 'website',
-      images: [
-        {
-          url: safeImage((project as any).heroImage) || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&q=80',
-          width: 1200,
-          height: 630,
-          alt: project.name,
-        },
-      ],
+      images: [{ url: safeImage((project as any).heroImage) || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&q=80', width: 1200, height: 630, alt: project.name }],
     },
-    alternates: {
-      canonical: `https://www.gurgaonrealty.in/project/${params.slug}`,
-    },
+    alternates: { canonical: pageUrl },
   };
 }
 
@@ -140,7 +120,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default async function ProjectDetailPage({ params }: Props) {
-  const project = await getProject(params.slug);
+  const [project, settings] = await Promise.all([getProject(params.slug), fetchSettings()]);
 
   if (!project) {
     return (
@@ -188,6 +168,11 @@ export default async function ProjectDetailPage({ params }: Props) {
     tags.find((t: string) => typeof t === 'string' && (t.includes('expressway') || t.includes('road') || t.includes('golf') || t.includes('spr'))) ||
     'new-projects-in-gurgaon';
 
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
+  const siteUrl = `${proto}://${host}`;
+
   const [sameCorridor, similarBudgetRaw] = await Promise.all([
     fetchRelatedByCorridor(project.corridor, project.slug, 3),
     project.priceMin
@@ -213,19 +198,10 @@ export default async function ProjectDetailPage({ params }: Props) {
 
       <BreadcrumbSchema
         items={[
-          { name: 'Home', url: 'https://www.gurgaonrealty.in' },
-          {
-            name: 'Projects',
-            url: 'https://www.gurgaonrealty.in/new-projects-in-gurgaon',
-          },
-          {
-            name: project.corridor,
-            url: `https://www.gurgaonrealty.in/${locationSlug}`,
-          },
-          {
-            name: project.name,
-            url: `https://www.gurgaonrealty.in/project/${project.slug}`,
-          },
+          { name: 'Home', url: siteUrl },
+          { name: 'Projects', url: `${siteUrl}/new-projects-in-gurgaon` },
+          { name: project.corridor, url: `${siteUrl}/${locationSlug}` },
+          { name: project.name, url: `${siteUrl}/project/${project.slug}` },
         ]}
       />
 
@@ -779,7 +755,7 @@ export default async function ProjectDetailPage({ params }: Props) {
 
                 <a
                   href={`https://wa.me/${
-                    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919999999999'
+                    (settings.whatsapp || '919999999999').replace(/[^+\d]/g, '')
                   }?text=${encodeURIComponent(
                     `Hi, I am interested in ${project.name}. Please share complete details.`
                   )}`}
@@ -793,7 +769,7 @@ export default async function ProjectDetailPage({ params }: Props) {
 
               <div className="mt-4 pt-4 border-t border-white/10 text-xs text-white/50 space-y-1">
                 <div>
-                  📞 Call: {process.env.NEXT_PUBLIC_PHONE || '+91-99999-99999'}
+                  📞 Call: {settings.phone || '+91-9999999999'}
                 </div>
                 <div>⚡ Advisor responds in &lt; 2 hours</div>
                 <div>🔒 Your info is private and secure</div>

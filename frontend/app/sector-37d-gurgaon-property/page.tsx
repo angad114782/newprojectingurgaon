@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Sector 37D Gurgaon Property | Affordable New Projects in New Gurgaon',
   description: 'Explore affordable residential projects in Sector 37D Gurgaon near Dwarka Expressway metro. Signature Global, Hero Homes and budget-friendly new launches for first-time homebuyers.',
   keywords: 'sector 37d gurgaon property, sector 37d gurgaon flats, new gurgaon sector 37d projects',
-  alternates: { canonical: 'https://www.gurgaonrealty.in/sector-37d-gurgaon-property' },
+  alternates: { canonical: '/sector-37d-gurgaon-property' },
 };
 
 export default async function Sector37DPage() {

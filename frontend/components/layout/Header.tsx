@@ -33,7 +33,7 @@ const navLinks = [
   },
 ];
 
-export default function Header() {
+export default function Header({ phone = '{phone}', siteName = 'GurgaonRealty' }: { phone?: string; siteName?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -61,11 +61,10 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-9 h-9 bg-brand-dark rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-white font-display font-bold text-base leading-none">G</span>
+              <span className="text-white font-display font-bold text-base leading-none">{siteName[0] || 'G'}</span>
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-display font-bold text-brand-dark text-lg leading-none">Gurgaon</span>
-              <span className="text-brand-accent font-semibold text-xs tracking-widest uppercase leading-tight">Realty</span>
+              <span className="font-display font-bold text-brand-dark text-lg leading-none">{siteName}</span>
             </div>
           </Link>
 
@@ -112,11 +111,11 @@ export default function Header() {
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
             <a
-              href="tel:+919999999999"
+              href={`tel:${phone.replace(/[^+\d]/g, '')}`}
               className="flex items-center gap-2 text-brand-dark font-semibold text-sm hover:text-brand-accent transition-colors"
             >
               <PhoneIcon className="w-4 h-4" />
-              +91-9999999999
+              {phone}
             </a>
             <Link href="#lead-form" className="btn-primary text-sm py-2.5 px-5">
               Free Site Visit
@@ -162,7 +161,7 @@ export default function Header() {
               </div>
             ))}
             <div className="pt-3 border-t border-brand-border flex flex-col gap-2">
-              <a href="tel:+919999999999" className="btn-outline w-full justify-center text-sm py-2.5">
+              <a href={`tel:${phone.replace(/[^+\d]/g, '')}`} className="btn-outline w-full justify-center text-sm py-2.5">
                 📞 Call Us
               </a>
               <Link href="#lead-form" className="btn-primary w-full justify-center text-sm py-2.5">

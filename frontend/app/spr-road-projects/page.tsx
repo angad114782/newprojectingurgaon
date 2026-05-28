@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   title: 'SPR Road Projects Gurgaon 2025 | Southern Peripheral Road Property',
   description: 'Best projects on SPR Road (Southern Peripheral Road) Gurgaon — DLF Privana, M3M Altitude, M3M Antalya Hills. Luxury & premium 3/4 BHK from ₹1.8 Cr. Free advisory.',
   keywords: 'spr road gurgaon projects, on spr road property, southern peripheral road gurgaon, spr road property, sector 65 gurgaon, DLF Privana SPR, M3M Altitude SPR Road',
-  openGraph: { title: 'SPR Road Projects Gurgaon | Premium Property', description: 'Best luxury projects on SPR Road Gurgaon — DLF, M3M from ₹1.8 Cr.', url: 'https://www.gurgaonrealty.in/spr-road-projects', type: 'website' },
-  alternates: { canonical: 'https://www.gurgaonrealty.in/spr-road-projects' },
+  openGraph: { title: 'SPR Road Projects Gurgaon | Premium Property', description: 'Best luxury projects on SPR Road Gurgaon — DLF, M3M from ₹1.8 Cr.', url: '/spr-road-projects', type: 'website' },
+  alternates: { canonical: '/spr-road-projects' },
   robots: { index: true, follow: true },
 };
 

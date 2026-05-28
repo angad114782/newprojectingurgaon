@@ -1,5 +1,3 @@
-import { ALL_PROJECTS } from './projects';
-
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
 
 export interface ApiProject {
@@ -186,7 +184,7 @@ export async function fetchRelatedByBudget(
   }
 }
 
-// ── Fetch with fallback to static data ───────────────────────────────────────
+// ── Fetch projects — no static fallback, DB is the only source of truth ──────
 export async function fetchProjectsWithFallback(params: {
   corridor?: string;
   sector?: string;
@@ -195,26 +193,5 @@ export async function fetchProjectsWithFallback(params: {
   limit?: number;
 } = {}) {
   const apiProjects = await fetchApiProjects(params);
-
-  if (apiProjects.length > 0) return apiProjects.map(mapToTemplateProject);
-
-  // Fall back to static data if API is unreachable
-  let fallback = ALL_PROJECTS as any[];
-  if (params.corridor) fallback = fallback.filter((p) => p.corridor === params.corridor);
-  if (params.sector) fallback = fallback.filter((p) => p.sector?.includes(params.sector!));
-  if (params.status) fallback = fallback.filter((p) => p.status === params.status);
-  if (params.featured) fallback = fallback.filter((p) => p.isFeatured);
-
-  return fallback.slice(0, params.limit || 20).map((p) => ({
-    name: p.name,
-    price: p.price || p.priceDisplay || 'Price on Request',
-    config: (p.configurations || []).slice(0, 3).map((c: string) => c.split('(')[0].trim()).join(', ') || '—',
-    status: p.status,
-    builder: typeof p.builder === 'string' ? p.builder : p.builder?.name || '',
-    slug: p.slug,
-    location: p.location,
-    heroImage: p.heroImage,
-    isVerified: p.isVerified,
-    isNew: p.isNew,
-  }));
+  return apiProjects.map(mapToTemplateProject);
 }

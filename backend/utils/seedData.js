@@ -894,7 +894,74 @@ const seedAll = async () => {
   }
 };
 
-module.exports = { seedProjects, PROJECTS };
+const seedSettings = async () => {
+  const SiteSettings = require('../models/SiteSettings');
+  await SiteSettings.create({
+    siteName: 'GurgaonRealty',
+    phone: '+91-9999999999',
+    whatsapp: '919999999999',
+    email: 'info@gurgaonrealty.in',
+    address: 'DLF Cyber City, Gurgaon, Haryana 122002',
+    streetAddress: 'DLF Cyber City',
+    postalCode: '122002',
+    openingHours: 'Mon–Sun: 9 AM – 8 PM',
+    geoLat: '28.4595',
+    geoLng: '77.0266',
+    seoTitle: 'New Projects in Gurgaon 2025 | New Launch & Premium Property | GurgaonRealty',
+    seoDescription: "Gurgaon's most trusted real estate advisory. Verified new launch projects, 2 BHK homes, luxury apartments on Dwarka Expressway, Golf Course Extension Road by DLF, M3M, Godrej, Oberoi. Free site visit. Zero brokerage.",
+    seoKeywords: ['new projects in Gurgaon 2025', 'new launch projects in Gurgaon', 'property in Gurgaon', '2 bhk homes in Gurgaon', 'luxury apartments in Gurgaon', 'property on Dwarka Expressway', 'residential property in Gurgaon', 'DLF projects Gurgaon', 'M3M projects Gurgaon'],
+    ogImage: '/og-home.jpg',
+    marketStats: {
+      totalProjects: '150+', familiesHelped: '4,200+', topBuilders: '50+',
+      avgAppreciation: '32%', avgRentalYield: '3.5%', yearsActive: '5+',
+      reviewCount: '847', rating: '4.9',
+    },
+    testimonials: [
+      { name: 'Rajesh Mehta', city: 'Delhi', role: 'IT Professional', review: 'GurgaonRealty helped me compare 6 projects in Sector 106 and Sector 113 before I finalised Krisumi Waterside. Their zero-pressure approach and detailed price analysis saved me at least ₹8 Lakh.', rating: 5, avatar: 'R', project: 'Krisumi Waterside' },
+      { name: 'Priya Sharma', city: 'Gurgaon', role: 'Doctor', review: 'Found my dream 3 BHK on Dwarka Expressway through GurgaonRealty. The team organized 3 site visits in a single day without any sales pressure. Bought DLF Privana South with full confidence.', rating: 5, avatar: 'P', project: 'DLF Privana South' },
+      { name: 'Ankit Gupta', city: 'Noida', role: 'NRI Investor', review: 'As an NRI, I needed someone trustworthy for investment property in Gurgaon. The ROI analysis and rental yield projections were data-driven and accurate. Invested in M3M Antalya Hills.', rating: 5, avatar: 'A', project: 'M3M Antalya Hills' },
+      { name: 'Sunita Kapoor', city: 'Faridabad', role: 'Business Owner', review: 'First-time homebuyer. GurgaonRealty explained RERA, payment plans and OC clearly. Zero brokerage is real — I paid nothing. Booked Sobha Altus in Sector 106.', rating: 5, avatar: 'S', project: 'Sobha Altus' },
+    ],
+    locations: [
+      { name: 'Dwarka Expressway', projects: '35+', icon: '🛣️', href: '/dwarka-expressway-projects', highlight: 'Fastest Growing', img: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=70', color: 'from-blue-900/80' },
+      { name: 'Sector 113', projects: '12+', icon: '✈️', href: '/sector-113-gurgaon-property', highlight: 'Near Airport', img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=70', color: 'from-green-900/80' },
+      { name: 'Sector 106', projects: '10+', icon: '🏢', href: '/sector-106-gurgaon-property', highlight: 'Premium Belt', img: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=70', color: 'from-purple-900/80' },
+      { name: 'Golf Course Ext Road', projects: '20+', icon: '⛳', href: '/golf-course-extension-road-projects', highlight: 'Top Rated', img: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&q=70', color: 'from-teal-900/80' },
+      { name: 'Sector 102', projects: '8+', icon: '🌿', href: '/sector-102-gurgaon-property', highlight: 'Green Sector', img: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=70', color: 'from-indigo-900/80' },
+      { name: 'SPR Road', projects: '15+', icon: '📈', href: '/spr-road-projects', highlight: 'High ROI', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=70', color: 'from-orange-900/80' },
+      { name: 'New Gurgaon', projects: '25+', icon: '🌆', href: '/new-gurgaon-projects', highlight: 'Emerging', img: 'https://images.unsplash.com/photo-1574362848149-11496d93a7c7?w=400&q=70', color: 'from-red-900/80' },
+      { name: 'Sector 37D', projects: '6+', icon: '🏡', href: '/sector-37d-gurgaon-property', highlight: 'Affordable', img: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&q=70', color: 'from-yellow-900/80' },
+    ],
+    builders: [
+      { name: 'DLF' }, { name: 'Sobha' }, { name: 'M3M' }, { name: 'Godrej' },
+      { name: 'Emaar' }, { name: 'Tata' }, { name: 'Signature Global' }, { name: 'Hero Homes' },
+      { name: 'Krisumi' }, { name: 'Elan' }, { name: 'Smartworld' }, { name: 'Shapoorji' },
+    ],
+    social: { facebook: 'https://facebook.com/gurgaonrealty', instagram: 'https://instagram.com/gurgaonrealty', youtube: '', linkedin: '', twitter: '' },
+    faqs: [
+      { q: 'What are new launch projects in Gurgaon?', a: 'New launch projects in Gurgaon are freshly announced residential developments that have received RERA registration and opened bookings for the first time. They offer the best entry pricing — typically 10–25% below what the same project will cost in 12–18 months.' },
+      { q: 'Which is the best location to invest in Gurgaon in 2025?', a: 'Dwarka Expressway (Sectors 99–115), Golf Course Extension Road and SPR Road are the top investment zones in 2025, with 15–45% appreciation potential driven by metro expansion, airport proximity and corporate demand.' },
+      { q: 'Is there any fee for using GurgaonRealty?', a: 'No. Our advisory, site visits, price comparisons and documentation support are completely free for buyers. We earn only from verified builders, never from you.' },
+      { q: 'How do I verify a project\'s RERA registration?', a: 'Visit haryanarera.gov.in and search by project name or RERA number. All projects listed on GurgaonRealty are RERA-verified before listing.' },
+      { q: 'What is the difference between new launch and ready-to-move?', a: 'New launch offers lower pricing but requires 3–4 year wait. Ready-to-move has higher pricing but immediate possession and rental income potential.' },
+      { q: 'What is the minimum budget to buy in Gurgaon?', a: 'Properties in Gurgaon start from ₹40 Lakh for 1BHK in New Gurgaon (Sector 37D) under DDJAY scheme. Premium 2BHK on Dwarka Expressway start from ₹80 Lakh. Luxury options from ₹2 Cr.' },
+    ],
+    heroImages: [
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85',
+      'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1400&q=80',
+    ],
+    heroTagline: "Gurgaon's #1 Real Estate Advisory",
+    heroTitle: 'Luxury & Premium Projects in Gurgaon 2025',
+    heroTitleAccent: 'From ₹2 Cr — No Brokerage',
+    heroSubtitle: '150+ verified new launch, pre-launch & ready-to-move luxury homes. RERA approved. Free site visit. Transparent pricing.',
+    heroCTAPrimary: '🏠 Book Free Site Visit',
+    heroCTASecondary: 'View New Launches →',
+    heroImageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85',
+  });
+  console.log('✅ Default site settings seeded');
+};
+
+module.exports = { seedProjects, seedSettings, PROJECTS };
 
 // Run directly: node utils/seedData.js
 if (require.main === module) {

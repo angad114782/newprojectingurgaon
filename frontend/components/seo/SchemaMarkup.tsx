@@ -1,6 +1,8 @@
 // Advanced Schema Markup for SEO + AIO (AI Overview) + GEO (Generative Engine Optimization)
 // This makes the site rank in Google SGE, ChatGPT, Perplexity and other AI search engines
 
+const SITE_URL = (typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL) || 'https://www.gurgaonrealty.in';
+
 interface ProjectSchemaProps {
   name: string;
   description: string;
@@ -27,7 +29,7 @@ export function RealEstateListingSchema({ project }: { project: ProjectSchemaPro
     '@type': 'RealEstateListing',
     name: project.name,
     description: project.description,
-    url: `https://www.gurgaonrealty.in/project/${project.slug}`,
+    url: `${SITE_URL}/project/${project.slug}`,
     datePosted: new Date().toISOString().split('T')[0],
     validThrough: new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
     price: project.price,
@@ -83,9 +85,9 @@ export function LocalBusinessSchema({ page = 'home', locationName }: LocalBusine
     alternateName: 'Gurgaon Realty — Property Advisory',
     description:
       'GurgaonRealty is Gurgaon\'s most trusted real estate advisory platform helping buyers find verified new launch, pre-launch and ready-to-move properties. Free site visit support, transparent pricing, RERA-verified projects.',
-    url: 'https://www.gurgaonrealty.in',
-    logo: 'https://www.gurgaonrealty.in/logo.png',
-    image: 'https://www.gurgaonrealty.in/og-image.jpg',
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.png`,
+    image: `${SITE_URL}/og-image.jpg`,
     telephone: '+91-99999-99999',
     email: 'info@gurgaonrealty.in',
     foundingDate: '2020',
@@ -214,26 +216,26 @@ export function ArticleSchema({
     '@type': 'Article',
     headline: title,
     description,
-    url: `https://www.gurgaonrealty.in/blog/${slug}`,
+    url: `${SITE_URL}/blog/${slug}`,
     datePublished,
     dateModified: dateModified || datePublished,
     author: {
       '@type': 'Organization',
       name: 'GurgaonRealty',
-      url: 'https://www.gurgaonrealty.in',
+      url: SITE_URL,
     },
     publisher: {
       '@type': 'Organization',
       name: 'GurgaonRealty',
-      url: 'https://www.gurgaonrealty.in',
+      url: SITE_URL,
       logo: {
         '@type': 'ImageObject',
-        url: 'https://www.gurgaonrealty.in/logo.png',
+        url: `${SITE_URL}/logo.png`,
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://www.gurgaonrealty.in/blog/${slug}`,
+      '@id': `${SITE_URL}/blog/${slug}`,
     },
   };
   return (

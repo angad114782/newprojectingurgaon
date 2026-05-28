@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ProjectCard from '@/components/project/ProjectCard';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
-import { ALL_PROJECTS } from '@/lib/projects';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
 
@@ -14,7 +13,7 @@ const TABS = [
   { label: 'Ready To Move', value: 'Ready To Move' },
 ];
 
-export default function FeaturedProjects() {
+export default function FeaturedProjects({ phone }: { phone?: string }) {
   const [activeTab, setActiveTab] = useState('');
   const [allProjects, setAllProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,19 +21,18 @@ export default function FeaturedProjects() {
   useEffect(() => {
     fetch(`${API}/projects?limit=20`)
       .then((r) => r.json())
-      .then((d) => {
-        if (d.success && d.data?.length > 0) setAllProjects(d.data);
-        else setAllProjects(ALL_PROJECTS as any[]);
-      })
-      .catch(() => setAllProjects(ALL_PROJECTS as any[]))
+      .then((d) => { if (d.success && d.data?.length > 0) setAllProjects(d.data); })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
   const displayed = (() => {
-    const source = loading ? (ALL_PROJECTS as any[]) : allProjects;
-    if (activeTab) return source.filter((p) => p.status === activeTab).slice(0, 6);
-    return source.filter((p) => p.isFeatured).concat(source.filter((p) => !p.isFeatured)).slice(0, 6);
+    if (loading) return [];
+    if (activeTab) return allProjects.filter((p) => p.status === activeTab).slice(0, 6);
+    return allProjects.filter((p) => p.isFeatured).concat(allProjects.filter((p) => !p.isFeatured)).slice(0, 6);
   })();
+
+  const callPhone = phone || process.env.NEXT_PUBLIC_PHONE || '+91-9999999999';
 
   return (
     <section className="py-16 bg-white">
@@ -42,13 +40,14 @@ export default function FeaturedProjects() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
             <span className="badge bg-brand-mint text-brand-dark border border-brand-border mb-3">🏙️ Premium Collection</span>
-            <h2 className="section-title">New Projects in Gurgaon</h2>
+            <h2 className="section-title">Luxury & Premium Projects in Gurgaon</h2>
             <p className="section-subtitle mt-2">
-              Handpicked, verified and RERA-approved properties across all budgets.
+              Handpicked, RERA-verified luxury apartments, villas and penthouses — from ₹2 Cr to ₹15 Cr+.
             </p>
           </div>
-          <Link href="/new-projects-in-gurgaon" className="btn-outline whitespace-nowrap flex-shrink-0 flex items-center gap-2">
-            View All 150+ Projects <ArrowRightIcon className="w-4 h-4" />
+          <Link href="/new-projects-in-gurgaon"
+            className="btn-outline whitespace-nowrap flex-shrink-0 flex items-center gap-2">
+            View All Projects <ArrowRightIcon className="w-4 h-4" />
           </Link>
         </div>
 
@@ -65,17 +64,46 @@ export default function FeaturedProjects() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayed.map((project) => (
-            <ProjectCard key={project.slug} project={project} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-80 bg-gray-100 rounded-2xl animate-pulse" />
+            ))}
+          </div>
+        ) : displayed.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayed.map((project) => (
+              <ProjectCard key={project.slug} project={project} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 bg-brand-mint/20 rounded-2xl border border-brand-border/40">
+            <div className="text-6xl mb-4">🏢</div>
+            <h3 className="font-display font-bold text-brand-text text-xl mb-2">
+              Our Representative Will Connect You Soon
+            </h3>
+            <p className="text-brand-muted text-sm mb-6 max-w-md mx-auto">
+              We're curating the finest luxury projects in Gurgaon for you. Call us now for exclusive pre-launch pricing and brochures.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <a href={`tel:${callPhone.replace(/[^+\d]/g, '')}`}
+                className="btn-primary inline-flex items-center gap-2 text-base px-8 py-3">
+                📞 Call Now: {callPhone}
+              </a>
+              <Link href="/#lead-form" className="btn-outline">
+                Request Callback →
+              </Link>
+            </div>
+          </div>
+        )}
 
-        <div className="mt-10 text-center">
-          <Link href="/new-projects-in-gurgaon" className="btn-primary inline-flex items-center gap-2">
-            Explore All New Projects in Gurgaon <ArrowRightIcon className="w-4 h-4" />
-          </Link>
-        </div>
+        {displayed.length > 0 && (
+          <div className="mt-10 text-center">
+            <Link href="/new-projects-in-gurgaon" className="btn-primary inline-flex items-center gap-2">
+              Explore All Projects in Gurgaon <ArrowRightIcon className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

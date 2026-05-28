@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Sector 106 Gurgaon Property | Premium Projects on Dwarka Expressway',
   description: 'Find the best residential projects in Sector 106 Gurgaon — premium 2BHK, 3BHK and 4BHK apartments on Dwarka Expressway from top builders like Godrej, Tata and Hero Homes.',
   keywords: 'sector 106 gurgaon property, sector 106 gurgaon flats, sector 106 gurgaon projects',
-  alternates: { canonical: 'https://www.gurgaonrealty.in/sector-106-gurgaon-property' },
+  alternates: { canonical: '/sector-106-gurgaon-property' },
 };
 
 export default async function Sector106Page() {

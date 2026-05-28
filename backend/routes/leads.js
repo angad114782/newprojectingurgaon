@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Lead = require('../models/Lead');
 const { createAndSendOTP, verifyOTP } = require('../services/otpService');
-const { triggerAutomation } = require('../services/whatsappService');
+const { triggerAutomation, sendAdminLeadNotification } = require('../services/whatsappService');
 const { sendLeadNotificationEmail, sendLeadWelcomeEmail } = require('../services/emailService');
 const { v4: uuidv4 } = require('uuid');
 
@@ -87,7 +87,7 @@ router.post('/send-otp', async (req, res) => {
     if (!mobile) return res.status(400).json({ success: false, message: 'Mobile required' });
 
     const result = await createAndSendOTP({ mobile, visitorId, email, name });
-    res.json({ success: true, message: 'OTP sent successfully', devMode: result.smsResult?.devMode });
+    res.json({ success: true, message: 'OTP sent successfully', channel: result.channel, devMode: result.devMode });
   } catch (err) {
     console.error('OTP send error:', err.message);
     res.status(500).json({ success: false, message: 'Failed to send OTP' });
@@ -101,11 +101,15 @@ router.post('/verify-otp', async (req, res) => {
     const { mobile, otp, visitorId, leadData } = req.body;
     if (!mobile || !otp) return res.status(400).json({ success: false, message: 'Mobile and OTP required' });
 
-    const result = await verifyOTP({ mobile, otp });
+    // Run OTP verify + lead lookup in parallel
+    const [result, leadByVisitor, leadByMobile] = await Promise.all([
+      verifyOTP({ mobile, otp }),
+      visitorId ? Lead.findOne({ visitorId }) : Promise.resolve(null),
+      Lead.findOne({ mobile }),
+    ]);
     if (!result.success) return res.status(400).json({ success: false, message: result.message });
 
-    // Merge or create lead
-    let lead = await Lead.findOne({ visitorId }) || await Lead.findOne({ mobile });
+    let lead = leadByVisitor || leadByMobile;
 
     if (!lead) {
       lead = new Lead({ visitorId: visitorId || uuidv4(), mobile });
@@ -134,30 +138,22 @@ router.post('/verify-otp', async (req, res) => {
     lead.addEvent('otp_verified', 'User verified mobile OTP', '', 5);
     await lead.save();
 
-    // Send notifications
-    try {
-      await sendLeadNotificationEmail(lead);
-      await sendLeadWelcomeEmail(lead);
-    } catch (e) {
-      console.error('Email notification error:', e.message);
-    }
-
-    // Trigger WhatsApp automations
-    if (lead.whatsappConsent) {
-      if (lead.buyingPurpose === 'Investment') {
-        await triggerAutomation(lead, 'investment_intent', {
-          location: lead.preferredLocation || lead.interestedLocation || 'Gurgaon',
-        });
-      } else if (lead.buyingPurpose === 'Self Use' && lead.interestedProject) {
-        await triggerAutomation(lead, 'self_use_intent', { projectName: lead.interestedProject });
-      }
-    }
-
-    // Generate session token for lead tracking
+    // Generate token and respond immediately — don't block on notifications
     const jwt = require('jsonwebtoken');
     const token = jwt.sign({ leadId: lead._id, visitorId: lead.visitorId }, process.env.JWT_SECRET, { expiresIn: '30d' });
-
     res.json({ success: true, message: 'Verified successfully', lead: { id: lead._id, name: lead.name, score: lead.score, status: lead.status }, token });
+
+    // Fire-and-forget: notifications run after response is sent
+    sendLeadNotificationEmail(lead).catch(e => console.error('Email notify error:', e.message));
+    sendLeadWelcomeEmail(lead).catch(e => console.error('Welcome email error:', e.message));
+    sendAdminLeadNotification(lead).catch(e => console.error('WA admin error:', e.message));
+    if (lead.whatsappConsent) {
+      if (lead.buyingPurpose === 'Investment') {
+        triggerAutomation(lead, 'investment_intent', { location: lead.preferredLocation || lead.interestedLocation || 'Gurgaon' }).catch(() => {});
+      } else if (lead.buyingPurpose === 'Self Use' && lead.interestedProject) {
+        triggerAutomation(lead, 'self_use_intent', { projectName: lead.interestedProject }).catch(() => {});
+      }
+    }
   } catch (err) {
     console.error('OTP verify error:', err.message);
     res.status(500).json({ success: false, message: 'Verification failed' });
@@ -191,12 +187,12 @@ router.post('/submit', async (req, res) => {
     lead.addEvent('form_submitted', 'Lead form submitted', sourcePage, 15);
     await lead.save();
 
-    try {
-      await sendLeadNotificationEmail(lead);
-      await sendLeadWelcomeEmail(lead);
-    } catch (e) { console.error('Email error:', e.message); }
-
     res.json({ success: true, message: 'Thank you! Our advisor will contact you shortly.', leadId: lead._id });
+
+    // Fire-and-forget
+    sendLeadNotificationEmail(lead).catch(e => console.error('Email error:', e.message));
+    sendLeadWelcomeEmail(lead).catch(e => console.error('Email error:', e.message));
+    sendAdminLeadNotification(lead).catch(e => console.error('WA admin error:', e.message));
   } catch (err) {
     console.error('Submit error:', err.message);
     res.status(500).json({ success: false, message: 'Submission failed' });

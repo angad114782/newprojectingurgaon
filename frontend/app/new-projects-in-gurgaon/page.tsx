@@ -1,28 +1,34 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import Image from 'next/image';
 import LeadForm from '@/components/home/LeadForm';
 import { fetchApiProjects } from '@/lib/api-projects';
-import { ALL_PROJECTS } from '@/lib/projects';
 import { InternalLinksBlock } from '@/components/home/HomeSections';
+import { fetchSettings } from '@/lib/settings';
 
-const SITE_URL = 'https://www.gurgaonrealty.in';
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
+  const siteUrl = `${proto}://${host}`;
+  const settings = await fetchSettings();
+  const pageUrl = `${siteUrl}/new-projects-in-gurgaon`;
 
-export const metadata: Metadata = {
-  title: 'New Projects in Gurgaon 2025 | Verified Properties & New Developments',
-  description:
-    'Browse all new projects in Gurgaon — new launch, pre-launch, under construction and ready to move from DLF, M3M, Godrej, Krisumi, Oberoi. Compare residential, luxury and affordable properties with price details and floor plans. Free advisory.',
-  keywords: 'new projects in gurgaon, new residential projects gurgaon 2025, upcoming projects gurgaon, gurgaon real estate 2025, property in gurgaon, buy property gurgaon, flats in gurgaon',
-  openGraph: {
-    title: 'New Projects in Gurgaon 2025 | All New Properties',
-    description: 'Verified new projects in Gurgaon across all budgets, locations and configurations. Free site visit support.',
-    url: `${SITE_URL}/new-projects-in-gurgaon`,
-    type: 'website',
-    images: [{ url: `${SITE_URL}/og-home.jpg`, width: 1200, height: 630, alt: 'New Projects in Gurgaon' }],
-  },
-  alternates: { canonical: `${SITE_URL}/new-projects-in-gurgaon` },
-  robots: { index: true, follow: true },
-};
+  return {
+    title: `New Projects in Gurgaon 2025 | Verified Properties | ${settings.siteName}`,
+    description: `Browse all new projects in Gurgaon — new launch, pre-launch, under construction and ready to move from DLF, M3M, Godrej, Krisumi, Oberoi. Free advisory from ${settings.siteName}.`,
+    keywords: 'new projects in gurgaon, new residential projects gurgaon 2025, upcoming projects gurgaon, gurgaon real estate 2025, property in gurgaon, buy property gurgaon, flats in gurgaon',
+    openGraph: {
+      title: `New Projects in Gurgaon 2025 | ${settings.siteName}`,
+      description: 'Verified new projects in Gurgaon across all budgets, locations and configurations. Free site visit support.',
+      url: pageUrl,
+      type: 'website',
+    },
+    alternates: { canonical: pageUrl },
+    robots: { index: true, follow: true },
+  };
+}
 
 const statusColors: Record<string, string> = {
   'New Launch': 'bg-green-50 text-green-700 border-green-200',
@@ -43,32 +49,25 @@ const listingSchema = {
   '@type': 'ItemList',
   name: 'New Projects in Gurgaon 2025',
   description: 'RERA-verified new residential and luxury projects in Gurgaon',
-  url: `${SITE_URL}/new-projects-in-gurgaon`,
 };
 
 const DEFAULT_IMG = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80';
 
 export default async function NewProjectsPage() {
   const apiProjects = await fetchApiProjects({ limit: 30 });
-  const allProjects = apiProjects.length > 0
-    ? apiProjects.map((p) => ({
-        name: p.name,
-        location: p.location || p.sector || '',
-        price: p.priceDisplay || p.price || 'Price on Request',
-        config: (p.configurations || []).slice(0, 3).map((c: string) => c.split('(')[0].trim()).join(', ') || '—',
-        status: p.status,
-        builder: typeof p.builder === 'object' ? (p.builder as any).name : p.builder || '',
-        slug: p.slug,
-        heroImage: p.heroImage,
-        isVerified: p.isVerified !== false,
-        isNew: p.isNew || p.status === 'New Launch',
-        possession: p.possession,
-      }))
-    : (ALL_PROJECTS as any[]).map((p) => ({
-        name: p.name, location: p.location, price: p.price, config: (p.configurations || []).slice(0, 3).map((c: string) => c.split('(')[0].trim()).join(', '),
-        status: p.status, builder: p.builder, slug: p.slug, heroImage: p.heroImage,
-        isVerified: p.isVerified, isNew: p.isNew, possession: p.possession,
-      }));
+  const allProjects = apiProjects.map((p) => ({
+    name: p.name,
+    location: p.location || p.sector || '',
+    price: p.priceDisplay || p.price || 'Price on Request',
+    config: (p.configurations || []).slice(0, 3).map((c: string) => c.split('(')[0].trim()).join(', ') || '—',
+    status: p.status,
+    builder: typeof p.builder === 'object' ? (p.builder as any).name : p.builder || '',
+    slug: p.slug,
+    heroImage: p.heroImage,
+    isVerified: p.isVerified !== false,
+    isNew: p.isNew || p.status === 'New Launch',
+    possession: p.possession,
+  }));
 
   return (
     <>

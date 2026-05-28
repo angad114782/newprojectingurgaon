@@ -18,11 +18,21 @@ app.set('trust proxy', 1);
 connectDB().then(async () => {
   try {
     const Project = require('./models/Project');
-    const count = await Project.countDocuments();
-    if (count === 0) {
-      console.log('\n📦 First run — auto-seeding projects (DLF, M3M, Krisumi, Godrej, Oberoi…)');
-      const { seedProjects } = require('./utils/seedData');
+    const SiteSettings = require('./models/SiteSettings');
+    const { seedProjects, seedSettings } = require('./utils/seedData');
+
+    const [projectCount, settingsCount] = await Promise.all([
+      Project.countDocuments(),
+      SiteSettings.countDocuments(),
+    ]);
+
+    if (projectCount === 0) {
+      console.log('\n📦 First run — auto-seeding projects…');
       await seedProjects();
+    }
+    if (settingsCount === 0) {
+      console.log('⚙️  Seeding default site settings…');
+      await seedSettings();
     }
   } catch (e) {
     console.error('Auto-seed skipped:', e.message);
@@ -42,35 +52,11 @@ app.use(
 app.use(compression());
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
-const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'http://192.168.1.11:3000',
-  'http://192.168.1.11:3001',
-
-  'https://newprojectsingurgaon.com',
-  'https://www.newprojectsingurgaon.com',
-
-  'https://gurgaonrealty.com',
-  'https://www.gurgaonrealty.com',
-  'https://gurgaonrealty.in',
-  'https://www.gurgaonrealty.in',
-].filter(Boolean);
-
+// Allow any origin — domain is dynamic (multi-domain support)
+// Auth routes are protected by JWT, not CORS
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error(`Not allowed by CORS: ${origin}`));
-    },
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -133,6 +119,7 @@ app.use('/api/leads', require('./routes/leads'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/upload', require('./routes/upload'));
+app.use('/api/settings', require('./routes/settings'));
 
 // ─── 404 ─────────────────────────────────────────────────────────────────────
 app.use((req, res) => {

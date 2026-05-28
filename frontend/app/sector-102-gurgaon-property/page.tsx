@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Sector 102 Gurgaon Property | Affordable Projects near Palam Vihar',
   description: 'Explore residential property in Sector 102 Gurgaon with affordable pricing, Palam Vihar connectivity and upcoming metro extension. Best budget projects on Dwarka Expressway.',
   keywords: 'sector 102 gurgaon property, sector 102 gurgaon flats, sector 102 gurgaon projects',
-  alternates: { canonical: 'https://www.gurgaonrealty.in/sector-102-gurgaon-property' },
+  alternates: { canonical: '/sector-102-gurgaon-property' },
 };
 
 export default async function Sector102Page() {

@@ -1,14 +1,15 @@
 import { MetadataRoute } from 'next';
-import { ALL_PROJECTS, ALL_SEO_PAGES } from '@/lib/projects';
+import { ALL_SEO_PAGES } from '@/lib/projects';
 import { fetchAllProjectSlugs } from '@/lib/api-projects';
-
-const BASE = 'https://www.gurgaonrealty.in';
+import { headers } from 'next/headers';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Merge API slugs + static slugs (deduped)
-  const apiSlugs = await fetchAllProjectSlugs();
-  const staticSlugs = ALL_PROJECTS.map((p) => p.slug);
-  const allSlugs = Array.from(new Set([...apiSlugs, ...staticSlugs]));
+  const headersList = headers();
+  const host = headersList.get('host') || 'localhost:3000';
+  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
+  const BASE = `${proto}://${host}`;
+
+  const allSlugs = await fetchAllProjectSlugs();
 
   const staticPages = [
     { url: BASE, changeFrequency: 'daily' as const, priority: 1.0 },

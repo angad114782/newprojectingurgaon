@@ -5,21 +5,14 @@ import LeadForm from '@/components/home/LeadForm';
 import { fetchProjectsWithFallback } from '@/lib/api-projects';
 import { InternalLinksBlock } from '@/components/home/HomeSections';
 
-const SITE_URL = 'https://www.gurgaonrealty.in';
 const DEFAULT_IMG = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80';
 
 export const metadata: Metadata = {
   title: 'Dwarka Expressway Projects 2025 | New Launch & Premium Property on NH-248BB',
-  description:
-    'Explore the best projects on Dwarka Expressway — new launch, under construction & ready to move near IGI Airport. DLF, M3M, Godrej, Krisumi, Sobha projects from ₹45 Lakh to ₹5 Cr. Free site visit.',
+  description: 'Explore the best projects on Dwarka Expressway — new launch, under construction & ready to move near IGI Airport. DLF, M3M, Godrej, Krisumi, Sobha projects from ₹45 Lakh to ₹5 Cr. Free site visit.',
   keywords: 'dwarka expressway projects, property on dwarka expressway, sector 113 gurgaon, sector 106 gurgaon, new projects dwarka expressway 2025, 2 bhk dwarka expressway, flats on dwarka expressway gurgaon',
-  openGraph: {
-    title: 'Dwarka Expressway Projects 2025 | Property on NH-248BB',
-    description: 'Best new projects on Dwarka Expressway Gurgaon — DLF, M3M, Godrej, Krisumi from ₹45 Lakh. Free site visit.',
-    url: `${SITE_URL}/dwarka-expressway-projects`,
-    type: 'website',
-  },
-  alternates: { canonical: `${SITE_URL}/dwarka-expressway-projects` },
+  openGraph: { title: 'Dwarka Expressway Projects 2025 | Property on NH-248BB', description: 'Best new projects on Dwarka Expressway Gurgaon — DLF, M3M, Godrej, Krisumi from ₹45 Lakh. Free site visit.', url: '/dwarka-expressway-projects', type: 'website' },
+  alternates: { canonical: '/dwarka-expressway-projects' },
   robots: { index: true, follow: true },
 };
 

@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   title: 'Sector 113 Gurgaon Property 2025 | Near IGI Airport | M3M Capital Walk',
   description: 'Best property in Sector 113 Gurgaon — near IGI Airport, Dwarka Expressway. M3M Capital Walk 2/3/4 BHK from ₹1.5 Cr. Airport zone investment. Free site visit.',
   keywords: 'sector 113 gurgaon property, sector 113 gurgaon flats, property in sector 113 gurgaon, M3M Capital Walk Sector 113, near airport property gurgaon, dwarka expressway sector 113, 2 bhk sector 113 gurgaon',
-  openGraph: { title: 'Sector 113 Gurgaon Property — Airport Zone', description: 'M3M Capital Walk & top projects in Sector 113 Gurgaon from ₹1.5 Cr.', url: 'https://www.gurgaonrealty.in/sector-113-gurgaon-property', type: 'website' },
-  alternates: { canonical: 'https://www.gurgaonrealty.in/sector-113-gurgaon-property' },
+  openGraph: { title: 'Sector 113 Gurgaon Property — Airport Zone', description: 'M3M Capital Walk & top projects in Sector 113 Gurgaon from ₹1.5 Cr.', url: '/sector-113-gurgaon-property', type: 'website' },
+  alternates: { canonical: '/sector-113-gurgaon-property' },
   robots: { index: true, follow: true },
 };
 

@@ -94,7 +94,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${blog.title} | GurgaonRealty Blog`,
     description: blog.intro.substring(0, 155),
-    alternates: { canonical: `https://www.gurgaonrealty.in/blog/${params.slug}` },
+    alternates: { canonical: `/blog/${params.slug}` },
   };
 }
 

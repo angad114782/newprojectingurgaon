@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   title: 'New Gurgaon Projects 2025 | Affordable Property in New Gurgaon',
   description: 'Best affordable projects in New Gurgaon — Godrej Nurture, Signature Global 37D. 2 BHK from ₹45 Lakh. Property in New Gurgaon near Manesar. Free site visit.',
   keywords: 'new gurgaon projects, property in new gurgaon, new gurgaon property, upcoming projects new gurgaon, affordable property gurgaon, 2 bhk new gurgaon, property near manesar gurgaon, sector 37d gurgaon, Godrej Nurture New Gurgaon',
-  openGraph: { title: 'New Gurgaon Projects — Affordable Property', description: 'Godrej, Signature Global projects in New Gurgaon from ₹45 Lakh.', url: 'https://www.gurgaonrealty.in/new-gurgaon-projects', type: 'website' },
-  alternates: { canonical: 'https://www.gurgaonrealty.in/new-gurgaon-projects' },
+  openGraph: { title: 'New Gurgaon Projects — Affordable Property', description: 'Godrej, Signature Global projects in New Gurgaon from ₹45 Lakh.', url: '/new-gurgaon-projects', type: 'website' },
+  alternates: { canonical: '/new-gurgaon-projects' },
   robots: { index: true, follow: true },
 };
 

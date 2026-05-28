@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   description:
     'Find the best residential property in Gurgaon — 2 BHK from ₹45 Lakh, 3 BHK from ₹95 Lakh, luxury from ₹3 Cr. Verified RERA projects. Apartments, floors, villas. Free advisory.',
   keywords: 'residential property gurgaon, property in gurgaon, apartments in gurgaon, 2 bhk homes in gurgaon, luxury homes gurgaon, flats in gurgaon, buy property in gurgaon, gurgaon real estate 2025',
-  openGraph: { title: 'Residential Property in Gurgaon 2025', description: '2 BHK from ₹45 Lakh to luxury from ₹3 Cr — verified residential property in Gurgaon.', url: 'https://www.gurgaonrealty.in/residential-property-in-gurgaon', type: 'website' },
-  alternates: { canonical: 'https://www.gurgaonrealty.in/residential-property-in-gurgaon' },
+  openGraph: { title: 'Residential Property in Gurgaon 2025', description: '2 BHK from ₹45 Lakh to luxury from ₹3 Cr — verified residential property in Gurgaon.', url: '/residential-property-in-gurgaon', type: 'website' },
+  alternates: { canonical: '/residential-property-in-gurgaon' },
   robots: { index: true, follow: true },
 };
 

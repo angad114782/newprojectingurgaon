@@ -1,13 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ALL_PROJECTS, ALL_SEO_PAGES } from '@/lib/projects';
+import { ALL_SEO_PAGES } from '@/lib/projects';
 
-const PHONE = process.env.NEXT_PUBLIC_PHONE || '+91-99999-99999';
-const EMAIL = process.env.NEXT_PUBLIC_EMAIL || 'info@gurgaonrealty.in';
-const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919999999999';
-
-const CORRIDORS = [
+const NAV_LINKS = [
   { label: 'New Launch Projects Gurgaon', href: '/new-launch-projects-in-gurgaon' },
   { label: 'New Projects in Gurgaon', href: '/new-projects-in-gurgaon' },
   { label: 'Residential Property Gurgaon', href: '/residential-property-in-gurgaon' },
@@ -22,15 +18,42 @@ const CORRIDORS = [
   { label: 'Property Blog', href: '/blog' },
 ];
 
-export default function Footer() {
+interface FooterProps {
+  phone?: string;
+  email?: string;
+  whatsapp?: string;
+  siteName?: string;
+  address?: string;
+  openingHours?: string;
+  social?: { facebook?: string; instagram?: string; youtube?: string; linkedin?: string; twitter?: string };
+}
+
+export default function Footer({
+  phone = '+91-9999999999',
+  email = 'info@gurgaonrealty.in',
+  whatsapp = '919999999999',
+  siteName = 'GurgaonRealty',
+  address = 'Cyber City, Gurgaon, Haryana',
+  openingHours = 'Mon–Sun: 9 AM – 8 PM',
+  social = {},
+}: FooterProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [showAllPages, setShowAllPages] = useState(false);
+  const [projects, setProjects] = useState<Array<{ slug: string; name: string; sector?: string }>>([]);
 
-  const INITIAL_PROJECTS = 6;
-  const INITIAL_PAGES = 6;
+  const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
 
-  const displayedProjects = showAllProjects ? ALL_PROJECTS : ALL_PROJECTS.slice(0, INITIAL_PROJECTS);
-  const displayedPages = showAllPages ? CORRIDORS : CORRIDORS.slice(0, INITIAL_PAGES);
+  useEffect(() => {
+    fetch(`${API}/projects?limit=20&featured=true`)
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setProjects(d.data); })
+      .catch(() => {});
+  }, []);
+
+  const INITIAL = 6;
+  const displayedProjects = showAllProjects ? projects : projects.slice(0, INITIAL);
+  const displayedPages = showAllPages ? NAV_LINKS : NAV_LINKS.slice(0, INITIAL);
+  const waLink = `https://wa.me/${whatsapp}?text=Hi, I am looking for property in Gurgaon`;
 
   return (
     <footer className="bg-brand-dark text-white">
@@ -42,12 +65,11 @@ export default function Footer() {
             <p className="text-white/60 text-sm">Free advisory. RERA verified. No brokerage.</p>
           </div>
           <div className="flex gap-3">
-            <a href={`https://wa.me/${WA}?text=Hi, I am looking for property in Gurgaon`}
-              target="_blank" rel="noopener noreferrer"
+            <a href={waLink} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-green-600 transition-colors">
               💬 WhatsApp Now
             </a>
-            <a href={`tel:${PHONE}`}
+            <a href={`tel:${phone.replace(/[^+\d]/g, '')}`}
               className="flex items-center gap-2 bg-white/10 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-white/20 transition-colors border border-white/20">
               📞 Call Us
             </a>
@@ -60,17 +82,19 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 bg-brand-accent rounded-xl flex items-center justify-center text-brand-dark font-bold font-display">GR</div>
-              <span className="font-display font-bold text-xl">GurgaonRealty</span>
+              <div className="w-9 h-9 bg-brand-accent rounded-xl flex items-center justify-center text-brand-dark font-bold font-display">
+                {siteName.substring(0, 2).toUpperCase()}
+              </div>
+              <span className="font-display font-bold text-xl">{siteName}</span>
             </Link>
             <p className="text-white/60 text-sm leading-relaxed mb-5">
               Gurgaon's most trusted real estate advisory. 4,200+ families helped. Zero brokerage for buyers. RERA verified projects only.
             </p>
             <div className="space-y-2 text-sm text-white/70">
-              <a href={`tel:${PHONE}`} className="flex items-center gap-2 hover:text-white transition-colors">📞 {PHONE}</a>
-              <a href={`mailto:${EMAIL}`} className="flex items-center gap-2 hover:text-white transition-colors">✉️ {EMAIL}</a>
-              <p className="flex items-center gap-2">📍 Cyber City, Gurgaon, Haryana</p>
-              <p className="text-white/40 text-xs">Mon–Sun: 9 AM – 8 PM</p>
+              <a href={`tel:${phone.replace(/[^+\d]/g, '')}`} className="flex items-center gap-2 hover:text-white transition-colors">📞 {phone}</a>
+              <a href={`mailto:${email}`} className="flex items-center gap-2 hover:text-white transition-colors">✉️ {email}</a>
+              <p className="flex items-center gap-2">📍 {address}</p>
+              <p className="text-white/40 text-xs">{openingHours}</p>
             </div>
           </div>
 
@@ -86,10 +110,10 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-            {CORRIDORS.length > INITIAL_PAGES && (
+            {NAV_LINKS.length > INITIAL && (
               <button onClick={() => setShowAllPages(!showAllPages)}
                 className="mt-3 text-brand-accent text-xs font-semibold hover:underline flex items-center gap-1">
-                {showAllPages ? '↑ Show Less' : `+ ${CORRIDORS.length - INITIAL_PAGES} More Pages`}
+                {showAllPages ? '↑ Show Less' : `+ ${NAV_LINKS.length - INITIAL} More Pages`}
               </button>
             )}
           </div>
@@ -103,15 +127,15 @@ export default function Footer() {
                   <Link href={`/project/${p.slug}`}
                     className="text-white/60 text-sm hover:text-brand-accent transition-colors hover:pl-1 duration-200 block">
                     <span>{p.name}</span>
-                    <span className="text-white/30 text-xs ml-1">— {p.sector}</span>
+                    {p.sector && <span className="text-white/30 text-xs ml-1">— {p.sector}</span>}
                   </Link>
                 </li>
               ))}
             </ul>
-            {ALL_PROJECTS.length > INITIAL_PROJECTS && (
+            {projects.length > INITIAL && (
               <button onClick={() => setShowAllProjects(!showAllProjects)}
                 className="mt-3 text-brand-accent text-xs font-semibold hover:underline flex items-center gap-1">
-                {showAllProjects ? '↑ Show Less' : `+ ${ALL_PROJECTS.length - INITIAL_PROJECTS} More Projects`}
+                {showAllProjects ? '↑ Show Less' : `+ ${projects.length - INITIAL} More Projects`}
               </button>
             )}
           </div>
@@ -142,13 +166,13 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* SEO Keyword Links — full internal link block */}
+        {/* SEO Keyword Links */}
         <div className="border-t border-white/10 pt-8 mb-8">
           <p className="text-white/30 text-xs uppercase tracking-widest mb-4 font-semibold">All Property Pages</p>
           <div className="flex flex-wrap gap-2">
             {[
-              ...CORRIDORS,
-              ...ALL_PROJECTS.map((p) => ({ label: p.name, href: `/project/${p.slug}` })),
+              ...NAV_LINKS,
+              ...projects.map((p) => ({ label: p.name, href: `/project/${p.slug}` })),
               { label: 'Property Investment Blog', href: '/blog' },
             ].map((l) => (
               <Link key={l.href + l.label} href={l.href}
@@ -162,21 +186,28 @@ export default function Footer() {
         {/* Social + Bottom */}
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
-            <p className="text-white/40 text-xs">© 2025 GurgaonRealty. All rights reserved.</p>
+            <p className="text-white/40 text-xs">© {new Date().getFullYear()} {siteName}. All rights reserved.</p>
             <p className="text-white/30 text-xs mt-1">Real estate advisory for new projects in Gurgaon. RERA verified. Zero brokerage.</p>
           </div>
           <div className="flex items-center gap-4">
-            <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer"
+            <a href={waLink} target="_blank" rel="noopener noreferrer"
               className="text-white/40 hover:text-green-400 text-xs transition-colors">WhatsApp</a>
+            {social?.facebook && (
+              <a href={social.facebook} target="_blank" rel="noopener noreferrer"
+                className="text-white/40 hover:text-brand-accent text-xs transition-colors">Facebook</a>
+            )}
+            {social?.instagram && (
+              <a href={social.instagram} target="_blank" rel="noopener noreferrer"
+                className="text-white/40 hover:text-brand-accent text-xs transition-colors">Instagram</a>
+            )}
             <a href="https://haryanarera.gov.in" target="_blank" rel="noopener noreferrer"
               className="text-white/40 hover:text-brand-accent text-xs transition-colors">Verify on RERA →</a>
             <Link href="/admin" className="text-white/20 hover:text-white/40 text-xs transition-colors">Admin</Link>
           </div>
         </div>
 
-        {/* Disclaimer */}
         <p className="text-white/25 text-xs mt-6 leading-relaxed">
-          Disclaimer: All property information is indicative and subject to change. Prices, availability and specifications are as provided by respective developers. GurgaonRealty is an independent advisory platform and not the developer or owner of any property listed. Verify all details directly with the builder and on haryanarera.gov.in before making any investment decision. Images shown are for representational purposes only.
+          Disclaimer: All property information is indicative and subject to change. Prices, availability and specifications are as provided by respective developers. {siteName} is an independent advisory platform and not the developer or owner of any property listed. Verify all details directly with the builder and on haryanarera.gov.in before making any investment decision. Images shown are for representational purposes only.
         </p>
       </div>
     </footer>

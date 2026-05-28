@@ -10,6 +10,7 @@ const OTPSchema = new mongoose.Schema({
 });
 
 OTPSchema.index({ mobile: 1 });
+OTPSchema.index({ mobile: 1, otp: 1, isUsed: 1 }); // fast verify lookup
 
 const OTP = mongoose.model('OTP', OTPSchema);
 module.exports = OTP;

@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   title: 'Golf Course Extension Road Projects 2025 | Luxury & Premium Property Gurgaon',
   description: 'Best projects on Golf Course Extension Road Gurgaon — Oberoi Sky Heights, Emaar Digi Homes, DLF Arbour, Tata One. Luxury 3/4 BHK from ₹1.2 Cr to ₹12 Cr. Free advisory.',
   keywords: 'golf course extension road projects, golf course extension road gurgaon, property on golf course extension road, sector 58 gurgaon, Oberoi Gurgaon, DLF Arbour sector 63, luxury apartments GCER Gurgaon',
-  openGraph: { title: 'Golf Course Extension Road Projects Gurgaon | Luxury Property', description: 'Oberoi, DLF, Emaar projects on GCER — luxury 3/4 BHK from ₹1.2 Cr.', url: 'https://www.gurgaonrealty.in/golf-course-extension-road-projects', type: 'website' },
-  alternates: { canonical: 'https://www.gurgaonrealty.in/golf-course-extension-road-projects' },
+  openGraph: { title: 'Golf Course Extension Road Projects Gurgaon | Luxury Property', description: 'Oberoi, DLF, Emaar projects on GCER — luxury 3/4 BHK from ₹1.2 Cr.', url: '/golf-course-extension-road-projects', type: 'website' },
+  alternates: { canonical: '/golf-course-extension-road-projects' },
   robots: { index: true, follow: true },
 };
 

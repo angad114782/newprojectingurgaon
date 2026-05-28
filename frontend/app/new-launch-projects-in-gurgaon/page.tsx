@@ -1,44 +1,39 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import LeadForm from '@/components/home/LeadForm';
 import { fetchApiProjects } from '@/lib/api-projects';
-import { ALL_PROJECTS } from '@/lib/projects';
+import { fetchSettings } from '@/lib/settings';
 
-export const metadata: Metadata = {
-  title: 'New Launch Projects in Gurgaon 2025 | DLF, M3M, Oberoi, Krisumi',
-  description:
-    'Latest new launch projects in Gurgaon 2025 — DLF Privana South, M3M Antalya Hills, Oberoi Sky Heights, Krisumi Waterside. Best pre-launch pricing. RERA approved. Free advisory.',
-  keywords: 'new launch projects gurgaon 2025, new launch property gurgaon, pre-launch gurgaon, new residential projects gurgaon 2025, DLF new launch, M3M new launch, Oberoi new launch gurgaon, best new launch gurgaon',
-  openGraph: {
-    title: 'New Launch Projects in Gurgaon 2025 | DLF, M3M, Oberoi, Krisumi',
-    description: 'DLF Privana, M3M Antalya Hills, Oberoi Sky Heights — best new launch pricing in Gurgaon 2025.',
-    url: 'https://www.gurgaonrealty.in/new-launch-projects-in-gurgaon',
-    type: 'website',
-  },
-  alternates: { canonical: 'https://www.gurgaonrealty.in/new-launch-projects-in-gurgaon' },
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
+  const siteUrl = `${proto}://${host}`;
+  const settings = await fetchSettings();
+  const pageUrl = `${siteUrl}/new-launch-projects-in-gurgaon`;
+
+  return {
+    title: `New Launch Projects in Gurgaon 2025 | DLF, M3M, Oberoi, Krisumi | ${settings.siteName}`,
+    description: `Latest new launch projects in Gurgaon 2025 — DLF Privana South, M3M Antalya Hills, Oberoi Sky Heights, Krisumi Waterside. Best pre-launch pricing. RERA approved. Free advisory from ${settings.siteName}.`,
+    keywords: 'new launch projects gurgaon 2025, new launch property gurgaon, pre-launch gurgaon, new residential projects gurgaon 2025, DLF new launch, M3M new launch, Oberoi new launch gurgaon, best new launch gurgaon',
+    openGraph: {
+      title: `New Launch Projects in Gurgaon 2025 | ${settings.siteName}`,
+      description: 'DLF Privana, M3M Antalya Hills, Oberoi Sky Heights — best new launch pricing in Gurgaon 2025.',
+      url: pageUrl,
+      type: 'website',
+    },
+    alternates: { canonical: pageUrl },
+    robots: { index: true, follow: true },
+  };
+}
 
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'Why should I buy a new launch project in Gurgaon?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'New launch projects offer the best entry-level pricing, flexible payment plans and highest appreciation potential before the project nears completion.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'What is the difference between new launch and pre-launch?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Pre-launch is before RERA registration and public announcement. New launch is the official first sale phase after RERA approval. Pre-launch carries higher risk but can have better pricing.',
-      },
-    },
+    { '@type': 'Question', name: 'Why should I buy a new launch project in Gurgaon?', acceptedAnswer: { '@type': 'Answer', text: 'New launch projects offer the best entry-level pricing, flexible payment plans and highest appreciation potential before the project nears completion.' } },
+    { '@type': 'Question', name: 'What is the difference between new launch and pre-launch?', acceptedAnswer: { '@type': 'Answer', text: 'Pre-launch is before RERA registration and public announcement. New launch is the official first sale phase after RERA approval. Pre-launch carries higher risk but can have better pricing.' } },
   ],
 };
 
@@ -56,18 +51,14 @@ const checklist = [
 
 export default async function NewLaunchPage() {
   const apiProjects = await fetchApiProjects({ status: 'New Launch', limit: 12 });
-  const newLaunchProjects = apiProjects.length > 0
-    ? apiProjects.map((p) => ({
-        name: p.name,
-        location: p.location || p.sector || 'Gurgaon',
-        price: p.priceDisplay || p.price || 'Price on Request',
-        config: (p.configurations || []).slice(0, 3).map((c: string) => c.split('(')[0].trim()).join(', ') || '—',
-        status: p.status,
-        slug: p.slug,
-      }))
-    : (ALL_PROJECTS as any[]).filter((p) => p.status === 'New Launch').map((p) => ({
-        name: p.name, location: p.location, price: p.price, config: p.configurations.slice(0, 3).map((c: string) => c.split('(')[0].trim()).join(', '), status: p.status, slug: p.slug,
-      }));
+  const newLaunchProjects = apiProjects.map((p) => ({
+    name: p.name,
+    location: p.location || p.sector || 'Gurgaon',
+    price: p.priceDisplay || p.price || 'Price on Request',
+    config: (p.configurations || []).slice(0, 3).map((c: string) => c.split('(')[0].trim()).join(', ') || '—',
+    status: p.status,
+    slug: p.slug,
+  }));
 
   return (
     <>

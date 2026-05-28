@@ -41,8 +41,6 @@ export default function OTPModal({ isOpen, onClose, onSuccess, ctaType, projectN
   });
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  if (!isOpen) return null;
-
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
     const newOtp = [...otp];
@@ -77,7 +75,13 @@ export default function OTPModal({ isOpen, onClose, onSuccess, ctaType, projectN
       const data = await res.json();
       if (data.success) {
         setStep('otp');
-        toast.success(data.devMode ? `Dev OTP: check backend console` : 'OTP sent to your mobile!');
+        const channel = data.channel;
+        const msg = data.devMode
+          ? 'Dev mode: OTP in backend console'
+          : channel === 'whatsapp'
+          ? '✅ OTP sent on WhatsApp!'
+          : '✅ OTP sent via SMS!';
+        toast.success(msg);
       } else {
         toast.error(data.message || 'Failed to send OTP');
       }
@@ -210,7 +214,7 @@ export default function OTPModal({ isOpen, onClose, onSuccess, ctaType, projectN
                 disabled={loading}
                 className="btn-primary w-full justify-center disabled:opacity-60"
               >
-                {loading ? 'Sending OTP...' : 'Get OTP on Mobile →'}
+                {loading ? 'Sending OTP...' : '💬 Get OTP on WhatsApp →'}
               </button>
               <p className="text-center text-xs text-brand-muted flex items-center justify-center gap-1">
                 <ShieldCheckIcon className="w-3.5 h-3.5 text-brand-accent" />
@@ -223,8 +227,8 @@ export default function OTPModal({ isOpen, onClose, onSuccess, ctaType, projectN
           {step === 'otp' && (
             <div className="space-y-5">
               <div className="text-center">
-                <p className="text-brand-muted text-sm">OTP sent to <strong>+91-{formData.mobile}</strong></p>
-                <p className="text-xs text-brand-muted mt-1">Valid for 5 minutes</p>
+                <p className="text-brand-muted text-sm">OTP sent on <strong>WhatsApp</strong> to <strong>+91-{formData.mobile}</strong></p>
+                <p className="text-xs text-brand-muted mt-1">Check your WhatsApp — valid for 10 minutes</p>
               </div>
               <div className="flex justify-center gap-2">
                 {otp.map((digit, i) => (

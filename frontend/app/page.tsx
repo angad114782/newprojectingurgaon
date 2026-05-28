@@ -1,83 +1,102 @@
+import { headers } from 'next/headers';
 import type { Metadata } from 'next';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedProjects from '@/components/home/FeaturedProjects';
 import LeadForm from '@/components/home/LeadForm';
-import { LocationsSection, WhyChooseUs, BuilderLogos, TestimonialsSection, MarketStatsSection, FAQSection, InternalLinksBlock } from '@/components/home/HomeSections';
+import { LocationsSection, WhyChooseUs, BuilderLogos, TestimonialsSection, MarketStatsSection, FAQSection, InternalLinksBlock, LuxuryHighlightsStrip } from '@/components/home/HomeSections';
 import { ROICalculator } from '@/components/conversion/PsychTriggers';
 import { LocalBusinessSchema, FAQSchema } from '@/components/seo/SchemaMarkup';
+import { fetchSettings } from '@/lib/settings';
 
-const SITE_URL = 'https://www.gurgaonrealty.in';
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
+  const siteUrl = `${proto}://${host}`;
+  const settings = await fetchSettings();
 
-export const metadata: Metadata = {
-  title: 'New Projects in Gurgaon 2025 | New Launch & Premium Property | GurgaonRealty',
-  description:
-    'GurgaonRealty — Gurgaon\'s most trusted real estate advisory. Explore 150+ verified new launch projects, pre-launch, under construction and ready-to-move properties on Dwarka Expressway, Golf Course Extension Road and SPR Road. Free site visit. Zero brokerage.',
-  keywords: [
-    'new projects in gurgaon', 'new launch projects gurgaon 2025', 'property in gurgaon',
-    'luxury apartments gurgaon', 'dwarka expressway projects', 'residential property gurgaon',
-    'new launch gurgaon', 'gurgaon real estate', 'flats in gurgaon', 'buy property gurgaon',
-    'sector 113 gurgaon', 'sector 106 gurgaon', 'golf course extension road projects',
-    'spr road gurgaon', 'new gurgaon projects',
-  ],
-  openGraph: {
-    title: 'New Projects in Gurgaon 2025 | New Launch & Premium Property',
-    description: 'Discover 150+ verified new launch and ready-to-move properties in Gurgaon. Free advisory, site visits and RERA-verified projects.',
-    url: SITE_URL,
-    siteName: 'GurgaonRealty',
-    type: 'website',
-    locale: 'en_IN',
-    images: [{ url: `${SITE_URL}/og-home.jpg`, width: 1200, height: 630, alt: 'New Projects in Gurgaon — GurgaonRealty' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'New Projects in Gurgaon 2025 | GurgaonRealty',
-    description: 'Verified new launch and premium property advisory in Gurgaon.',
-    images: [`${SITE_URL}/og-home.jpg`],
-  },
-  alternates: { canonical: SITE_URL },
-  robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large' } },
-};
+  const title = settings.seoTitle || `Luxury Apartments & New Projects in Gurgaon 2025 | ₹2 Cr–₹15 Cr | ${settings.siteName}`;
+  const description = settings.seoDescription || `${settings.siteName} — Gurgaon's top luxury real estate advisory. Verified 3 BHK, 4 BHK & penthouse projects from ₹2 Cr–₹15 Cr on Dwarka Expressway, Golf Course Road, SPR Road. Free site visit. Zero brokerage.`;
+  const ogImage = settings.ogImage?.startsWith('http') ? settings.ogImage : `${siteUrl}${settings.ogImage || '/og-home.jpg'}`;
 
-const HOME_FAQS = [
-  { q: 'What are new launch projects in Gurgaon?', a: 'New launch projects in Gurgaon are freshly RERA-registered residential developments with bookings open for the first time. They offer 10–25% lower pricing vs ongoing projects and the highest appreciation potential.' },
-  { q: 'Which is the best sector to invest in Gurgaon in 2025?', a: 'Dwarka Expressway (Sectors 99–115) leads for ROI. Golf Course Extension Road is best for premium lifestyle. Sector 37D and New Gurgaon offer the best affordable options. SPR Road is emerging for luxury investment.' },
-  { q: 'Is GurgaonRealty free for buyers?', a: 'Yes. Our advisory, price comparisons, site visits and brochure sharing are completely free for buyers. We earn only from verified builders — never from you.' },
-  { q: 'How do I verify a Gurgaon project is RERA approved?', a: 'Visit haryanarera.gov.in and search by project name or RERA number. Every project on GurgaonRealty is RERA-verified before listing.' },
-  { q: 'What is the minimum investment for property in Gurgaon?', a: 'Residential property in Gurgaon starts from ₹40 Lakh for 2BHK in Sector 37D (DDJAY scheme). Mid-segment starts at ₹80 Lakh (2BHK on Dwarka Expressway). Luxury starts from ₹2.5 Cr.' },
-  { q: 'How does GurgaonRealty\'s site visit support work?', a: 'Fill in your requirements and an advisor calls you within 2 hours to schedule a free site visit. We personally accompany you, share honest project analysis and follow up without any pressure.' },
-];
+  return {
+    title,
+    description,
+    keywords: settings.seoKeywords?.length ? settings.seoKeywords : ['new projects in gurgaon', 'new launch projects gurgaon 2025', 'property in gurgaon', 'luxury apartments gurgaon', 'dwarka expressway projects', 'residential property gurgaon'],
+    openGraph: {
+      title,
+      description,
+      url: siteUrl,
+      siteName: settings.siteName,
+      type: 'website',
+      locale: 'en_IN',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `New Projects in Gurgaon — ${settings.siteName}` }],
+    },
+    twitter: { card: 'summary_large_image', title, description, images: [ogImage] },
+    alternates: { canonical: siteUrl },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large' } },
+  };
+}
 
-export default function HomePage() {
+export default async function HomePage() {
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
+  const siteUrl = `${proto}://${host}`;
+  const settings = await fetchSettings();
+
+  const faqsForSchema = settings.faqs?.length ? settings.faqs : [
+    { q: 'What are luxury apartments available in Gurgaon above 5 crore?', a: 'Gurgaon has premium luxury apartments from ₹5 Cr–₹25 Cr+ across Golf Course Road, Dwarka Expressway and SPR Road by DLF, Sobha, M3M, Emaar and Oberoi. These offer 4–5 BHK configurations, private pools, smart-home technology and ultra-luxury amenities.' },
+    { q: 'Which is the best area to buy luxury property in Gurgaon in 2025?', a: 'Golf Course Road (Sectors 54–57) is the most prestigious luxury address. Dwarka Expressway (Sectors 99–115) offers the highest ROI with airport proximity. Both corridors have 25–45% appreciation in 3 years.' },
+    { q: `Is ${settings.siteName} free for high-ticket buyers?`, a: 'Yes. Our advisory, price comparisons, site visits and exclusive pre-launch allocations are completely free for buyers. We earn only from verified builders — never from you.' },
+    { q: 'How do I get the best price on a 5 Crore+ property in Gurgaon?', a: 'Contact us before a project officially launches — we get exclusive pre-launch pricing 10–20% below market. We also negotiate PLC waivers, free parking and priority floor selection for our buyers.' },
+    { q: 'What is the expected appreciation on luxury property in Gurgaon?', a: 'Luxury projects on Golf Course Road and Dwarka Expressway have shown 30–45% appreciation in 3 years (2021–2024). Rental yields are 3–4.5% for luxury furnished apartments.' },
+  ];
+
   return (
     <>
-      {/* AIO/GEO: Rich structured data for AI search engines */}
       <LocalBusinessSchema page="home" />
-      <FAQSchema faqs={HOME_FAQS} />
+      <FAQSchema faqs={faqsForSchema} />
 
-      {/* Semantic content hint for AI crawlers */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: 'GurgaonRealty',
-        url: SITE_URL,
-        description: 'Gurgaon\'s most trusted real estate advisory for new launch projects, premium properties and investment guidance.',
+        name: settings.siteName,
+        url: siteUrl,
+        description: `${settings.siteName} — Gurgaon's most trusted real estate advisory for new launch projects, premium properties and investment guidance.`,
         potentialAction: {
           '@type': 'SearchAction',
-          target: `${SITE_URL}/new-projects-in-gurgaon?q={search_term_string}`,
+          target: `${siteUrl}/new-projects-in-gurgaon?q={search_term_string}`,
           'query-input': 'required name=search_term_string',
         },
       }) }} />
 
-      {/* Hero */}
-      <HeroSection />
+      {/* Hero — 100% dynamic from DB settings */}
+      <HeroSection
+        siteName={settings.siteName}
+        phone={settings.phone}
+        whatsapp={settings.whatsapp}
+        heroTagline={settings.heroTagline}
+        heroTitle={settings.heroTitle}
+        heroTitleAccent={settings.heroTitleAccent}
+        heroSubtitle={settings.heroSubtitle}
+        heroCTAPrimary={settings.heroCTAPrimary}
+        heroCTASecondary={settings.heroCTASecondary}
+        heroImageUrl={settings.heroImageUrl}
+        stats={settings.marketStats}
+        locations={settings.locations?.map((l) => ({ name: l.name, href: l.href }))}
+      />
 
-      {/* Trust strip + builder logos */}
+      {/* Luxury category quick links */}
+      <LuxuryHighlightsStrip />
+
+      {/* Builder logos */}
       <BuilderLogos />
 
       {/* Featured Projects */}
-      <FeaturedProjects />
+      <FeaturedProjects phone={settings.phone} />
 
-      {/* Location grid with images */}
+      {/* Location grid */}
       <LocationsSection />
 
       {/* Market Stats */}
@@ -122,10 +141,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* FAQs */}
       <FAQSection />
 
-      {/* Internal links — SEO */}
+      {/* Internal Links */}
       <InternalLinksBlock currentPage="/" />
     </>
   );
