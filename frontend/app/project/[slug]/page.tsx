@@ -504,12 +504,10 @@ export default async function ProjectDetailPage({ params }: Props) {
                             {safeText(fp.price)}
                           </td>
                           <td className="px-5 py-3.5">
-                            <a
-                              href="#enquiry-form"
-                              className="text-xs text-brand-dark font-semibold hover:text-brand-accent"
-                            >
+                            <LeadCTA ctaType="price_list" projectName={project.name}
+                              className="text-xs text-brand-dark font-semibold hover:text-brand-accent">
                               Get Details →
-                            </a>
+                            </LeadCTA>
                           </td>
                         </tr>
                       ))}

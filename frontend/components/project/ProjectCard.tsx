@@ -3,7 +3,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTracking } from '@/components/lead/TrackingProvider';
-import OTPModal from '@/components/lead/OTPModal';
 import type { Project } from '@/lib/projects';
 
 const STATUS_STYLES: Record<string, string> = {
@@ -19,8 +18,7 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project, variant = 'default' }: ProjectCardProps) {
-  const { trackEvent, trackCTA } = useTracking();
-  const [otpModal, setOtpModal] = useState(false);
+  const { trackEvent, trackCTA, openLeadModal } = useTracking();
   const [imgError, setImgError] = useState(false);
 
   const slug = project.slug;
@@ -42,7 +40,7 @@ export default function ProjectCard({ project, variant = 'default' }: ProjectCar
   const handlePriceClick = (e: React.MouseEvent) => {
     e.preventDefault();
     trackCTA('price_section_view', slug, { projectName: name });
-    setOtpModal(true);
+    openLeadModal({ ctaType: 'price_list', projectName: name });
   };
 
   if (variant === 'compact') {
@@ -168,14 +166,6 @@ export default function ProjectCard({ project, variant = 'default' }: ProjectCar
         </div>
       </div>
 
-      {otpModal && (
-        <OTPModal
-          onClose={() => setOtpModal(false)}
-          onSuccess={() => setOtpModal(false)}
-          ctaType="price_section_view"
-          projectName={name}
-        />
-      )}
     </>
   );
 }

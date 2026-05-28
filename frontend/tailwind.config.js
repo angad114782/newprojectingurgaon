@@ -5,6 +5,17 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  safelist: [
+    // Dynamic gradient classes from DB (location cards, etc.)
+    { pattern: /^from-/ },
+    { pattern: /^to-/ },
+    { pattern: /^via-/ },
+    { pattern: /^bg-gradient-/ },
+    // Dynamic color classes from admin
+    { pattern: /^text-(red|green|blue|yellow|orange|purple|pink|gray|slate|zinc|stone|amber|lime|emerald|teal|cyan|sky|indigo|violet|fuchsia|rose)-(50|100|200|300|400|500|600|700|800|900)/ },
+    { pattern: /^bg-(red|green|blue|yellow|orange|purple|pink|gray|slate|zinc|stone|amber|lime|emerald|teal|cyan|sky|indigo|violet|fuchsia|rose)-(50|100|200|300|400|500|600|700|800|900)/ },
+    { pattern: /^border-(red|green|blue|yellow|orange|purple|pink|gray|slate|zinc|stone|amber|lime|emerald|teal|cyan|sky|indigo|violet|fuchsia|rose)-(50|100|200|300|400|500|600|700|800|900)/ },
+  ],
   theme: {
     extend: {
       colors: {

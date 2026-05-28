@@ -2344,50 +2344,95 @@ export default function AdminPage() {
           {/* Logo */}
           <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
             <SectionHeader title="Website Logo" icon="🏢" />
-            <p className="text-xs text-brand-muted">Recommended: PNG format, transparent background, min 200×60 px. Header mein dikhega.</p>
+            <p className="text-xs text-brand-muted">Recommended: PNG transparent background, min 200×60 px. Header mein dikhega.</p>
+
+            {/* File Upload */}
             <div>
-              <label className="block text-xs font-medium text-brand-muted mb-1">Logo URL (Unsplash, CDN, ya uploaded image URL)</label>
+              <label className="block text-xs font-medium text-brand-muted mb-2">Logo Upload karo (PNG/SVG)</label>
+              <label className="flex items-center gap-3 border-2 border-dashed border-brand-border rounded-xl p-4 cursor-pointer hover:border-brand-accent transition-colors">
+                <input type="file" accept="image/png,image/svg+xml,image/jpeg,image/webp" className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file || !token) return;
+                    const fd = new FormData(); fd.append('image', file);
+                    const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                    const d = await r.json();
+                    if (d.success) setSiteSettings({ ...siteSettings, logoUrl: d.url } as any);
+                    else alert('Upload failed');
+                  }} />
+                <span className="text-2xl">📁</span>
+                <div>
+                  <p className="text-sm font-medium text-brand-text">Choose File</p>
+                  <p className="text-xs text-brand-muted">PNG, SVG, JPEG, WEBP</p>
+                </div>
+              </label>
+            </div>
+
+            {/* OR URL */}
+            <div>
+              <label className="block text-xs font-medium text-brand-muted mb-1">Ya URL paste karo</label>
               <input className="input-field text-sm" placeholder="https://yourdomain.com/logo.png"
                 value={(siteSettings as any).logoUrl || ''}
                 onChange={(e) => setSiteSettings({ ...siteSettings, logoUrl: e.target.value } as any)} />
             </div>
+
             {(siteSettings as any).logoUrl && (
               <div className="bg-brand-dark rounded-xl p-4 flex items-center gap-3">
-                <img src={(siteSettings as any).logoUrl} alt="Logo preview" className="h-10 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                <p className="text-white/60 text-xs">Preview (dark background pe)</p>
+                <img src={(siteSettings as any).logoUrl} alt="Logo preview" className="h-10 object-contain max-w-[200px]" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                <p className="text-white/60 text-xs">Preview on dark background</p>
               </div>
             )}
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700 space-y-1">
-              <p><strong>Logo kaise use hoga:</strong></p>
-              <p>• Header component mein `siteName` text ki jagah logo image dikhegi (Header.tsx update karna hoga)</p>
-              <p>• Footer mein bhi same logo use hoga</p>
-              <p>• WhatsApp messages mein siteName text aayega</p>
-            </div>
           </div>
 
           {/* Favicon */}
           <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
             <SectionHeader title="Favicon (Browser Tab Icon)" icon="⭐" />
-            <p className="text-xs text-brand-muted">Recommended: 32×32 px ya 64×64 px PNG/ICO. Browser tab, bookmarks aur mobile homescreen mein dikhta hai.</p>
+            <p className="text-xs text-brand-muted">Recommended: 32×32 px PNG/ICO. Browser tab, bookmarks aur mobile homescreen mein dikhta hai.</p>
 
-            <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-              <p className="text-xs font-semibold text-brand-text">Favicon set karne ke steps:</p>
-              <ol className="text-xs text-brand-muted space-y-2 list-decimal list-inside">
-                <li>Favicon banao: <a href="https://favicon.io" target="_blank" rel="noopener noreferrer" className="text-brand-accent underline">favicon.io</a> pe jaao → Text ya Image se generate karo</li>
-                <li>Download karo — <code className="bg-white border px-1 rounded">favicon.ico</code> aur <code className="bg-white border px-1 rounded">apple-touch-icon.png</code> files milenge</li>
-                <li>Files ko VPS per upload karo: <code className="bg-white border px-1 rounded">/var/www/gurgaon-realestate/frontend/public/</code></li>
-                <li>Website restart karo — favicon automatically pick ho jaayega</li>
-              </ol>
+            {/* Favicon URL + Upload */}
+            <div>
+              <label className="block text-xs font-medium text-brand-muted mb-2">Favicon Upload (PNG/ICO — 32×32 px)</label>
+              <label className="flex items-center gap-3 border-2 border-dashed border-brand-border rounded-xl p-4 cursor-pointer hover:border-brand-accent transition-colors">
+                <input type="file" accept="image/png,image/x-icon,image/ico,image/jpeg" className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file || !token) return;
+                    const fd = new FormData(); fd.append('image', file);
+                    const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                    const d = await r.json();
+                    if (d.success) setSiteSettings({ ...siteSettings, faviconUrl: d.url } as any);
+                    else alert('Upload failed');
+                  }} />
+                <span className="text-2xl">📁</span>
+                <div>
+                  <p className="text-sm font-medium text-brand-text">Choose Favicon File</p>
+                  <p className="text-xs text-brand-muted">PNG ya ICO format, 32×32 px</p>
+                </div>
+              </label>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-brand-muted mb-1">Current Favicon Path (public folder se)</label>
-              <input className="input-field text-sm font-mono bg-gray-50 cursor-not-allowed" value="/favicon.ico" readOnly />
-              <p className="text-xs text-brand-muted mt-1">Next.js automatically <code>/public/favicon.ico</code> use karta hai</p>
+              <label className="block text-xs font-medium text-brand-muted mb-1">Ya Favicon URL</label>
+              <input className="input-field text-sm" placeholder="https://yourdomain.com/favicon.ico"
+                value={(siteSettings as any).faviconUrl || ''}
+                onChange={(e) => setSiteSettings({ ...siteSettings, faviconUrl: e.target.value } as any)} />
             </div>
 
-            <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-xs text-green-700">
-              <strong>Quick favicon:</strong> <a href="https://favicon.io/favicon-generator/" target="_blank" rel="noopener noreferrer" className="underline">favicon.io/favicon-generator</a> → Letter "N" → Color: #075B63 → Download → Upload to server
+            {(siteSettings as any).faviconUrl && (
+              <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-200">
+                <img src={(siteSettings as any).faviconUrl} alt="Favicon preview" className="w-8 h-8 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                <p className="text-xs text-brand-muted">Favicon preview (browser tab mein aisa dikhega)</p>
+              </div>
+            )}
+
+            <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-brand-text">Manual favicon upload (VPS se):</p>
+              <ol className="text-xs text-brand-muted space-y-1.5 list-decimal list-inside">
+                <li><a href="https://favicon.io/favicon-generator/" target="_blank" rel="noopener noreferrer" className="text-brand-accent underline">favicon.io</a> pe jaao → Text ya Image se generate karo</li>
+                <li>Download → <code className="bg-white border px-1 rounded">favicon.ico</code> aur <code className="bg-white border px-1 rounded">apple-touch-icon.png</code></li>
+                <li>VPS upload: <code className="bg-white border px-1 rounded">/var/www/gurgaon-realestate/frontend/public/</code></li>
+                <li>PM2 restart karo</li>
+              </ol>
             </div>
           </div>
 

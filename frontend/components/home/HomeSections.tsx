@@ -25,12 +25,15 @@ export async function LocationsSection() {
             {locations.map((loc) => (
               <Link key={loc.name} href={loc.href}
                 className="group relative rounded-2xl overflow-hidden h-44 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300">
-                {loc.img && (
+                {loc.img ? (
                   <Image src={loc.img} alt={`Property in ${loc.name}`} fill
                     className="object-cover group-hover:scale-110 transition-transform duration-500"
                     sizes="(max-width: 768px) 50vw, 25vw" />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-brand-dark to-brand-deep" />
                 )}
-                <div className={`absolute inset-0 bg-gradient-to-t ${loc.color || 'from-blue-900/80'} to-transparent`} />
+                {/* Gradient overlay — inline style so DB dynamic values always work in production */}
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(4,30,40,0.85) 0%, rgba(4,30,40,0.3) 60%, transparent 100%)' }} />
                 <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">
                   <span className="text-xs bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full font-medium mb-1.5 inline-block w-fit">
                     {loc.highlight}
