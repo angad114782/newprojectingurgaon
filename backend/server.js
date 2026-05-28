@@ -141,6 +141,7 @@ app.use('/api/projects', require('./routes/projects'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/settings', require('./routes/settings'));
+app.use('/api/blogs', require('./routes/blogs'));
 
 // ─── 404 ─────────────────────────────────────────────────────────────────────
 app.use((req, res) => {

@@ -296,7 +296,7 @@ export default function AdminPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics' | 'gsc' | 'branding'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics' | 'gsc' | 'branding' | 'blog'>('leads');
   const socketRef = useRef<Socket | null>(null);
   const [liveNotif, setLiveNotif] = useState<string | null>(null);
 
@@ -323,6 +323,24 @@ export default function AdminPage() {
   const [csvImporting, setCsvImporting] = useState(false);
   const [csvResult, setCsvResult] = useState<any>(null);
   const [csvSkipImages, setCsvSkipImages] = useState(false);
+
+  // Blog state
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [blogLoading, setBlogLoading] = useState(false);
+  const [blogModalOpen, setBlogModalOpen] = useState(false);
+  const [blogModalMode, setBlogModalMode] = useState<'add' | 'edit'>('add');
+  const [blogSaving, setBlogSaving] = useState(false);
+  const emptyBlogForm = {
+    title: '', slug: '', excerpt: '', heroImage: '', category: 'Investment Guide',
+    status: 'published' as const,
+    author: { name: '', bio: '', credentials: '', avatar: '' },
+    date: new Date().toISOString().split('T')[0],
+    readTime: '5 min', keywords: '',
+    intro: '',
+    sections: [{ heading: '', content: '', link: '', linkText: '' }],
+    relatedLinks: [{ label: '', href: '' }],
+  };
+  const [blogForm, setBlogForm] = useState<any>({ ...emptyBlogForm });
 
   // Analytics state
   const [analytics, setAnalytics] = useState<any>(null);
@@ -476,6 +494,47 @@ export default function AdminPage() {
     return () => clearTimeout(t);
   }, [leadSearch]);
   useEffect(() => { if (activeTab === 'analytics' && !analytics) fetchAnalytics(); }, [activeTab, analytics, fetchAnalytics]);
+  useEffect(() => { if (activeTab === 'blog' && token && blogPosts.length === 0) fetchBlogs(); }, [activeTab, token]);
+
+  const fetchBlogs = async () => {
+    setBlogLoading(true);
+    try {
+      const res = await fetch(`${API}/blogs/all`, { headers: { Authorization: `Bearer ${token}` } });
+      const d = await res.json();
+      if (d.success) setBlogPosts(d.data);
+    } finally { setBlogLoading(false); }
+  };
+
+  const slugify = (str: string) => str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+  const saveBlog = async () => {
+    setBlogSaving(true);
+    try {
+      const payload = {
+        ...blogForm,
+        keywords: typeof blogForm.keywords === 'string'
+          ? blogForm.keywords.split(',').map((k: string) => k.trim()).filter(Boolean)
+          : blogForm.keywords,
+        sections: blogForm.sections.filter((s: any) => s.heading || s.content),
+        relatedLinks: blogForm.relatedLinks.filter((l: any) => l.label && l.href),
+      };
+      const url = blogModalMode === 'edit' ? `${API}/blogs/${blogForm._id}` : `${API}/blogs`;
+      const method = blogModalMode === 'edit' ? 'PUT' : 'POST';
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+      const d = await res.json();
+      if (d.success) {
+        await fetchBlogs();
+        setBlogModalOpen(false);
+        setBlogForm({ ...emptyBlogForm });
+      } else { alert(d.message || 'Save failed'); }
+    } finally { setBlogSaving(false); }
+  };
+
+  const deleteBlog = async (id: string) => {
+    if (!confirm('Delete this blog post?')) return;
+    await fetch(`${API}/blogs/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    setBlogPosts((prev) => prev.filter((b) => b._id !== id));
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); setLoginError('');
@@ -719,6 +778,10 @@ export default function AdminPage() {
             <button onClick={() => setActiveTab('gsc')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'gsc' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
               🔍 Search Console
+            </button>
+            <button onClick={() => setActiveTab('blog')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'blog' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
+              📝 Blog
             </button>
             <button onClick={() => setActiveTab('branding')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'branding' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
@@ -2412,6 +2475,272 @@ export default function AdminPage() {
           </div>
         );
       })()}
+
+      {/* ── BLOG TAB ── */}
+      {activeTab === 'blog' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-display font-semibold text-brand-text">Blog Posts</h2>
+            <button className="btn-primary text-sm px-4 py-2" onClick={() => { setBlogModalMode('add'); setBlogForm({ ...emptyBlogForm }); setBlogModalOpen(true); }}>
+              + New Post
+            </button>
+          </div>
+
+          {blogLoading ? (
+            <div className="text-center py-12 text-brand-muted">Loading…</div>
+          ) : blogPosts.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
+              <p className="text-brand-muted text-sm">No blog posts yet. Click "New Post" to create your first post.</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead><tr className="bg-gray-50 text-brand-muted text-xs uppercase tracking-wide border-b border-gray-100">
+                  <th className="py-3 px-4 text-left">Title</th>
+                  <th className="py-3 px-3 text-left">Category</th>
+                  <th className="py-3 px-3 text-left">Author</th>
+                  <th className="py-3 px-3 text-left">Date</th>
+                  <th className="py-3 px-3 text-left">Status</th>
+                  <th className="py-3 px-3 text-right">Actions</th>
+                </tr></thead>
+                <tbody>
+                  {blogPosts.map((b) => (
+                    <tr key={b._id} className="border-b border-gray-50 hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <p className="font-medium text-brand-text line-clamp-1">{b.title}</p>
+                        <p className="text-xs text-brand-muted">/{b.slug}</p>
+                      </td>
+                      <td className="py-3 px-3 text-brand-muted text-xs">{b.category}</td>
+                      <td className="py-3 px-3 text-brand-muted text-xs">{b.author?.name || '—'}</td>
+                      <td className="py-3 px-3 text-brand-muted text-xs">{b.date ? new Date(b.date).toLocaleDateString('en-IN') : '—'}</td>
+                      <td className="py-3 px-3">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${b.status === 'published' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'}`}>
+                          {b.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <a href={`/blog/${b.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-dark hover:underline">View</a>
+                          <button className="text-xs text-blue-600 hover:underline" onClick={() => {
+                            setBlogModalMode('edit');
+                            setBlogForm({ ...b, keywords: Array.isArray(b.keywords) ? b.keywords.join(', ') : b.keywords || '', date: b.date ? new Date(b.date).toISOString().split('T')[0] : '', sections: b.sections?.length ? b.sections : [{ heading: '', content: '', link: '', linkText: '' }], relatedLinks: b.relatedLinks?.length ? b.relatedLinks : [{ label: '', href: '' }] });
+                            setBlogModalOpen(true);
+                          }}>Edit</button>
+                          <button className="text-xs text-red-500 hover:underline" onClick={() => deleteBlog(b._id)}>Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Blog Modal */}
+      {blogModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 overflow-y-auto py-8 px-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl">
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+              <h3 className="font-display font-semibold text-brand-text">{blogModalMode === 'add' ? 'New Blog Post' : 'Edit Blog Post'}</h3>
+              <button onClick={() => setBlogModalOpen(false)} className="text-brand-muted hover:text-brand-text text-xl">✕</button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Title + Slug */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Title *</label>
+                  <input className="input-field" value={blogForm.title} placeholder="Blog post title"
+                    onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value, slug: blogModalMode === 'add' ? slugify(e.target.value) : blogForm.slug })} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Slug (URL) *</label>
+                  <input className="input-field" value={blogForm.slug} placeholder="url-friendly-slug"
+                    onChange={(e) => setBlogForm({ ...blogForm, slug: slugify(e.target.value) })} />
+                </div>
+              </div>
+
+              {/* Category + Status + Read Time + Date */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Category</label>
+                  <select className="input-field" value={blogForm.category} onChange={(e) => setBlogForm({ ...blogForm, category: e.target.value })}>
+                    {['Investment Guide', 'Buying Guide', 'Legal & RERA', 'Builder Guide', 'Market Update', 'Area Guide', 'NRI Guide'].map((c) => <option key={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Status</label>
+                  <select className="input-field" value={blogForm.status} onChange={(e) => setBlogForm({ ...blogForm, status: e.target.value })}>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Read Time</label>
+                  <input className="input-field" value={blogForm.readTime} placeholder="8 min"
+                    onChange={(e) => setBlogForm({ ...blogForm, readTime: e.target.value })} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Publish Date</label>
+                  <input type="date" className="input-field" value={blogForm.date}
+                    onChange={(e) => setBlogForm({ ...blogForm, date: e.target.value })} />
+                </div>
+              </div>
+
+              {/* Hero Image */}
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">Hero Image</label>
+                <div className="flex gap-2">
+                  <input className="input-field flex-1" value={blogForm.heroImage} placeholder="https://... or upload below"
+                    onChange={(e) => setBlogForm({ ...blogForm, heroImage: e.target.value })} />
+                  <label className="btn-secondary text-xs px-3 py-2 cursor-pointer shrink-0">
+                    📁 Upload
+                    <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                      const file = e.target.files?.[0]; if (!file || !token) return;
+                      const fd = new FormData(); fd.append('image', file);
+                      const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                      const d = await r.json();
+                      if (d.success) setBlogForm((f: any) => ({ ...f, heroImage: d.url }));
+                    }} />
+                  </label>
+                </div>
+                {blogForm.heroImage && <img src={blogForm.heroImage} alt="preview" className="mt-2 h-32 rounded-xl object-cover" />}
+              </div>
+
+              {/* Excerpt */}
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">Excerpt (card preview text)</label>
+                <textarea className="input-field" rows={2} value={blogForm.excerpt} placeholder="Short description shown on blog listing page…"
+                  onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })} />
+              </div>
+
+              {/* Keywords */}
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">Keywords (comma separated — unique per post)</label>
+                <input className="input-field" value={blogForm.keywords} placeholder="gurgaon investment, dwarka expressway 2025, best sectors gurgaon"
+                  onChange={(e) => setBlogForm({ ...blogForm, keywords: e.target.value })} />
+              </div>
+
+              {/* ── Author ── */}
+              <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+                <p className="text-xs font-semibold text-brand-text">Author Info (E-E-A-T — Google trust signals)</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-brand-muted mb-1">Author Name *</label>
+                    <input className="input-field" value={blogForm.author.name} placeholder="Rahul Sharma"
+                      onChange={(e) => setBlogForm({ ...blogForm, author: { ...blogForm.author, name: e.target.value } })} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-brand-muted mb-1">Credentials</label>
+                    <input className="input-field" value={blogForm.author.credentials} placeholder="Certified Property Advisor, 8 years experience"
+                      onChange={(e) => setBlogForm({ ...blogForm, author: { ...blogForm.author, credentials: e.target.value } })} />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Bio (1-2 lines)</label>
+                  <textarea className="input-field" rows={2} value={blogForm.author.bio} placeholder="Senior advisor at New Projects in Gurgaon with expertise in…"
+                    onChange={(e) => setBlogForm({ ...blogForm, author: { ...blogForm.author, bio: e.target.value } })} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Avatar Photo</label>
+                  <div className="flex gap-2">
+                    <input className="input-field flex-1" value={blogForm.author.avatar} placeholder="https://... photo URL"
+                      onChange={(e) => setBlogForm({ ...blogForm, author: { ...blogForm.author, avatar: e.target.value } })} />
+                    <label className="btn-secondary text-xs px-3 py-2 cursor-pointer shrink-0">
+                      📁 Upload
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                        const file = e.target.files?.[0]; if (!file || !token) return;
+                        const fd = new FormData(); fd.append('image', file);
+                        const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                        const d = await r.json();
+                        if (d.success) setBlogForm((f: any) => ({ ...f, author: { ...f.author, avatar: d.url } }));
+                      }} />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Intro */}
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">Intro Paragraph</label>
+                <textarea className="input-field" rows={3} value={blogForm.intro} placeholder="Opening paragraph shown with left border accent…"
+                  onChange={(e) => setBlogForm({ ...blogForm, intro: e.target.value })} />
+              </div>
+
+              {/* ── Sections ── */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-semibold text-brand-text">Content Sections</label>
+                  <button type="button" className="text-xs text-brand-dark hover:underline"
+                    onClick={() => setBlogForm((f: any) => ({ ...f, sections: [...f.sections, { heading: '', content: '', link: '', linkText: '' }] }))}>
+                    + Add Section
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {blogForm.sections.map((sec: any, i: number) => (
+                    <div key={i} className="border border-gray-200 rounded-xl p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-brand-muted">Section {i + 1}</span>
+                        {blogForm.sections.length > 1 && (
+                          <button type="button" className="text-xs text-red-400 hover:text-red-600"
+                            onClick={() => setBlogForm((f: any) => ({ ...f, sections: f.sections.filter((_: any, idx: number) => idx !== i) }))}>
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      <input className="input-field" value={sec.heading} placeholder="Section heading (h2)"
+                        onChange={(e) => setBlogForm((f: any) => { const s = [...f.sections]; s[i] = { ...s[i], heading: e.target.value }; return { ...f, sections: s }; })} />
+                      <textarea className="input-field" rows={3} value={sec.content} placeholder="Section content…"
+                        onChange={(e) => setBlogForm((f: any) => { const s = [...f.sections]; s[i] = { ...s[i], content: e.target.value }; return { ...f, sections: s }; })} />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input className="input-field text-xs" value={sec.link} placeholder="Link URL (optional)"
+                          onChange={(e) => setBlogForm((f: any) => { const s = [...f.sections]; s[i] = { ...s[i], link: e.target.value }; return { ...f, sections: s }; })} />
+                        <input className="input-field text-xs" value={sec.linkText} placeholder="Link text (optional)"
+                          onChange={(e) => setBlogForm((f: any) => { const s = [...f.sections]; s[i] = { ...s[i], linkText: e.target.value }; return { ...f, sections: s }; })} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Related Links ── */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-semibold text-brand-text">Related Links (bottom of post)</label>
+                  <button type="button" className="text-xs text-brand-dark hover:underline"
+                    onClick={() => setBlogForm((f: any) => ({ ...f, relatedLinks: [...f.relatedLinks, { label: '', href: '' }] }))}>
+                    + Add Link
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {blogForm.relatedLinks.map((rl: any, i: number) => (
+                    <div key={i} className="flex gap-2 items-center">
+                      <input className="input-field flex-1" value={rl.label} placeholder="Label e.g. New Launch Projects"
+                        onChange={(e) => setBlogForm((f: any) => { const r = [...f.relatedLinks]; r[i] = { ...r[i], label: e.target.value }; return { ...f, relatedLinks: r }; })} />
+                      <input className="input-field flex-1" value={rl.href} placeholder="/new-launch-projects-in-gurgaon"
+                        onChange={(e) => setBlogForm((f: any) => { const r = [...f.relatedLinks]; r[i] = { ...r[i], href: e.target.value }; return { ...f, relatedLinks: r }; })} />
+                      {blogForm.relatedLinks.length > 1 && (
+                        <button type="button" className="text-red-400 text-xs hover:text-red-600 shrink-0"
+                          onClick={() => setBlogForm((f: any) => ({ ...f, relatedLinks: f.relatedLinks.filter((_: any, idx: number) => idx !== i) }))}>✕</button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Save */}
+              <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                <button className="btn-secondary text-sm px-5 py-2" onClick={() => setBlogModalOpen(false)}>Cancel</button>
+                <button className="btn-primary text-sm px-6 py-2" onClick={saveBlog} disabled={blogSaving}>
+                  {blogSaving ? 'Saving…' : blogModalMode === 'add' ? 'Publish Post' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── BRANDING TAB ── */}
       {activeTab === 'branding' && siteSettings && (

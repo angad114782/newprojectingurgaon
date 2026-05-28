@@ -1,58 +1,69 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import Link from 'next/link';
+import Image from 'next/image';
+import { fetchBlogs } from '@/lib/api-blogs';
+import { fetchSettings } from '@/lib/settings';
 
-export const metadata: Metadata = {
-  title: 'Gurgaon Real Estate Blog | Property Investment Guides & Market Updates',
-  description: 'Read expert guides on buying property in Gurgaon — investment advice, sector analysis, RERA tips and market trends from New Projects in Gurgaon advisors.',
-  alternates: { canonical: '/blog' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
+  const siteUrl = `${proto}://${host}`;
+  const pageUrl = `${siteUrl}/blog`;
+  const settings = await fetchSettings();
 
-const blogs = [
-  {
-    slug: 'best-sectors-to-invest-in-gurgaon',
-    title: 'Best Sectors to Invest in Gurgaon in 2025',
-    excerpt: 'A sector-by-sector breakdown of where smart money is going in Gurgaon real estate in 2025 — covering Dwarka Expressway, Golf Course Extension Road, SPR and New Gurgaon.',
-    category: 'Investment Guide',
-    date: 'March 2025',
-    readTime: '8 min',
-  },
-  {
-    slug: 'dwarka-expressway-investment-guide',
-    title: 'Dwarka Expressway Investment Guide 2025 — Why It\'s Still Gurgaon\'s Best Bet',
-    excerpt: 'Everything you need to know before investing in a property on Dwarka Expressway — sector-wise analysis, builder comparison, price trends and growth potential.',
-    category: 'Investment Guide',
-    date: 'February 2025',
-    readTime: '10 min',
-  },
-  {
-    slug: 'new-launch-vs-ready-to-move-property',
-    title: 'New Launch vs Ready to Move Property in Gurgaon — What Should You Buy?',
-    excerpt: 'A detailed comparison of new launch and ready-to-move properties in Gurgaon covering price difference, risk, return potential and tax implications.',
-    category: 'Buying Guide',
-    date: 'January 2025',
-    readTime: '7 min',
-  },
-  {
-    slug: 'how-to-check-rera-before-buying-property',
-    title: 'How to Check RERA Registration Before Buying a Property in Gurgaon',
-    excerpt: 'Step-by-step guide to verifying a project\'s RERA status on haryanarera.gov.in — what to check, what red flags to look for and how to avoid unregistered projects.',
-    category: 'Legal & RERA',
-    date: 'December 2024',
-    readTime: '5 min',
-  },
-  {
-    slug: 'best-builders-in-gurgaon',
-    title: 'Best Builders in Gurgaon — Ranked by Delivery Record, Quality & Trust',
-    excerpt: 'An honest ranking of top real estate builders in Gurgaon — DLF, Sobha, Godrej, M3M, Emaar, Tata, Hero Homes and more — compared on delivery, quality and buyer reviews.',
-    category: 'Builder Guide',
-    date: 'November 2024',
-    readTime: '9 min',
-  },
-];
+  const title = 'Gurgaon Real Estate Blog | Property Investment Guides & Market Updates';
+  const description = `Read expert guides on buying property in Gurgaon — investment advice, sector analysis, RERA tips and market trends from ${settings.siteName} advisors.`;
 
-export default function BlogPage() {
+  return {
+    title,
+    description,
+    keywords: [
+      'gurgaon real estate blog', 'property investment guide gurgaon', 'gurgaon property market 2025',
+      'buy property in gurgaon guide', 'dwarka expressway investment', 'rera gurgaon guide',
+    ],
+    alternates: { canonical: pageUrl },
+    openGraph: {
+      type: 'website',
+      title,
+      description,
+      url: pageUrl,
+      siteName: settings.siteName,
+      locale: 'en_IN',
+      images: [{ url: `${siteUrl}/og-home.jpg`, width: 1200, height: 630, alt: title }],
+    },
+    twitter: { card: 'summary_large_image', title, description },
+  };
+}
+
+export default async function BlogPage() {
+  const [blogs, settings] = await Promise.all([fetchBlogs(), fetchSettings()]);
+
+  // Fallback static blogs if DB is empty
+  const staticBlogs = [
+    { slug: 'best-sectors-to-invest-in-gurgaon', title: 'Best Sectors to Invest in Gurgaon in 2025', excerpt: 'A sector-by-sector breakdown of where smart money is going in Gurgaon real estate in 2025.', category: 'Investment Guide', date: '2025-03-01', readTime: '8 min', heroImage: '', author: { name: 'New Projects in Gurgaon' } },
+    { slug: 'dwarka-expressway-investment-guide', title: "Dwarka Expressway Investment Guide 2025 — Why It's Still Gurgaon's Best Bet", excerpt: 'Everything you need to know before investing in a property on Dwarka Expressway.', category: 'Investment Guide', date: '2025-02-01', readTime: '10 min', heroImage: '', author: { name: 'New Projects in Gurgaon' } },
+    { slug: 'new-launch-vs-ready-to-move-property', title: 'New Launch vs Ready to Move Property in Gurgaon — What Should You Buy?', excerpt: 'A detailed comparison of new launch and ready-to-move properties in Gurgaon.', category: 'Buying Guide', date: '2025-01-01', readTime: '7 min', heroImage: '', author: { name: 'New Projects in Gurgaon' } },
+    { slug: 'how-to-check-rera-before-buying-property', title: 'How to Check RERA Registration Before Buying a Property in Gurgaon', excerpt: "Step-by-step guide to verifying a project's RERA status on haryanarera.gov.in.", category: 'Legal & RERA', date: '2024-12-01', readTime: '5 min', heroImage: '', author: { name: 'New Projects in Gurgaon' } },
+    { slug: 'best-builders-in-gurgaon', title: 'Best Builders in Gurgaon — Ranked by Delivery Record, Quality & Trust', excerpt: 'An honest ranking of top real estate builders in Gurgaon — DLF, Sobha, Godrej, M3M and more.', category: 'Builder Guide', date: '2024-11-01', readTime: '9 min', heroImage: '', author: { name: 'New Projects in Gurgaon' } },
+  ];
+
+  const displayBlogs = blogs.length > 0 ? blogs : staticBlogs;
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `https://${settings.siteName?.toLowerCase().replace(/\s+/g, '')}` },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: '/blog' },
+    ],
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">
         <div className="max-w-7xl mx-auto px-4 text-sm text-brand-muted">
           <Link href="/" className="hover:text-brand-dark">Home</Link>
@@ -80,14 +91,24 @@ export default function BlogPage() {
       <section className="py-14 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blogs.map((blog) => (
+            {displayBlogs.map((blog: any) => (
               <Link
                 key={blog.slug}
                 href={`/blog/${blog.slug}`}
                 className="card group hover:-translate-y-1 transition-all duration-300"
               >
-                <div className="h-44 bg-gradient-to-br from-brand-dark to-[#06616B] flex items-center justify-center rounded-t-2xl">
-                  <span className="text-white/30 text-5xl">📝</span>
+                <div className="h-44 rounded-t-2xl overflow-hidden bg-gradient-to-br from-brand-dark to-[#06616B] flex items-center justify-center">
+                  {blog.heroImage ? (
+                    <Image
+                      src={blog.heroImage}
+                      alt={blog.title}
+                      width={400}
+                      height={176}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-white/30 text-5xl">📝</span>
+                  )}
                 </div>
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-3">
@@ -98,6 +119,9 @@ export default function BlogPage() {
                     {blog.title}
                   </h2>
                   <p className="text-brand-muted text-sm leading-relaxed line-clamp-3">{blog.excerpt}</p>
+                  {blog.author?.name && (
+                    <p className="text-xs text-brand-muted mt-2">By {blog.author.name}</p>
+                  )}
                   <div className="mt-3 text-brand-dark text-sm font-semibold">Read More →</div>
                 </div>
               </Link>

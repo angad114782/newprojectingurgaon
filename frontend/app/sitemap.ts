@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { ALL_SEO_PAGES } from '@/lib/projects';
 import { fetchAllProjectSlugs } from '@/lib/api-projects';
+import { fetchAllBlogSlugs } from '@/lib/api-blogs';
 import { headers } from 'next/headers';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -9,7 +10,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
   const BASE = `${proto}://${host}`;
 
-  const allSlugs = await fetchAllProjectSlugs();
+  const [allSlugs, blogSlugs] = await Promise.all([
+    fetchAllProjectSlugs(),
+    fetchAllBlogSlugs(),
+  ]);
 
   const staticPages = [
     { url: BASE, changeFrequency: 'daily' as const, priority: 1.0 },
@@ -28,18 +32,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const blogPages = [
+  // Merge API slugs with static fallback slugs (deduplicated)
+  const staticBlogSlugs = [
     'best-sectors-to-invest-in-gurgaon',
     'dwarka-expressway-investment-guide',
     'new-launch-vs-ready-to-move-property',
     'how-to-check-rera-before-buying-property',
     'best-builders-in-gurgaon',
-    'property-in-gurgaon-2025-complete-guide',
-    '2-bhk-homes-in-gurgaon-buying-guide',
-    'spr-road-investment-guide-2025',
-    'golf-course-extension-road-projects-review',
-    'new-gurgaon-emerging-real-estate-hub',
-  ].map((slug) => ({
+  ];
+  const allBlogSlugs = Array.from(new Set([...blogSlugs, ...staticBlogSlugs]));
+  const blogPages = allBlogSlugs.map((slug) => ({
     url: `${BASE}/blog/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
