@@ -16,6 +16,7 @@ import {
   FAQSchema,
 } from '@/components/seo/SchemaMarkup';
 import { InternalLinksBlock } from '@/components/home/HomeSections';
+import LeadCTA from '@/components/lead/LeadCTA';
 import { headers } from 'next/headers';
 import { fetchSettings } from '@/lib/settings';
 import {
@@ -738,20 +739,19 @@ export default async function ProjectDetailPage({ params }: Props) {
               </p>
 
               <div className="space-y-2.5">
-                <a href="#enquiry-form" className="btn-primary w-full text-center block">
+                <LeadCTA ctaType="price_list" projectName={project.name} className="btn-primary w-full text-center block">
                   📋 Get Price List
-                </a>
+                </LeadCTA>
 
-                <a href="#enquiry-form" className="btn-white w-full text-center block">
+                <LeadCTA ctaType="brochure" projectName={project.name} className="btn-white w-full text-center block">
                   📄 Download Brochure
-                </a>
+                </LeadCTA>
 
-                <a
-                  href="#enquiry-form"
+                <LeadCTA ctaType="site_visit_request" projectName={project.name}
                   className="border border-white/30 text-white text-sm font-semibold px-4 py-2.5 rounded-xl w-full text-center block hover:bg-white/10 transition-colors"
                 >
                   🏠 Book Free Site Visit
-                </a>
+                </LeadCTA>
 
                 <a
                   href={`https://wa.me/${

@@ -202,6 +202,7 @@ router.post('/submit', async (req, res) => {
     sendLeadNotificationEmail(lead).catch(e => console.error('Email error:', e.message));
     sendLeadWelcomeEmail(lead).catch(e => console.error('Email error:', e.message));
     sendAdminLeadNotification(lead).catch(e => console.error('WA admin error:', e.message));
+    sendUserThankYouWhatsApp(lead).catch(e => console.error('WA thankyou error:', e.message));
   } catch (err) {
     console.error('Submit error:', err.message);
     res.status(500).json({ success: false, message: 'Submission failed' });

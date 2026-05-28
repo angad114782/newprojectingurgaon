@@ -296,7 +296,7 @@ export default function AdminPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics' | 'gsc' | 'branding'>('leads');
   const socketRef = useRef<Socket | null>(null);
   const [liveNotif, setLiveNotif] = useState<string | null>(null);
 
@@ -307,6 +307,10 @@ export default function AdminPage() {
   const [leadSearch, setLeadSearch] = useState('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [loadingLeads, setLoadingLeads] = useState(false);
+  const [leadPage, setLeadPage] = useState(1);
+  const [leadTotalPages, setLeadTotalPages] = useState(1);
+  const [leadTotal, setLeadTotal] = useState(0);
+  const LEADS_PER_PAGE = 20;
 
   // Projects state
   const [projects, setProjects] = useState<any[]>([]);
@@ -372,16 +376,22 @@ export default function AdminPage() {
 
   const authH = useCallback(() => ({ Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }), [token]);
 
-  const fetchLeads = useCallback(async () => {
+  const fetchLeads = useCallback(async (page = leadPage) => {
     if (!token) return; setLoadingLeads(true);
     try {
+      const statusQ = leadFilter !== 'all' ? `&status=${leadFilter}` : '';
+      const searchQ = leadSearch ? `&search=${encodeURIComponent(leadSearch)}` : '';
       const [lr, sr] = await Promise.all([
-        fetch(`${API}/admin/leads?status=${leadFilter !== 'all' ? leadFilter : ''}`, { headers: authH() }),
+        fetch(`${API}/admin/leads?page=${page}&limit=${LEADS_PER_PAGE}${statusQ}${searchQ}`, { headers: authH() }),
         fetch(`${API}/admin/dashboard`, { headers: authH() }),
       ]);
       if (lr.status === 401) { localStorage.removeItem('admin_token'); setToken(null); return; }
       const l = await lr.json(); const s = await sr.json();
-      if (l.success) setLeads(l.data || []);
+      if (l.success) {
+        setLeads(l.data || []);
+        setLeadTotal(l.total || 0);
+        setLeadTotalPages(l.pages || 1);
+      }
       if (s.success) {
         const ov = s.data?.overview || {};
         const sc = s.data?.statusCounts || {};
@@ -458,8 +468,13 @@ export default function AdminPage() {
     } catch { alert('Network error'); }
   };
 
-  useEffect(() => { if (token) { fetchLeads(); fetchProjects(); fetchSiteSettings(); } }, [token]);
-  useEffect(() => { if (token) fetchLeads(); }, [leadFilter]);
+  useEffect(() => { if (token) { fetchLeads(1); fetchProjects(); fetchSiteSettings(); } }, [token]);
+  useEffect(() => { if (token) { setLeadPage(1); fetchLeads(1); } }, [leadFilter]);
+  useEffect(() => {
+    if (!token) return;
+    const t = setTimeout(() => { setLeadPage(1); fetchLeads(1); }, 400);
+    return () => clearTimeout(t);
+  }, [leadSearch]);
   useEffect(() => { if (activeTab === 'analytics' && !analytics) fetchAnalytics(); }, [activeTab, analytics, fetchAnalytics]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -575,8 +590,7 @@ export default function AdminPage() {
     finally { setCsvImporting(false); }
   };
 
-  const filtered = leads.filter((l) => leadSearch
-    ? (l.name || '').toLowerCase().includes(leadSearch.toLowerCase()) || (l.mobile || '').includes(leadSearch) : true);
+  const filtered = leads; // server-side search + filter via fetchLeads
 
   const LEAD_TABS = [
     { label: 'All', value: 'all', count: stats?.total },
@@ -702,6 +716,14 @@ export default function AdminPage() {
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'analytics' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
               📊 Analytics
             </button>
+            <button onClick={() => setActiveTab('gsc')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'gsc' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
+              🔍 Search Console
+            </button>
+            <button onClick={() => setActiveTab('branding')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'branding' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
+              🎨 Logo & Favicon
+            </button>
           </div>
         </div>
         <div className="flex gap-3 text-xs">
@@ -771,6 +793,39 @@ export default function AdminPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {leadTotalPages > 1 && (
+                <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50/50">
+                  <p className="text-xs text-brand-muted">
+                    Showing {((leadPage - 1) * LEADS_PER_PAGE) + 1}–{Math.min(leadPage * LEADS_PER_PAGE, leadTotal)} of <strong>{leadTotal}</strong> leads
+                  </p>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => { setLeadPage(1); fetchLeads(1); }} disabled={leadPage === 1}
+                      className="p-1.5 rounded-lg text-xs text-brand-muted hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed">«</button>
+                    <button onClick={() => { const p = leadPage - 1; setLeadPage(p); fetchLeads(p); }} disabled={leadPage === 1}
+                      className="p-1.5 rounded-lg text-xs text-brand-muted hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed">‹</button>
+                    {Array.from({ length: Math.min(5, leadTotalPages) }, (_, i) => {
+                      let page = i + 1;
+                      if (leadTotalPages > 5) {
+                        if (leadPage <= 3) page = i + 1;
+                        else if (leadPage >= leadTotalPages - 2) page = leadTotalPages - 4 + i;
+                        else page = leadPage - 2 + i;
+                      }
+                      return (
+                        <button key={page} onClick={() => { setLeadPage(page); fetchLeads(page); }}
+                          className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${leadPage === page ? 'bg-brand-dark text-white' : 'text-brand-muted hover:bg-gray-200'}`}>
+                          {page}
+                        </button>
+                      );
+                    })}
+                    <button onClick={() => { const p = leadPage + 1; setLeadPage(p); fetchLeads(p); }} disabled={leadPage === leadTotalPages}
+                      className="p-1.5 rounded-lg text-xs text-brand-muted hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed">›</button>
+                    <button onClick={() => { setLeadPage(leadTotalPages); fetchLeads(leadTotalPages); }} disabled={leadPage === leadTotalPages}
+                      className="p-1.5 rounded-lg text-xs text-brand-muted hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed">»</button>
+                  </div>
                 </div>
               )}
           </div>
@@ -2194,6 +2249,169 @@ export default function AdminPage() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── GSC TAB ── */}
+      {activeTab === 'gsc' && (
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-700">
+            <strong>Google Search Console</strong> connect karo — website ke search queries, impressions aur rankings dekho directly admin mein.
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+            <SectionHeader title="Step 1 — Google Search Console mein Website Add Karo" icon="1️⃣" />
+            <div className="space-y-3 text-sm text-brand-muted">
+              <p>1. <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="text-brand-accent underline">search.google.com/search-console</a> pe jaao</p>
+              <p>2. <strong className="text-brand-text">Add Property</strong> → URL prefix → <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">https://newprojectsingurgaon.com</code> enter karo</p>
+              <p>3. Verification ke liye <strong className="text-brand-text">HTML Tag</strong> method choose karo → meta tag copy karo</p>
+              <p>4. Woh meta tag website ke <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">&lt;head&gt;</code> mein add karo (neeche field mein paste karo, hum auto-add kar denge)</p>
+            </div>
+            {siteSettings && (
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">GSC Verification Meta Tag Content (only the content= value)</label>
+                <input className="input-field font-mono text-sm" placeholder="aBcDeFgHiJkLmNoPqRsTuVwXyZ123456789" />
+                <p className="text-xs text-brand-muted mt-1">Example: <code>&lt;meta name="google-site-verification" content="<strong>PASTE_THIS_PART</strong>" /&gt;</code></p>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+            <SectionHeader title="Step 2 — Service Account Connect Karo (GSC API Access)" icon="2️⃣" />
+            <div className="space-y-3 text-sm text-brand-muted">
+              <p>1. <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="text-brand-accent underline">console.cloud.google.com</a> pe jaao</p>
+              <p>2. New Project banao → <strong className="text-brand-text">APIs & Services → Enable APIs</strong> → <em>Google Search Console API</em> enable karo</p>
+              <p>3. <strong className="text-brand-text">Credentials → Create Credentials → Service Account</strong> banao</p>
+              <p>4. Service account ko GSC mein <strong className="text-brand-text">Settings → Users → Add User</strong> se add karo (Read permission)</p>
+              <p>5. Service Account → Keys → Add Key → JSON → download karo</p>
+              <p>6. Neeche JSON paste karo:</p>
+            </div>
+            {siteSettings && (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">GSC Property URL</label>
+                  <input className="input-field text-sm" placeholder="https://newprojectsingurgaon.com"
+                    value={(siteSettings as any).googleSearchConsole?.siteUrl || ''}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, googleSearchConsole: { ...(siteSettings as any).googleSearchConsole, siteUrl: e.target.value } } as any)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Service Account JSON</label>
+                  <textarea rows={6} className="input-field text-xs font-mono resize-none" placeholder='{"type":"service_account","project_id":"...","private_key":"..."}'
+                    value={(siteSettings as any).googleSearchConsole?.serviceAccountJson || ''}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, googleSearchConsole: { ...(siteSettings as any).googleSearchConsole, serviceAccountJson: e.target.value } } as any)} />
+                  <p className="text-xs text-red-600 mt-1">⚠️ Sensitive — JSON yahan paste karo, securely stored hoga</p>
+                </div>
+                <button onClick={saveSiteSettings} disabled={settingsSaving} className="btn-primary text-sm">
+                  {settingsSaving ? '⏳ Saving...' : '✓ Save GSC Settings'}
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <SectionHeader title="Step 3 — Sitemap Submit Karo" icon="3️⃣" />
+            <div className="space-y-3 text-sm text-brand-muted">
+              <p>GSC Dashboard → Sitemaps → Submit:</p>
+              <div className="bg-gray-50 rounded-xl p-3 font-mono text-xs space-y-1">
+                <p>newprojectsingurgaon.com/sitemap.xml</p>
+              </div>
+              <p>Sitemap automatically generate hota hai Next.js se. Submit karne ke baad Google 2-3 din mein index karna start karta hai.</p>
+            </div>
+            <div className="mt-4 flex gap-3">
+              <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="btn-primary text-sm">Open GSC Dashboard →</a>
+              <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="btn-outline text-sm">View Sitemap</a>
+            </div>
+          </div>
+
+          {/* Analytics Tab redirect */}
+          {(siteSettings as any)?.googleSearchConsole?.siteUrl && (siteSettings as any)?.googleSearchConsole?.serviceAccountJson && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-700">
+              ✅ GSC configured! Analytics tab mein jaao → GSC data dikhega.
+              <button onClick={() => setActiveTab('analytics')} className="ml-3 underline font-semibold">Go to Analytics →</button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── BRANDING TAB ── */}
+      {activeTab === 'branding' && siteSettings && (
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700">
+            Logo aur Favicon website ki pehchaan hain — browser tab, bookmarks, social share sab jagah dikhte hain.
+          </div>
+
+          {/* Logo */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+            <SectionHeader title="Website Logo" icon="🏢" />
+            <p className="text-xs text-brand-muted">Recommended: PNG format, transparent background, min 200×60 px. Header mein dikhega.</p>
+            <div>
+              <label className="block text-xs font-medium text-brand-muted mb-1">Logo URL (Unsplash, CDN, ya uploaded image URL)</label>
+              <input className="input-field text-sm" placeholder="https://yourdomain.com/logo.png"
+                value={(siteSettings as any).logoUrl || ''}
+                onChange={(e) => setSiteSettings({ ...siteSettings, logoUrl: e.target.value } as any)} />
+            </div>
+            {(siteSettings as any).logoUrl && (
+              <div className="bg-brand-dark rounded-xl p-4 flex items-center gap-3">
+                <img src={(siteSettings as any).logoUrl} alt="Logo preview" className="h-10 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                <p className="text-white/60 text-xs">Preview (dark background pe)</p>
+              </div>
+            )}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700 space-y-1">
+              <p><strong>Logo kaise use hoga:</strong></p>
+              <p>• Header component mein `siteName` text ki jagah logo image dikhegi (Header.tsx update karna hoga)</p>
+              <p>• Footer mein bhi same logo use hoga</p>
+              <p>• WhatsApp messages mein siteName text aayega</p>
+            </div>
+          </div>
+
+          {/* Favicon */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+            <SectionHeader title="Favicon (Browser Tab Icon)" icon="⭐" />
+            <p className="text-xs text-brand-muted">Recommended: 32×32 px ya 64×64 px PNG/ICO. Browser tab, bookmarks aur mobile homescreen mein dikhta hai.</p>
+
+            <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+              <p className="text-xs font-semibold text-brand-text">Favicon set karne ke steps:</p>
+              <ol className="text-xs text-brand-muted space-y-2 list-decimal list-inside">
+                <li>Favicon banao: <a href="https://favicon.io" target="_blank" rel="noopener noreferrer" className="text-brand-accent underline">favicon.io</a> pe jaao → Text ya Image se generate karo</li>
+                <li>Download karo — <code className="bg-white border px-1 rounded">favicon.ico</code> aur <code className="bg-white border px-1 rounded">apple-touch-icon.png</code> files milenge</li>
+                <li>Files ko VPS per upload karo: <code className="bg-white border px-1 rounded">/var/www/gurgaon-realestate/frontend/public/</code></li>
+                <li>Website restart karo — favicon automatically pick ho jaayega</li>
+              </ol>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-brand-muted mb-1">Current Favicon Path (public folder se)</label>
+              <input className="input-field text-sm font-mono bg-gray-50 cursor-not-allowed" value="/favicon.ico" readOnly />
+              <p className="text-xs text-brand-muted mt-1">Next.js automatically <code>/public/favicon.ico</code> use karta hai</p>
+            </div>
+
+            <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-xs text-green-700">
+              <strong>Quick favicon:</strong> <a href="https://favicon.io/favicon-generator/" target="_blank" rel="noopener noreferrer" className="underline">favicon.io/favicon-generator</a> → Letter "N" → Color: #075B63 → Download → Upload to server
+            </div>
+          </div>
+
+          {/* OG Image */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+            <SectionHeader title="Social Share Image (OG Image)" icon="📸" />
+            <p className="text-xs text-brand-muted">Jab koi WhatsApp/Facebook/Twitter pe website link share kare toh yeh image dikhti hai. 1200×630 px recommended.</p>
+            <div>
+              <label className="block text-xs font-medium text-brand-muted mb-1">OG Image URL</label>
+              <input className="input-field text-sm" placeholder="https://yourdomain.com/og-image.jpg"
+                value={siteSettings.ogImage || ''}
+                onChange={(e) => setSiteSettings({ ...siteSettings, ogImage: e.target.value })} />
+            </div>
+            {siteSettings.ogImage && siteSettings.ogImage.startsWith('http') && (
+              <div className="relative h-32 rounded-xl overflow-hidden border border-brand-border">
+                <img src={siteSettings.ogImage} alt="OG preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end pb-6">
+            <button onClick={saveSiteSettings} disabled={settingsSaving} className="btn-primary min-w-[160px] disabled:opacity-50">
+              {settingsSaving ? '⏳ Saving…' : '✓ Save Branding'}
+            </button>
           </div>
         </div>
       )}
