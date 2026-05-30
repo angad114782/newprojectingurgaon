@@ -103,16 +103,18 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Static Uploaded Images ──────────────────────────────────────────────────
-app.use(
-  '/uploads',
-  express.static(path.join(__dirname, 'public/uploads'), {
-    maxAge: '7d',
-    setHeaders: (res) => {
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    },
-  })
-);
+const uploadsStatic = express.static(path.join(__dirname, 'public/uploads'), {
+  maxAge: '7d',
+  setHeaders: (res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  },
+});
+// Serve at both paths:
+// /api/uploads/ — nginx proxies /api/ to backend, so this always works
+// /uploads/     — kept for backward compatibility if nginx is configured
+app.use('/api/uploads', uploadsStatic);
+app.use('/uploads', uploadsStatic);
 
 // ─── Logging ─────────────────────────────────────────────────────────────────
 if (process.env.NODE_ENV === 'development') {

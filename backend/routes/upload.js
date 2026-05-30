@@ -39,7 +39,7 @@ router.post('/single', protect, upload.single('image'), (req, res) => {
   const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
   res.json({
     success: true,
-    url: `${baseUrl}/uploads/${req.file.filename}`,
+    url: `${baseUrl}/api/uploads/${req.file.filename}`,
     filename: req.file.filename,
     originalName: req.file.originalname,
     size: req.file.size,
@@ -52,7 +52,7 @@ router.post('/gallery', protect, upload.array('images', 10), (req, res) => {
   const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
   res.json({
     success: true,
-    urls: req.files.map((f) => `${baseUrl}/uploads/${f.filename}`),
+    urls: req.files.map((f) => `${baseUrl}/api/uploads/${f.filename}`),
     count: req.files.length,
   });
 });

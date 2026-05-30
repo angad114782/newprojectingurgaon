@@ -68,7 +68,7 @@ async function downloadImageFromUrl(url, baseUrl) {
       writer.on('finish', resolve);
       writer.on('error', reject);
     });
-    return `${baseUrl}/uploads/${filename}`;
+    return `${baseUrl}/api/uploads/${filename}`;
   } catch (err) {
     console.error(`Image download failed (${url}):`, err.message);
     return url;
