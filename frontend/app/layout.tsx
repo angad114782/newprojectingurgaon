@@ -67,7 +67,8 @@ export async function generateMetadata(): Promise<Metadata> {
       'ICBM': '28.4595, 77.0266',
       'rating': 'general',
       'revisit-after': '3 days',
-      'language': 'English',
+      'language': 'en',
+      'content-language': 'en-IN',
       // GSC verification — auto-added from admin settings
       ...((settings as any).googleSearchConsole?.verificationCode
         ? { 'google-site-verification': (settings as any).googleSearchConsole.verificationCode }
