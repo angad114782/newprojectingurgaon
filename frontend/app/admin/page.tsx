@@ -3016,7 +3016,45 @@ export default function AdminPage() {
             {(siteSettings as any).logoUrl && (
               <div className="bg-brand-dark rounded-xl p-4 flex items-center gap-3">
                 <img src={(siteSettings as any).logoUrl} alt="Logo preview" className="h-10 object-contain max-w-[200px]" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                <p className="text-white/60 text-xs">Preview on dark background</p>
+                <p className="text-white/60 text-xs">Header preview (dark bg)</p>
+              </div>
+            )}
+          </div>
+
+          {/* Footer Logo */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+            <SectionHeader title="Footer Logo (alag design)" icon="🦶" />
+            <p className="text-xs text-brand-muted">Footer dark background pe alag logo. Agar khali chhodoge to Header wala logo use hoga.</p>
+            <div>
+              <label className="block text-xs font-medium text-brand-muted mb-2">Footer Logo Upload (PNG/SVG — white/light version recommended)</label>
+              <label className="flex items-center gap-3 border-2 border-dashed border-brand-border rounded-xl p-4 cursor-pointer hover:border-brand-accent transition-colors">
+                <input type="file" accept="image/png,image/svg+xml,image/jpeg,image/webp" className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file || !token) return;
+                    const fd = new FormData(); fd.append('image', file);
+                    const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                    const d = await r.json();
+                    if (d.success) setSiteSettings({ ...siteSettings, footerLogoUrl: d.url } as any);
+                    else alert('Upload failed');
+                  }} />
+                <span className="text-2xl">📁</span>
+                <div>
+                  <p className="text-sm font-medium text-brand-text">Choose Footer Logo</p>
+                  <p className="text-xs text-brand-muted">White/light PNG for dark footer background</p>
+                </div>
+              </label>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-brand-muted mb-1">Ya URL paste karo</label>
+              <input className="input-field text-sm" placeholder="https://yourdomain.com/footer-logo.png"
+                value={(siteSettings as any).footerLogoUrl || ''}
+                onChange={(e) => setSiteSettings({ ...siteSettings, footerLogoUrl: e.target.value } as any)} />
+            </div>
+            {(siteSettings as any).footerLogoUrl && (
+              <div className="bg-brand-dark rounded-xl p-4 flex items-center gap-3">
+                <img src={(siteSettings as any).footerLogoUrl} alt="Footer Logo preview" className="h-10 object-contain max-w-[200px]" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                <p className="text-white/60 text-xs">Footer preview (dark bg)</p>
               </div>
             )}
           </div>

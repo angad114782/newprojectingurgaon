@@ -205,7 +205,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             social={settings.social}
             reraNumber={settings.reraNumber}
             reraLink={settings.reraLink}
-            logoUrl={settings.logoUrl}
+            logoUrl={settings.footerLogoUrl || settings.logoUrl}
           />
           <MobileBottomCTA phone={settings.phone} whatsapp={settings.whatsapp} />
           <StickyButtons phone={settings.phone} whatsapp={settings.whatsapp} />

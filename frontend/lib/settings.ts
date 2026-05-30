@@ -18,6 +18,7 @@ export interface SiteSettings {
   seoKeywords: string[];
   ogImage: string;
   logoUrl?: string;
+  footerLogoUrl?: string;
   faviconUrl?: string;
   ga4Id: string;
   marketStats: {
@@ -119,6 +120,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   geoLat: '28.4595',
   geoLng: '77.0266',
   logoUrl: '',
+  footerLogoUrl: '',
   faviconUrl: '',
   seoTitle: '',
   seoDescription: '',
