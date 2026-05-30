@@ -649,6 +649,8 @@ router.put('/settings', authorize('admin'), async (req, res) => {
       settings.markModified('builders');
       settings.markModified('faqs');
       settings.markModified('seoKeywords');
+      settings.markModified('logoUrl');
+      settings.markModified('faviconUrl');
       settings.markModified('conversion');
       settings.markModified('companyInfo');
     }

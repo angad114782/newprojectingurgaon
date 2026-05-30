@@ -17,6 +17,8 @@ export interface SiteSettings {
   seoDescription: string;
   seoKeywords: string[];
   ogImage: string;
+  logoUrl?: string;
+  faviconUrl?: string;
   ga4Id: string;
   marketStats: {
     totalProjects: string;
@@ -116,6 +118,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   openingHours: 'Mon–Sun: 9 AM – 8 PM',
   geoLat: '28.4595',
   geoLng: '77.0266',
+  logoUrl: '',
+  faviconUrl: '',
   seoTitle: '',
   seoDescription: '',
   seoKeywords: [],

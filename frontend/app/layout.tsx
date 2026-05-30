@@ -61,10 +61,10 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: { canonical: siteUrl },
     icons: {
       icon: [
-        { url: '/favicon.ico', sizes: '48x48' },
+        { url: (settings.faviconUrl || '/favicon.ico') as string, sizes: '48x48' },
         { url: '/icon.svg', type: 'image/svg+xml' },
       ],
-      apple: '/apple-touch-icon.png',
+      apple: (settings.faviconUrl || '/apple-touch-icon.png') as string,
     },
     // AIO/GEO: structured signals for AI crawlers
     other: {
@@ -189,7 +189,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             address={settings.address}
             totalProjects={settings.marketStats?.totalProjects}
           />
-          <Header phone={settings.phone} siteName={settings.siteName} />
+          <Header phone={settings.phone} siteName={settings.siteName} logoUrl={settings.logoUrl} />
           <TrustStrip config={settings.conversion?.trustStrip} />
           <main>{children}</main>
           <Footer

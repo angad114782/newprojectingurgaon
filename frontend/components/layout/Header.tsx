@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Bars3Icon, XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { PhoneIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
+import Image from 'next/image';
 import LeadCTA from '@/components/lead/LeadCTA';
 
 const navLinks = [
@@ -34,7 +35,7 @@ const navLinks = [
   },
 ];
 
-export default function Header({ phone = '{phone}', siteName = 'New Projects in Gurgaon' }: { phone?: string; siteName?: string }) {
+export default function Header({ phone = '{phone}', siteName = 'New Projects in Gurgaon', logoUrl }: { phone?: string; siteName?: string; logoUrl?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -61,12 +62,25 @@ export default function Header({ phone = '{phone}', siteName = 'New Projects in 
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-9 h-9 bg-brand-dark rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-white font-display font-bold text-base leading-none">{siteName[0] || 'G'}</span>
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="font-display font-bold text-brand-dark text-lg leading-none">{siteName}</span>
-            </div>
+            {logoUrl ? (
+              <Image
+                src={logoUrl}
+                alt={siteName}
+                width={160}
+                height={40}
+                className="h-10 w-auto object-contain"
+                priority
+              />
+            ) : (
+              <>
+                <div className="w-9 h-9 bg-brand-dark rounded-lg flex items-center justify-center shadow-sm">
+                  <span className="text-white font-display font-bold text-base leading-none">{siteName[0] || 'G'}</span>
+                </div>
+                <div className="flex flex-col leading-tight">
+                  <span className="font-display font-bold text-brand-dark text-lg leading-none">{siteName}</span>
+                </div>
+              </>
+            )}
           </Link>
 
           {/* Desktop Nav */}

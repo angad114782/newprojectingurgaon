@@ -13,6 +13,9 @@ const SiteSettingsSchema = new mongoose.Schema({
   geoLat: { type: String, default: '28.4595' },
   geoLng: { type: String, default: '77.0266' },
 
+  logoUrl: { type: String, default: '' },
+  faviconUrl: { type: String, default: '' },
+
   seoTitle: { type: String, default: '' },
   seoDescription: { type: String, default: '' },
   seoKeywords: [String],
