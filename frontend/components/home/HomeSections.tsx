@@ -8,7 +8,7 @@ import { fetchSettings } from '@/lib/settings';
 export async function LocationsSection() {
   const settings = await fetchSettings();
   const locations = settings.locations ?? [];
-  const phone = settings.phone || '+91-9999999999';
+  const phone = settings.phone || '+91-8619930583';
 
   return (
     <section className="py-16 bg-brand-mint/30">
@@ -84,7 +84,7 @@ const USPs = [
 export async function WhyChooseUs() {
   const settings = await fetchSettings();
   const familiesHelped = settings.marketStats?.familiesHelped || '4,200+';
-  const phone = settings.phone || '+91-9999999999';
+  const phone = settings.phone || '+91-8619930583';
 
   return (
     <section className="py-16 bg-white">
@@ -132,7 +132,7 @@ export async function WhyChooseUs() {
 export async function BuilderLogos() {
   const settings = await fetchSettings();
   const builders = settings.builders ?? [];
-  const phone = settings.phone || '+91-9999999999';
+  const phone = settings.phone || '+91-8619930583';
 
   return (
     <section className="py-12 bg-brand-dark border-y border-white/10">
@@ -196,7 +196,7 @@ export async function TestimonialsSection() {
   const settings = await fetchSettings();
   const testimonials = settings.testimonials ?? [];
   const stats = settings.marketStats;
-  const phone = settings.phone || '+91-9999999999';
+  const phone = settings.phone || '+91-8619930583';
 
   return (
     <section className="py-16 bg-brand-mint/20">

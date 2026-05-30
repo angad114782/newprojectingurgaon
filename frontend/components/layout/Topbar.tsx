@@ -10,7 +10,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({
-  phone = '+91-9999999999',
+  phone = '+91-8619930583',
   email = 'info@newprojectsingurgaon.com',
   address = 'Gurgaon, Haryana',
   totalProjects = '150+',

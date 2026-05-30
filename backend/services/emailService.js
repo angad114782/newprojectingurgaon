@@ -21,7 +21,7 @@ const getSmtpSettings = async () => {
         from: settings.smtp.from || settings.smtp.user,
         notificationEmail: settings.notificationEmail || settings.email || '',
         siteName: settings.siteName || 'New Projects in Gurgaon',
-        sitePhone: settings.phone || '+91-9999999999',
+        sitePhone: settings.phone || '+91-8619930583',
         siteEmail: settings.email || '',
         siteUrl: process.env.SITE_URL || 'http://localhost:3000',
       };
@@ -38,7 +38,7 @@ const getSmtpSettings = async () => {
       from: process.env.EMAIL_FROM || '',
       notificationEmail: process.env.ADMIN_EMAIL || process.env.EMAIL_USER || '',
       siteName: process.env.SITE_NAME || 'New Projects in Gurgaon',
-      sitePhone: process.env.SITE_PHONE || '+91-9999999999',
+      sitePhone: process.env.SITE_PHONE || '+91-8619930583',
       siteEmail: process.env.SITE_EMAIL || '',
       siteUrl: process.env.SITE_URL || 'http://localhost:3000',
     };

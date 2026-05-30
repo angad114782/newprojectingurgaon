@@ -32,9 +32,9 @@ interface FooterProps {
 }
 
 export default function Footer({
-  phone = '+91-9999999999',
+  phone = '+91-8619930583',
   email = 'info@newprojectsingurgaon.com',
-  whatsapp = '919999999999',
+  whatsapp = '918619930583',
   siteName = 'New Projects in Gurgaon',
   address = 'Cyber City, Gurgaon, Haryana',
   openingHours = 'Mon–Sun: 9 AM – 8 PM',

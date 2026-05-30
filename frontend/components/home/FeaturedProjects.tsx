@@ -33,7 +33,7 @@ export default function FeaturedProjects({ phone }: { phone?: string }) {
     return allProjects.filter((p) => p.isFeatured).concat(allProjects.filter((p) => !p.isFeatured)).slice(0, 6);
   })();
 
-  const callPhone = phone || process.env.NEXT_PUBLIC_PHONE || '+91-9999999999';
+  const callPhone = phone || process.env.NEXT_PUBLIC_PHONE || '+91-8619930583';
 
   return (
     <section className="py-16 bg-white">

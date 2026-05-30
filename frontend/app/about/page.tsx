@@ -50,7 +50,7 @@ export default async function AboutPage() {
     name: settings.siteName,
     url: siteUrl,
     foundingDate: ci.foundingYear || '2019',
-    telephone: settings.phone,
+    telephone: [settings.phone, settings.phone2].filter(Boolean),
     email: settings.email,
     address: {
       '@type': 'PostalAddress',

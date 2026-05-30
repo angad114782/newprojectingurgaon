@@ -7,6 +7,11 @@ const SectionSchema = new mongoose.Schema({
   linkText: String,
 }, { _id: false });
 
+const FaqSchema = new mongoose.Schema({
+  q: { type: String, required: true },
+  a: { type: String, required: true },
+}, { _id: false });
+
 const RelatedLinkSchema = new mongoose.Schema({
   label: String,
   href: String,
@@ -33,6 +38,7 @@ const BlogSchema = new mongoose.Schema({
   keywords:    [{ type: String }],
   intro:       { type: String, default: '' },
   sections:    [SectionSchema],
+  faqs:        [FaqSchema],
   relatedLinks:[RelatedLinkSchema],
 }, { timestamps: true });
 

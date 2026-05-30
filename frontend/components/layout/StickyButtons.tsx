@@ -7,8 +7,8 @@ interface StickyProps {
 }
 
 export default function StickyButtons({
-  phone = '+91-9999999999',
-  whatsapp = '919999999999',
+  phone = '+91-8619930583',
+  whatsapp = '918619930583',
 }: StickyProps) {
   const ph = phone.replace(/[^+\d]/g, '');
   const wa = whatsapp.replace(/[^+\d]/g, '');

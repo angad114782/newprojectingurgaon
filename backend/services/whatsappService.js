@@ -22,7 +22,7 @@ const getWaSettings = async () => {
         thankYouTemplateName: settings.whatsappCloud.thankYouTemplateName || 'thank_you_enquiry',
         templateLanguage: settings.whatsappCloud.templateLanguage || 'en',
         siteName: settings.siteName || 'New Projects in Gurgaon',
-        sitePhone: settings.phone || '+91-9999999999',
+        sitePhone: settings.phone || '+91-8619930583',
         configured: true,
       };
     }
@@ -38,7 +38,7 @@ const getWaSettings = async () => {
       thankYouTemplateName: process.env.WA_THANKYOU_TEMPLATE_NAME || 'thank_you_enquiry',
       templateLanguage: 'en',
       siteName: process.env.SITE_NAME || 'New Projects in Gurgaon',
-      sitePhone: process.env.SITE_PHONE || '+91-9999999999',
+      sitePhone: process.env.SITE_PHONE || '+91-8619930583',
       configured: !!(process.env.WA_PHONE_NUMBER_ID && process.env.WA_ACCESS_TOKEN),
     };
   }
@@ -197,7 +197,7 @@ const templates = {
     `Hi ${name || 'there'}! 🏠\n\nFor your home at *${projectName}*, here's what you'll love:\n✅ Spacious floor plans with natural light\n✅ Premium amenities – pool, gym, kids' zone\n✅ Close to schools, hospitals & metro\n✅ 24/7 security & gated community\n\nWant to book a free site visit? Reply *VISIT* and we'll set it up! 🌿\n\n_New Projects in Gurgaon – Home You'll Love_`,
 
   siteVisitConfirm: ({ name, projectName, date, sitePhone }) =>
-    `Hi ${name || 'there'}! ✅\n\nYour free site visit for *${projectName}* is confirmed!\n📅 Date: ${date || 'To be confirmed'}\n📍 We'll send you the exact meeting point.\n\nOur property advisor will pick you up and give you a full tour.\n\nFor any changes, call: ${sitePhone || '+91-9999999999'}\n\n_New Projects in Gurgaon – Your Trusted Advisor_`,
+    `Hi ${name || 'there'}! ✅\n\nYour free site visit for *${projectName}* is confirmed!\n📅 Date: ${date || 'To be confirmed'}\n📍 We'll send you the exact meeting point.\n\nOur property advisor will pick you up and give you a full tour.\n\nFor any changes, call: ${sitePhone || '+91-8619930583'}\n\n_New Projects in Gurgaon – Your Trusted Advisor_`,
 
   followUp: ({ name }) =>
     `Hi ${name || 'there'}! 👋\n\nJust checking in – did you get a chance to review the property details I shared?\n\nIf you have any questions about pricing, location or availability, I'm here to help.\n\nReply *CALL* to speak with our advisor or *MORE* for more options. 😊\n\n_New Projects in Gurgaon_`,

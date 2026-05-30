@@ -20,6 +20,10 @@ interface ProjectSchemaProps {
 interface LocalBusinessSchemaProps {
   page?: 'home' | 'location' | 'project';
   locationName?: string;
+  phone?: string;
+  phone2?: string;
+  ratingValue?: string;
+  reviewCount?: string;
 }
 
 // ── 1. Real Estate Listing Schema (property-specific) ──
@@ -77,7 +81,8 @@ export function RealEstateListingSchema({ project }: { project: ProjectSchemaPro
 }
 
 // ── 2. LocalBusiness + RealEstateAgent Schema ──
-export function LocalBusinessSchema({ page = 'home', locationName }: LocalBusinessSchemaProps) {
+export function LocalBusinessSchema({ page = 'home', locationName, phone, phone2, ratingValue, reviewCount }: LocalBusinessSchemaProps) {
+  const phones = [phone || '+91-8619930583', phone2 || '+91-7378006609'].filter(Boolean);
   const schema = {
     '@context': 'https://schema.org',
     '@type': ['RealEstateAgent', 'LocalBusiness'],
@@ -88,7 +93,7 @@ export function LocalBusinessSchema({ page = 'home', locationName }: LocalBusine
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
     image: `${SITE_URL}/og-image.jpg`,
-    telephone: '+91-99999-99999',
+    telephone: phones,
     email: 'info@newprojectsingurgaon.com',
     foundingDate: '2020',
     areaServed: [
@@ -124,8 +129,8 @@ export function LocalBusinessSchema({ page = 'home', locationName }: LocalBusine
     ],
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '847',
+      ratingValue: ratingValue || '4.9',
+      reviewCount: reviewCount || '847',
       bestRating: '5',
       worstRating: '1',
     },

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import LeadForm from '@/components/home/LeadForm';
 import LeadCTA from '@/components/lead/LeadCTA';
+import { GEOContentHints } from '@/components/seo/SchemaMarkup';
 
 const DEFAULT_IMG = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80';
 
@@ -55,12 +56,18 @@ export default function LocationPageTemplate({
     ],
   };
 
+  // Extract price range and builder names from investmentHighlights + projects
+  const priceHighlight = investmentHighlights.find((h) => /price|range|sqft|₹/i.test(h.label));
+  const priceRange = priceHighlight ? priceHighlight.value : '';
+  const builderNames = Array.from(new Set(projects.map((p) => p.builder).filter(Boolean)));
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       {faqSchema && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       )}
+      <GEOContentHints location={title} priceRange={priceRange} builders={builderNames} />
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">
         <div className="max-w-7xl mx-auto px-4 text-sm text-brand-muted">
           <Link href="/" className="hover:text-brand-dark">Home</Link>

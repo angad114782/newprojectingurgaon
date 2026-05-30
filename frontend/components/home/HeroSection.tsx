@@ -29,8 +29,8 @@ const BUDGETS = ['Any Budget', 'Under ₹50L', '₹50L – ₹1 Cr', '₹1 Cr �
 
 export default function HeroSection({
   siteName = 'New Projects in Gurgaon',
-  phone = '+91-9999999999',
-  whatsapp = '919999999999',
+  phone = '+91-8619930583',
+  whatsapp = '918619930583',
   heroTagline = "Gurgaon's #1 Real Estate Advisory",
   heroTitle = 'New Projects in Gurgaon 2025',
   heroTitleAccent = '',
@@ -44,8 +44,8 @@ export default function HeroSection({
   const { trackCTA, openLeadModal } = useTracking();
   const [search, setSearch] = useState({ location: '', type: '', budget: '' });
 
-  const wa = (whatsapp || '919999999999').replace(/[^+\d]/g, '');
-  const ph = (phone || '+91-9999999999').replace(/[^+\d]/g, '');
+  const wa = (whatsapp || '918619930583').replace(/[^+\d]/g, '');
+  const ph = (phone || '+91-8619930583').replace(/[^+\d]/g, '');
 
   const handleSearch = () => {
     const params = new URLSearchParams();

@@ -1343,7 +1343,8 @@ export default function AdminPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
                   { key: 'siteName', label: 'Site Name' },
-                  { key: 'phone', label: 'Phone' },
+                  { key: 'phone', label: 'Phone (Primary)' },
+                  { key: 'phone2', label: 'Phone (Secondary)' },
                   { key: 'whatsapp', label: 'WhatsApp Number (with country code)' },
                   { key: 'email', label: 'Email' },
                   { key: 'address', label: 'Full Address' },

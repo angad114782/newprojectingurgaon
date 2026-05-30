@@ -54,18 +54,39 @@ export default async function BlogPage() {
 
   const displayBlogs = blogs.length > 0 ? blogs : staticBlogs;
 
+  const headersList = headers();
+  const host = headersList.get('host') || 'newprojectsingurgaon.com';
+  const proto = host.startsWith('localhost') ? 'http' : 'https';
+  const siteUrl = `${proto}://${host}`;
+
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: `https://${settings.siteName?.toLowerCase().replace(/\s+/g, '')}` },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: '/blog' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${siteUrl}/blog` },
     ],
+  };
+
+  const itemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Gurgaon Real Estate Blog — Expert Property Guides',
+    description: 'Investment guides, sector analysis, RERA tips and market trends for Gurgaon property buyers.',
+    url: `${siteUrl}/blog`,
+    numberOfItems: displayBlogs.length,
+    itemListElement: displayBlogs.map((blog: any, i: number) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${siteUrl}/blog/${blog.slug}`,
+      name: blog.title,
+    })),
   };
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
 
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">
         <div className="max-w-7xl mx-auto px-4 text-sm text-brand-muted">

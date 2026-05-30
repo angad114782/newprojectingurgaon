@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 
 const SiteSettingsSchema = new mongoose.Schema({
   siteName: { type: String, default: 'New Projects in Gurgaon' },
-  phone: { type: String, default: '+91-9999999999' },
-  whatsapp: { type: String, default: '919999999999' },
+  phone: { type: String, default: '+91-8619930583' },
+  phone2: { type: String, default: '+91-7378006609' },
+  whatsapp: { type: String, default: '918619930583' },
   email: { type: String, default: 'info@newprojectsingurgaon.com' },
   address: { type: String, default: 'DLF Cyber City, Gurgaon, Haryana 122002' },
   streetAddress: { type: String, default: 'DLF Cyber City' },

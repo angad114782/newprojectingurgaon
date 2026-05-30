@@ -1662,8 +1662,9 @@ const seedSettings = async () => {
   const SiteSettings = require('../models/SiteSettings');
   await SiteSettings.create({
     siteName: 'New Projects in Gurgaon',
-    phone: '+91-9999999999',
-    whatsapp: '919999999999',
+    phone: '+91-8619930583',
+    phone2: '+91-7378006609',
+    whatsapp: '918619930583',
     email: 'info@newprojectsingurgaon.com',
     address: 'DLF Cyber City, Gurgaon, Haryana 122002',
     streetAddress: 'DLF Cyber City',

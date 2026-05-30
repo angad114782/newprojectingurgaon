@@ -110,7 +110,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     url: siteUrl,
     logo: { '@type': 'ImageObject', url: `${siteUrl}/logo.png`, width: 200, height: 60 },
     image: `${siteUrl}/og-home.jpg`,
-    telephone: settings.phone,
+    telephone: [settings.phone, settings.phone2].filter(Boolean),
     email: settings.email,
     foundingDate: '2020',
     currenciesAccepted: 'INR',

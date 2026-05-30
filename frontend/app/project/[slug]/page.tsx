@@ -753,7 +753,7 @@ export default async function ProjectDetailPage({ params }: Props) {
 
                 <a
                   href={`https://wa.me/${
-                    (settings.whatsapp || '919999999999').replace(/[^+\d]/g, '')
+                    (settings.whatsapp || '918619930583').replace(/[^+\d]/g, '')
                   }?text=${encodeURIComponent(
                     `Hi, I am interested in ${project.name}. Please share complete details.`
                   )}`}
@@ -767,7 +767,7 @@ export default async function ProjectDetailPage({ params }: Props) {
 
               <div className="mt-4 pt-4 border-t border-white/10 text-xs text-white/50 space-y-1">
                 <div>
-                  📞 Call: {settings.phone || '+91-9999999999'}
+                  📞 Call: {settings.phone || '+91-8619930583'}
                 </div>
                 <div>⚡ Advisor responds in &lt; 2 hours</div>
                 <div>🔒 Your info is private and secure</div>
