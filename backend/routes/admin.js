@@ -795,17 +795,18 @@ router.get('/analytics', async (req, res) => {
 // ─── Google Search Console ────────────────────────────────────────────────────
 // ── Helper: build GSC auth from either service_account or authorized_user JSON ─
 function buildGscAuth(google, credJson) {
-  if (credJson.type === 'authorized_user') {
-    const oauth2 = new google.auth.OAuth2(
-      credJson.client_id,
-      credJson.client_secret
-    );
-    oauth2.setCredentials({ refresh_token: credJson.refresh_token });
-    return oauth2;
+  const credentials = { ...credJson };
+
+  if (credentials.type === 'authorized_user') {
+    // quota_project_id is required for user OAuth2 credentials
+    // it must match the GCP project where Search Console API is enabled
+    if (!credentials.quota_project_id) {
+      credentials.quota_project_id = 'new-projects-seo';
+    }
   }
-  // service_account (default)
+
   return new google.auth.GoogleAuth({
-    credentials: credJson,
+    credentials,
     scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
   });
 }
