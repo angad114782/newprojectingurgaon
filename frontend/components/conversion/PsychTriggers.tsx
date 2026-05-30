@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { io } from 'socket.io-client';
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:5007';
 
@@ -71,18 +70,21 @@ export function LiveActivityToast({ config }: { config?: LiveActivityConfig }) {
     return () => { clearTimeout(first); clearInterval(interval); };
   }, [enabled, showNext, firstDelay, intervalMs]);
 
-  // Real lead events via Socket.io — override fake timer with real activity
+  // Real lead events via Socket.io — lazy-loaded so socket.io-client is not in the initial bundle
   useEffect(() => {
     if (!enabled) return;
-    const socket = io(WS_URL, { transports: ['websocket', 'polling'] });
-    socket.on('lead:new', ({ lead }: { lead: any }) => {
-      const name = lead.name ? lead.name.split(' ')[0] + ' ' + (lead.name.split(' ')[1]?.[0] || '') + '.' : names[0];
-      const action = lead.siteVisitRequested ? 'booked a free site visit'
-        : lead.interestedProject ? `enquired about ${lead.interestedProject}`
-        : actions[Math.floor(Math.random() * actions.length)];
-      showActivity({ name: name.trim(), city: cities[Math.floor(Math.random() * cities.length)], action, time: 'just now' });
+    let socket: any;
+    import('socket.io-client').then(({ io }) => {
+      socket = io(WS_URL, { transports: ['websocket', 'polling'] });
+      socket.on('lead:new', ({ lead }: { lead: any }) => {
+        const name = lead.name ? lead.name.split(' ')[0] + ' ' + (lead.name.split(' ')[1]?.[0] || '') + '.' : names[0];
+        const action = lead.siteVisitRequested ? 'booked a free site visit'
+          : lead.interestedProject ? `enquired about ${lead.interestedProject}`
+          : actions[Math.floor(Math.random() * actions.length)];
+        showActivity({ name: name.trim(), city: cities[Math.floor(Math.random() * cities.length)], action, time: 'just now' });
+      });
     });
-    return () => { socket.disconnect(); };
+    return () => { socket?.disconnect(); };
   }, [enabled, names, cities, actions, showActivity]);
 
   if (!enabled) return null;

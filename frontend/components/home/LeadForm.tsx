@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useTracking } from '@/components/lead/TrackingProvider';
 import toast from 'react-hot-toast';
+import { fireLeadEvent } from '@/lib/tracking';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
 
@@ -31,6 +32,7 @@ export default function LeadForm({ compact }: { compact?: boolean }) {
       const data = await res.json();
       if (data.success) {
         setSubmitted(true);
+        fireLeadEvent();
         toast.success('Thank you! Our advisor will contact you shortly.');
       } else {
         toast.error(data.message || 'Submission failed');

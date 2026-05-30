@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { XMarkIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { useTracking } from './TrackingProvider';
 import toast from 'react-hot-toast';
+import { fireLeadEvent, fireCompleteRegistrationEvent } from '@/lib/tracking';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
 
@@ -135,6 +136,8 @@ export default function OTPModal({ isOpen, onClose, onSuccess, ctaType, projectN
       if (data.success) {
         localStorage.setItem('gr_lead_token', data.token);
         localStorage.setItem('gr_lead_name', formData.name);
+        fireLeadEvent();
+        fireCompleteRegistrationEvent();
         setStep('complete');
         setTimeout(() => { onSuccess(data.lead); onClose(); }, 2000);
       } else {

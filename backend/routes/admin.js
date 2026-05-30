@@ -620,6 +620,7 @@ router.put('/settings', authorize('admin'), async (req, res) => {
     try {
       require('../services/emailService')._invalidateCache?.();
       require('../services/whatsappService')._invalidateCache?.();
+      require('./settings').invalidateSettingsCache?.();
     } catch (_) {}
 
     // Return masked settings (never expose real password/token)

@@ -12,8 +12,6 @@ const nextConfig = {
       { protocol: 'https', hostname: 'plus.unsplash.com', pathname: '/**' },
       { protocol: 'https', hostname: 'newprojectsingurgaon.com', pathname: '/**' },
       { protocol: 'https', hostname: 'www.newprojectsingurgaon.com', pathname: '/**' },
-      { protocol: 'https', hostname: 'newprojectsingurgaon.com', pathname: '/**' },
-      { protocol: 'https', hostname: 'www.newprojectsingurgaon.com', pathname: '/**' },
       { protocol: 'http', hostname: 'localhost', port: '5007', pathname: '/**' },
       { protocol: 'http', hostname: '127.0.0.1', port: '5007', pathname: '/**' },
       { protocol: 'http', hostname: '192.168.1.11', port: '5007', pathname: '/**' },
@@ -24,21 +22,53 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
 
+  // ── Strip console.log in production ────────────────────────
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
+
   // ── Bundle Optimization ─────────────────────────────────────
   experimental: {
-    optimizePackageImports: ['framer-motion', '@heroicons/react', 'swiper'],
+    optimizePackageImports: ['framer-motion', '@heroicons/react', 'swiper', 'react-hot-toast'],
+  },
+
+  // ── Webpack: reduce number of JS chunks ─────────────────────
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      // Increase minimum chunk size so small modules get merged
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        maxInitialRequests: 5,
+        maxAsyncRequests: 8,
+        minSize: 30000,
+        cacheGroups: {
+          // Merge React + Next.js framework into one chunk
+          framework: {
+            name: 'framework',
+            chunks: 'all',
+            test: /node_modules\/(react|react-dom|next|scheduler)\//,
+            priority: 50,
+            enforce: true,
+          },
+          // Merge all other vendor libs (≥2 pages use them) into one chunk
+          vendors: {
+            name: 'vendors',
+            chunks: 'all',
+            test: /node_modules/,
+            priority: 20,
+            minChunks: 2,
+            reuseExistingChunk: true,
+          },
+        },
+      };
+    }
+    return config;
   },
 
   // ── 301 Redirects (www → non-www + trailing slash) ─────────
   async redirects() {
     return [
       // www → non-www canonical (301 permanent)
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'www.newprojectsingurgaon.com' }],
-        destination: 'https://newprojectsingurgaon.com/:path*',
-        permanent: true,
-      },
       {
         source: '/:path*',
         has: [{ type: 'host', value: 'www.newprojectsingurgaon.com' }],
@@ -64,9 +94,6 @@ const nextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          // Remove X-Powered-By completely
-          { key: 'X-Powered-By', value: '' },
-          // Permissions Policy
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
         ],
       },

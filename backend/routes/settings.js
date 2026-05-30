@@ -3,16 +3,32 @@ const router = express.Router();
 const SiteSettings = require('../models/SiteSettings');
 const { protect } = require('../middleware/auth');
 
-// GET /api/settings — public, 5-min browser cache
+// ── In-memory cache — eliminates MongoDB round-trip on every page render ──────
+let _cache = null;
+let _cacheExpiry = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function invalidateSettingsCache() {
+  _cache = null;
+  _cacheExpiry = 0;
+}
+module.exports.invalidateSettingsCache = invalidateSettingsCache;
+
+// GET /api/settings — public, served from memory cache (no DB hit after first load)
 router.get('/', async (req, res) => {
   try {
-    let settings = await SiteSettings.findOne().lean();
-    if (!settings) {
-      const created = await SiteSettings.create({});
-      settings = created.toObject();
+    const now = Date.now();
+    if (!_cache || now > _cacheExpiry) {
+      let settings = await SiteSettings.findOne().lean();
+      if (!settings) {
+        const created = await SiteSettings.create({});
+        settings = created.toObject();
+      }
+      _cache = settings;
+      _cacheExpiry = now + CACHE_TTL;
     }
     res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600, stale-if-error=86400');
-    res.json({ success: true, data: settings });
+    res.json({ success: true, data: _cache });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -67,6 +83,7 @@ router.put('/', protect, async (req, res) => {
       settings.markModified('companyInfo');
     }
     await settings.save();
+    invalidateSettingsCache(); // flush public cache immediately after save
     res.json({ success: true, data: settings });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

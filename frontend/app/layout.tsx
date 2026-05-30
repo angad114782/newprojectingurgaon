@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
+import dynamic from 'next/dynamic';
+import Script from 'next/script';
 import '../styles/globals.css';
 import { Toaster } from 'react-hot-toast';
 import Header from '@/components/layout/Header';
@@ -8,8 +10,14 @@ import Footer from '@/components/layout/Footer';
 import MobileBottomCTA from '@/components/layout/MobileBottomCTA';
 import StickyButtons from '@/components/layout/StickyButtons';
 import { TrackingProvider } from '@/components/lead/TrackingProvider';
-import { UrgencyBanner, TrustStrip, LiveActivityToast, BackToTopButton } from '@/components/conversion/PsychTriggers';
+import { UrgencyBanner, TrustStrip, BackToTopButton } from '@/components/conversion/PsychTriggers';
 import { fetchSettings } from '@/lib/settings';
+
+// Dynamic import — keeps socket.io-client out of the initial JS bundle
+const LiveActivityToast = dynamic(
+  () => import('@/components/conversion/PsychTriggers').then((m) => m.LiveActivityToast),
+  { ssr: false }
+);
 
 function getSiteUrl(host: string | null): string {
   if (!host) return 'https://localhost:3000';
@@ -82,7 +90,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const host = headersList.get('host');
   const siteUrl = getSiteUrl(host);
   const settings = await fetchSettings();
-  const ga4Id = settings.ga4Id || process.env.NEXT_PUBLIC_GA4_ID || '';
+  const ga4Id              = settings.ga4Id              || process.env.NEXT_PUBLIC_GA4_ID || '';
+  const metaPixelId        = settings.metaPixelId        || '';
+  const googleAdsId        = settings.googleAdsId        || '';
+  const googleAdsLabel     = settings.googleAdsConversionLabel || '';
+  const googleAdsValue     = settings.googleAdsConversionValue ?? 0;
+  const gtmId              = settings.gtmId              || '';
+  // Combined gtag src — prefer GA4 ID, fall back to Google Ads ID
+  const gtagSrcId = ga4Id || googleAdsId;
 
   const sameAsLinks = [
     settings.social?.facebook,
@@ -165,16 +180,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             'query-input': 'required name=search_term_string',
           },
         }) }} />
-        {ga4Id && (
-          <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`} />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${ga4Id}',{page_path:window.location.pathname});`,
-              }}
-            />
-          </>
-        )}
       </head>
       <body>
         <TrackingProvider>
@@ -214,6 +219,51 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           />
         </TrackingProvider>
       </body>
+      {/* ── Google Tag Manager ─────────────────────────────────── */}
+      {gtmId && (
+        <Script id="gtm-init" strategy="afterInteractive">{`
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;
+          f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');
+        `}</Script>
+      )}
+
+      {/* ── GA4 + Google Ads — single gtag.js load ─────────────── */}
+      {gtagSrcId && (
+        <>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${gtagSrcId}`} strategy="afterInteractive" />
+          <Script id="gtag-init" strategy="afterInteractive">{`
+            window.dataLayer=window.dataLayer||[];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js',new Date());
+            ${ga4Id       ? `gtag('config','${ga4Id}',{page_path:window.location.pathname});` : ''}
+            ${googleAdsId ? `gtag('config','${googleAdsId}');` : ''}
+          `}</Script>
+        </>
+      )}
+
+      {/* ── Meta (Facebook / Instagram) Pixel ──────────────────── */}
+      {metaPixelId && (
+        <Script id="meta-pixel" strategy="afterInteractive">{`
+          !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){
+          n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;
+          s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)
+          }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init','${metaPixelId}');
+          fbq('track','PageView');
+        `}</Script>
+      )}
+
+      {/* ── Tracking config for client-side conversion events ──── */}
+      {(googleAdsId || metaPixelId) && (
+        <Script id="tracking-config" strategy="afterInteractive">{`
+          window.__TRACKING__={googleAdsId:'${googleAdsId}',googleAdsLabel:'${googleAdsLabel}',googleAdsValue:${googleAdsValue}};
+        `}</Script>
+      )}
     </html>
   );
 }

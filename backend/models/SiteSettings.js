@@ -157,6 +157,13 @@ const SiteSettingsSchema = new mongoose.Schema({
   },
 
   // Hero section — fully admin-configurable
+  // Ads & Tracking — Meta Pixel, Google Ads, GTM (fully admin-managed)
+  metaPixelId:               { type: String, default: '' },   // Facebook/Instagram Pixel ID
+  googleAdsId:               { type: String, default: '' },   // AW-XXXXXXXXXX
+  googleAdsConversionLabel:  { type: String, default: '' },   // conversion action label
+  googleAdsConversionValue:  { type: Number, default: 0 },    // optional INR value per lead
+  gtmId:                     { type: String, default: '' },   // GTM-XXXXXXX
+
   heroTagline: { type: String, default: "Gurgaon's #1 Real Estate Advisory" },
   heroTitle: { type: String, default: 'New Projects in Gurgaon 2025' },
   heroTitleAccent: { type: String, default: '' },
