@@ -296,7 +296,10 @@ export default function AdminPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics' | 'gsc' | 'branding' | 'blog' | 'team' | 'tracking'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics' | 'gsc' | 'branding' | 'blog' | 'team' | 'tracking' | 'profile'>('leads');
+  const [profileForm, setProfileForm] = useState({ name: '', email: '', mobile: '', currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMsg, setProfileMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const [liveNotif, setLiveNotif] = useState<string | null>(null);
 
@@ -839,6 +842,16 @@ export default function AdminPage() {
             <button onClick={() => setActiveTab('tracking')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'tracking' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
               📡 Ads & Pixel
+            </button>
+            <button onClick={async () => {
+              setActiveTab('profile');
+              if (!profileForm.name && token) {
+                const r = await fetch(`${API}/admin/profile`, { headers: authH() });
+                const d = await r.json();
+                if (d.success) setProfileForm(f => ({ ...f, name: d.data.name || '', email: d.data.email || '', mobile: d.data.mobile || '' }));
+              }
+            }} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'profile' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
+              👤 My Profile
             </button>
           </div>
         </div>
@@ -3454,6 +3467,103 @@ export default function AdminPage() {
           <div className="flex justify-end pb-6">
             <button onClick={saveSiteSettings} disabled={settingsSaving} className="btn-primary min-w-[160px] disabled:opacity-50">
               {settingsSaving ? '⏳ Saving…' : '✓ Save Tracking Settings'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── PROFILE TAB ── */}
+      {activeTab === 'profile' && (
+        <div className="max-w-lg mx-auto space-y-5">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+            <SectionHeader title="My Profile" icon="👤" />
+
+            {profileMsg && (
+              <div className={`rounded-xl px-4 py-3 text-sm ${profileMsg.type === 'success' ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+                {profileMsg.type === 'success' ? '✅' : '❌'} {profileMsg.text}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">Full Name</label>
+                <input className="input-field" value={profileForm.name}
+                  onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                  placeholder="Your name" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">Email Address</label>
+                <input type="email" className="input-field" value={profileForm.email}
+                  onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                  placeholder="your@email.com" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">Mobile Number</label>
+                <input type="tel" className="input-field" value={profileForm.mobile}
+                  onChange={(e) => setProfileForm({ ...profileForm, mobile: e.target.value.replace(/\D/g, '') })}
+                  placeholder="10-digit mobile" maxLength={10} />
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 pt-4">
+              <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-3">Change Password</p>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Current Password</label>
+                  <input type="password" className="input-field" value={profileForm.currentPassword}
+                    onChange={(e) => setProfileForm({ ...profileForm, currentPassword: e.target.value })}
+                    placeholder="Current password" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">New Password</label>
+                  <input type="password" className="input-field" value={profileForm.newPassword}
+                    onChange={(e) => setProfileForm({ ...profileForm, newPassword: e.target.value })}
+                    placeholder="New password (min 6 chars)" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Confirm New Password</label>
+                  <input type="password" className="input-field" value={profileForm.confirmPassword}
+                    onChange={(e) => setProfileForm({ ...profileForm, confirmPassword: e.target.value })}
+                    placeholder="Repeat new password" />
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={async () => {
+                if (profileForm.newPassword && profileForm.newPassword !== profileForm.confirmPassword) {
+                  setProfileMsg({ type: 'error', text: 'New passwords do not match' });
+                  return;
+                }
+                if (profileForm.newPassword && profileForm.newPassword.length < 6) {
+                  setProfileMsg({ type: 'error', text: 'New password must be at least 6 characters' });
+                  return;
+                }
+                setProfileSaving(true);
+                setProfileMsg(null);
+                try {
+                  const payload: any = {};
+                  if (profileForm.name) payload.name = profileForm.name;
+                  if (profileForm.email) payload.email = profileForm.email;
+                  if (profileForm.mobile) payload.mobile = profileForm.mobile;
+                  if (profileForm.newPassword) {
+                    payload.currentPassword = profileForm.currentPassword;
+                    payload.newPassword = profileForm.newPassword;
+                  }
+                  const r = await fetch(`${API}/admin/profile`, { method: 'PUT', headers: authH(), body: JSON.stringify(payload) });
+                  const d = await r.json();
+                  if (d.success) {
+                    setProfileMsg({ type: 'success', text: 'Profile updated successfully!' });
+                    setProfileForm(f => ({ ...f, currentPassword: '', newPassword: '', confirmPassword: '' }));
+                  } else {
+                    setProfileMsg({ type: 'error', text: d.message || 'Update failed' });
+                  }
+                } catch { setProfileMsg({ type: 'error', text: 'Network error' }); }
+                finally { setProfileSaving(false); }
+              }}
+              disabled={profileSaving}
+              className="btn-primary w-full disabled:opacity-50">
+              {profileSaving ? '⏳ Saving…' : '✓ Save Profile'}
             </button>
           </div>
         </div>

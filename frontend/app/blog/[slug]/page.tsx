@@ -105,9 +105,16 @@ const STATIC_BLOGS: Record<string, any> = {
 
 type Props = { params: { slug: string } };
 
+// ISR — revalidate every 5 min so new DB blogs appear without rebuild
+export const revalidate = 300;
+
 export async function generateStaticParams() {
-  const keys = Object.keys(STATIC_BLOGS);
-  return keys.map((slug) => ({ slug }));
+  // Fetch DB slugs + static slugs (merged, deduplicated)
+  const { fetchAllBlogSlugs } = await import('@/lib/api-blogs');
+  const dbSlugs = await fetchAllBlogSlugs().catch(() => []);
+  const staticSlugs = Object.keys(STATIC_BLOGS);
+  const all = Array.from(new Set([...dbSlugs, ...staticSlugs]));
+  return all.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -208,7 +208,7 @@ export default async function AboutPage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {authors.map((author) => (
                 <div key={author.slug} className="bg-white rounded-2xl border border-brand-border/40 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="bg-hero-gradient p-6 text-center">
+                  <div className="hero-gradient p-6 text-center">
                     {author.photo ? (
                       <div className="relative w-24 h-24 rounded-full overflow-hidden mx-auto mb-3 border-4 border-white/30">
                         <Image src={author.photo} alt={author.name} fill className="object-cover" />

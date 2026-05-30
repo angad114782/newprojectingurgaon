@@ -93,6 +93,42 @@ function maskSettings(obj) {
 }
 
 // ─── Admin Login (email + password) ──────────────────────────────────────────
+// ─── Get Profile ─────────────────────────────────────────────────────────────
+router.get('/profile', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, data: { name: user.name, email: user.email, mobile: user.mobile, role: user.role } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ─── Update Profile ───────────────────────────────────────────────────────────
+router.put('/profile', protect, async (req, res) => {
+  try {
+    const { name, email, mobile, currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    if (name)   user.name   = name;
+    if (email)  user.email  = email;
+    if (mobile) user.mobile = mobile;
+
+    if (newPassword) {
+      if (!currentPassword) return res.status(400).json({ success: false, message: 'Current password required to set new password' });
+      const ok = await user.matchPassword(currentPassword);
+      if (!ok) return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+      user.password = newPassword;
+    }
+
+    await user.save();
+    res.json({ success: true, message: 'Profile updated successfully', data: { name: user.name, email: user.email, mobile: user.mobile } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
