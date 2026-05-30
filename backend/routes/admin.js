@@ -184,19 +184,21 @@ router.get('/dashboard', async (req, res) => {
     const now = new Date();
     const today = new Date(now.setHours(0, 0, 0, 0));
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    // Only count real leads (with mobile number captured)
+    const R = { mobile: { $exists: true, $nin: [null, ''] } };
 
     const [totalLeads, todayLeads, weekLeads, verifiedLeads, hotLeads, priorityLeads, siteVisits, statusCounts, sourceStats, projectStats, locationStats] = await Promise.all([
-      Lead.countDocuments(),
-      Lead.countDocuments({ createdAt: { $gte: today } }),
-      Lead.countDocuments({ createdAt: { $gte: weekAgo } }),
-      Lead.countDocuments({ isVerified: true }),
-      Lead.countDocuments({ status: 'Hot' }),
-      Lead.countDocuments({ status: 'Priority' }),
-      Lead.countDocuments({ siteVisitRequested: true }),
-      Lead.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
-      Lead.aggregate([{ $group: { _id: '$utmSource', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]),
-      Lead.aggregate([{ $match: { interestedProject: { $ne: null } } }, { $group: { _id: '$interestedProject', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]),
-      Lead.aggregate([{ $match: { preferredLocation: { $ne: null } } }, { $group: { _id: '$preferredLocation', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]),
+      Lead.countDocuments(R),
+      Lead.countDocuments({ ...R, createdAt: { $gte: today } }),
+      Lead.countDocuments({ ...R, createdAt: { $gte: weekAgo } }),
+      Lead.countDocuments({ ...R, isVerified: true }),
+      Lead.countDocuments({ ...R, status: 'Hot' }),
+      Lead.countDocuments({ ...R, status: 'Priority' }),
+      Lead.countDocuments({ ...R, siteVisitRequested: true }),
+      Lead.aggregate([{ $match: R }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
+      Lead.aggregate([{ $match: R }, { $group: { _id: '$utmSource', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]),
+      Lead.aggregate([{ $match: { ...R, interestedProject: { $ne: null } } }, { $group: { _id: '$interestedProject', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]),
+      Lead.aggregate([{ $match: { ...R, preferredLocation: { $ne: null } } }, { $group: { _id: '$preferredLocation', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]),
     ]);
 
     res.json({
