@@ -60,11 +60,14 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: { card: 'summary_large_image', title, description, images: [ogImage], site: '@newprojectsingurgaon' },
     alternates: { canonical: siteUrl },
     icons: {
-      icon: [
-        { url: (settings.faviconUrl || '/favicon.ico') as string, sizes: '48x48' },
-        { url: '/icon.svg', type: 'image/svg+xml' },
-      ],
-      apple: (settings.faviconUrl || '/apple-touch-icon.png') as string,
+      icon: settings.faviconUrl
+        ? [{ url: settings.faviconUrl, sizes: '32x32', type: 'image/png' }]
+        : [
+            { url: '/favicon.ico', sizes: '48x48' },
+            { url: '/icon.svg', type: 'image/svg+xml' },
+          ],
+      apple: settings.faviconUrl || '/apple-touch-icon.png',
+      shortcut: settings.faviconUrl || '/favicon.ico',
     },
     // AIO/GEO: structured signals for AI crawlers
     other: {
@@ -202,6 +205,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             social={settings.social}
             reraNumber={settings.reraNumber}
             reraLink={settings.reraLink}
+            logoUrl={settings.logoUrl}
           />
           <MobileBottomCTA phone={settings.phone} whatsapp={settings.whatsapp} />
           <StickyButtons phone={settings.phone} whatsapp={settings.whatsapp} />

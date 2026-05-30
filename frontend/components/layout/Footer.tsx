@@ -28,6 +28,7 @@ interface FooterProps {
   openingHours?: string;
   reraNumber?: string;
   reraLink?: string;
+  logoUrl?: string;
   social?: { facebook?: string; instagram?: string; youtube?: string; linkedin?: string; twitter?: string };
 }
 
@@ -40,6 +41,7 @@ export default function Footer({
   openingHours = 'Mon–Sun: 9 AM – 8 PM',
   reraNumber = '',
   reraLink = 'https://haryanarera.gov.in',
+  logoUrl,
   social = {},
 }: FooterProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
@@ -87,10 +89,16 @@ export default function Footer({
           {/* Brand */}
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 bg-brand-accent rounded-xl flex items-center justify-center text-brand-dark font-bold font-display">
-                {siteName.substring(0, 2).toUpperCase()}
-              </div>
-              <span className="font-display font-bold text-xl">{siteName}</span>
+              {logoUrl ? (
+                <img src={logoUrl} alt={siteName} className="h-10 w-auto object-contain max-w-[180px]" loading="lazy" />
+              ) : (
+                <>
+                  <div className="w-9 h-9 bg-brand-accent rounded-xl flex items-center justify-center text-brand-dark font-bold font-display">
+                    {siteName.substring(0, 2).toUpperCase()}
+                  </div>
+                  <span className="font-display font-bold text-xl">{siteName}</span>
+                </>
+              )}
             </Link>
             <p className="text-white/60 text-sm leading-relaxed mb-5">
               Gurgaon's most trusted real estate advisory. 4,200+ families helped. Zero brokerage for buyers. RERA verified projects only.
