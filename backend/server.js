@@ -46,18 +46,30 @@ connectDB().then(async () => {
     const SiteSettings = require('./models/SiteSettings');
     const { seedProjects, seedSettings } = require('./utils/seedData');
 
-    const [projectCount, settingsCount] = await Promise.all([
+    const Author = require('./models/Author');
+    const { seedTeam } = require('./utils/seedData');
+
+    const [projectCount, settingsCount, authorCount] = await Promise.all([
       Project.countDocuments(),
       SiteSettings.countDocuments(),
+      Author.countDocuments(),
     ]);
 
     if (projectCount === 0) {
       console.log('\n📦 First run — auto-seeding projects…');
       await seedProjects();
+    } else {
+      // Sync new projects without wiping existing
+      console.log('🔄 Syncing new projects…');
+      await seedProjects();
     }
     if (settingsCount === 0) {
       console.log('⚙️  Seeding default site settings…');
       await seedSettings();
+    }
+    if (authorCount === 0) {
+      console.log('👥 Seeding team members…');
+      await seedTeam();
     }
   } catch (e) {
     console.error('Auto-seed skipped:', e.message);
