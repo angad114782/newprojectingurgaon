@@ -194,8 +194,21 @@ export default function Footer({
           </div>
         </div>
 
+        {/* Legal Links */}
+        <div className="border-t border-white/10 pt-6 mb-4">
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link href="/about" className="text-white/40 hover:text-brand-accent text-xs transition-colors">About Us</Link>
+            <Link href="/contact" className="text-white/40 hover:text-brand-accent text-xs transition-colors">Contact</Link>
+            <Link href="/privacy-policy" className="text-white/40 hover:text-brand-accent text-xs transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="text-white/40 hover:text-brand-accent text-xs transition-colors">Terms of Service</Link>
+            <Link href="/disclaimer" className="text-white/40 hover:text-brand-accent text-xs transition-colors">Disclaimer</Link>
+            <a href={reraLink} target="_blank" rel="noopener noreferrer"
+              className="text-white/40 hover:text-brand-accent text-xs transition-colors">Verify on RERA →</a>
+          </div>
+        </div>
+
         {/* Social + Bottom */}
-        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="border-t border-white/10 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <p className="text-white/40 text-xs">© {new Date().getFullYear()} {siteName}. All rights reserved.</p>
             <p className="text-white/30 text-xs mt-1">Real estate advisory for new projects in Gurgaon. RERA verified. Zero brokerage.</p>
@@ -217,8 +230,10 @@ export default function Footer({
               <a href={social.instagram} target="_blank" rel="noopener noreferrer"
                 className="text-white/40 hover:text-brand-accent text-xs transition-colors">Instagram</a>
             )}
-            <a href={reraLink} target="_blank" rel="noopener noreferrer"
-              className="text-white/40 hover:text-brand-accent text-xs transition-colors">Verify on RERA →</a>
+            {social?.linkedin && (
+              <a href={social.linkedin} target="_blank" rel="noopener noreferrer"
+                className="text-white/40 hover:text-brand-accent text-xs transition-colors">LinkedIn</a>
+            )}
             <Link href="/admin" className="text-white/20 hover:text-white/40 text-xs transition-colors">Admin</Link>
           </div>
         </div>

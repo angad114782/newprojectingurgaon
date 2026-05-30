@@ -164,6 +164,34 @@ const SiteSettingsSchema = new mongoose.Schema({
   heroCTAPrimary: { type: String, default: '🏠 Book Free Site Visit' },
   heroCTASecondary: { type: String, default: 'View New Launches →' },
   heroImageUrl: { type: String, default: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85' },
+
+  // E-E-A-T — Company info for About page (admin-managed)
+  companyInfo: {
+    foundingYear:     { type: String, default: '2019' },
+    teamSize:         { type: String, default: '15+' },
+    aboutTitle:       { type: String, default: '' },
+    aboutContent:     { type: String, default: '' },
+    missionStatement: { type: String, default: '' },
+    mapEmbedUrl:      { type: String, default: '' },   // Google Maps iframe src
+    officeImage:      { type: String, default: '' },
+    awards: [{
+      title:  String,
+      year:   String,
+      issuer: String,
+    }],
+    certifications: [{
+      name:   String,
+      issuer: String,
+      id:     String,
+      link:   String,
+    }],
+    mediaLinks: [{
+      outlet: String,
+      title:  String,
+      href:   String,
+      date:   String,
+    }],
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('SiteSettings', SiteSettingsSchema);

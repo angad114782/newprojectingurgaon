@@ -84,6 +84,18 @@ export interface SiteSettings {
   heroCTAPrimary: string;
   heroCTASecondary: string;
   heroImageUrl: string;
+  companyInfo?: {
+    foundingYear?: string;
+    teamSize?: string;
+    aboutTitle?: string;
+    aboutContent?: string;
+    missionStatement?: string;
+    mapEmbedUrl?: string;
+    officeImage?: string;
+    awards?: Array<{ title: string; year: string; issuer: string }>;
+    certifications?: Array<{ name: string; issuer: string; id: string; link: string }>;
+    mediaLinks?: Array<{ outlet: string; title: string; href: string; date: string }>;
+  };
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {

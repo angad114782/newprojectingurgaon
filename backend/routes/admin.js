@@ -217,9 +217,13 @@ router.get('/dashboard', async (req, res) => {
 // ─── Get All Leads ───────────────────────────────────────────────────────────
 router.get('/leads', async (req, res) => {
   try {
-    const { status, page = 1, limit = 20, search, utmSource, projectSlug, location, sort = '-createdAt' } = req.query;
+    const { status, page = 1, limit = 20, search, utmSource, projectSlug, location, sort = '-createdAt', includeAnonymous } = req.query;
 
-    const query = {};
+    // By default only show real leads (those with a mobile number captured)
+    const query = includeAnonymous === 'true'
+      ? {}
+      : { mobile: { $exists: true, $nin: [null, ''] } };
+
     if (status) query.status = status;
     if (utmSource) query.utmSource = utmSource;
     if (projectSlug) query.interestedProject = projectSlug;
@@ -238,6 +242,64 @@ router.get('/leads', async (req, res) => {
     ]);
 
     res.json({ success: true, data: leads, total, page: Number(page), pages: Math.ceil(total / limit) });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ─── Export Leads as CSV ─────────────────────────────────────────────────────
+router.get('/leads/export', protect, async (req, res) => {
+  try {
+    const { status, search, from, to } = req.query;
+    const query = { mobile: { $exists: true, $nin: [null, ''] } };
+    if (status) query.status = status;
+    if (from || to) {
+      query.createdAt = {};
+      if (from) query.createdAt.$gte = new Date(from);
+      if (to) { const toDate = new Date(to); toDate.setHours(23, 59, 59); query.createdAt.$lte = toDate; }
+    }
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { mobile: { $regex: search } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const leads = await Lead.find(query).sort('-createdAt').limit(10000).lean();
+
+    const escape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+
+    const headers = ['Name', 'Mobile', 'Email', 'Budget', 'Preferred Location', 'Buying Purpose', 'Timeline', 'Interested Project', 'Score', 'Status', 'Verified', 'WhatsApp Consent', 'Source Page', 'UTM Source', 'UTM Campaign', 'Site Visit Requested', 'Created At'];
+
+    const rows = leads.map((l) => [
+      escape(l.name),
+      escape(l.mobile),
+      escape(l.email),
+      escape(l.budget),
+      escape(l.preferredLocation),
+      escape(l.buyingPurpose),
+      escape(l.timeline),
+      escape(l.interestedProject),
+      escape(l.score),
+      escape(l.status),
+      escape(l.isVerified ? 'Yes' : 'No'),
+      escape(l.whatsappConsent ? 'Yes' : 'No'),
+      escape(l.sourcePage),
+      escape(l.utmSource),
+      escape(l.utmCampaign),
+      escape(l.siteVisitRequested ? 'Yes' : 'No'),
+      escape(new Date(l.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })),
+    ].join(','));
+
+    const csv = [headers.join(','), ...rows].join('\n');
+    const filename = `leads_${new Date().toISOString().slice(0, 10)}.csv`;
+
+    res.set({
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+    });
+    res.send('﻿' + csv); // BOM for Excel compatibility
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -515,12 +577,44 @@ router.get('/settings', async (req, res) => {
 
 router.put('/settings', authorize('admin'), async (req, res) => {
   try {
-    const update = req.body;
-    // Skip update if masked placeholder is sent unchanged
-    if (update.smtp?.pass === '••••••••') delete update.smtp.pass;
-    if (update.whatsappCloud?.accessToken === '••••••••') delete update.whatsappCloud.accessToken;
+    // Fetch existing to preserve sensitive fields
+    let settings = await SiteSettings.findOne({});
+    const existingSmtpPass = settings?.smtp?.pass;
+    const existingWaToken = settings?.whatsappCloud?.accessToken;
 
-    const settings = await SiteSettings.findOneAndUpdate({}, { $set: update }, { new: true, upsert: true });
+    const body = JSON.parse(JSON.stringify(req.body));
+
+    // Restore sensitive fields if masked value received (not a real change)
+    if (body.smtp) {
+      if (body.smtp.pass === '••••••••' || body.smtp.pass === '') {
+        if (existingSmtpPass) body.smtp.pass = existingSmtpPass;
+        else delete body.smtp.pass;
+      }
+    }
+    if (body.whatsappCloud) {
+      if (body.whatsappCloud.accessToken === '••••••••' || body.whatsappCloud.accessToken === '') {
+        if (existingWaToken) body.whatsappCloud.accessToken = existingWaToken;
+        else delete body.whatsappCloud.accessToken;
+      }
+    }
+
+    if (!settings) {
+      settings = new SiteSettings(body);
+    } else {
+      Object.assign(settings, body);
+      settings.markModified('smtp');
+      settings.markModified('whatsappCloud');
+      settings.markModified('marketStats');
+      settings.markModified('social');
+      settings.markModified('testimonials');
+      settings.markModified('locations');
+      settings.markModified('builders');
+      settings.markModified('faqs');
+      settings.markModified('seoKeywords');
+      settings.markModified('conversion');
+      settings.markModified('companyInfo');
+    }
+    await settings.save();
 
     // Invalidate in-memory caches so next request picks up new settings
     try {
@@ -528,7 +622,7 @@ router.put('/settings', authorize('admin'), async (req, res) => {
       require('../services/whatsappService')._invalidateCache?.();
     } catch (_) {}
 
-    // Return masked settings (never expose real password/token after save)
+    // Return masked settings (never expose real password/token)
     res.json({ success: true, settings: maskSettings(settings.toObject()) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

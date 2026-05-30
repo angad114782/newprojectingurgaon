@@ -381,7 +381,11 @@ export function PriceGate({ price, onUnlock, config }: { price: string; onUnlock
 // ─────────────────────────────────────────────
 type ScrollModalConfig = { enabled?: boolean; triggerPercent?: number };
 
-export function ScrollTriggerModal({ config }: { projectName?: string; config?: ScrollModalConfig }) {
+const API_URL = typeof window !== 'undefined'
+  ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api')
+  : '';
+
+export function ScrollTriggerModal({ config, projectName }: { projectName?: string; config?: ScrollModalConfig }) {
   const enabled = config?.enabled !== false;
   const triggerAt = (config?.triggerPercent ?? 60) / 100;
 
@@ -389,6 +393,7 @@ export function ScrollTriggerModal({ config }: { projectName?: string; config?: 
   const [fired, setFired] = useState(false);
   const [mobile, setMobile] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!enabled) return;
@@ -401,8 +406,25 @@ export function ScrollTriggerModal({ config }: { projectName?: string; config?: 
     return () => window.removeEventListener('scroll', handler);
   }, [fired, enabled, triggerAt]);
 
-  const handleSubmit = () => {
-    if (mobile.length < 10) return;
+  const handleSubmit = async () => {
+    if (mobile.length < 10 || submitting) return;
+    setSubmitting(true);
+    try {
+      const visitorId = sessionStorage.getItem('gr_visitor_id') || localStorage.getItem('gr_visitor_id') || '';
+      await fetch(`${API_URL}/leads/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mobile,
+          visitorId,
+          interestedProject: projectName || '',
+          sourcePage: window.location.pathname,
+          whatsappConsent: true,
+          source: 'scroll_modal',
+        }),
+      });
+    } catch { /* fire-and-forget */ }
+    setSubmitting(false);
     setSubmitted(true);
     sessionStorage.setItem('scroll_modal_done', '1');
     setTimeout(() => setShow(false), 3000);
@@ -431,8 +453,8 @@ export function ScrollTriggerModal({ config }: { projectName?: string; config?: 
               <input type="tel" value={mobile} maxLength={10} onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
                 placeholder="Your WhatsApp number" className="input-field flex-1" autoFocus />
             </div>
-            <button onClick={handleSubmit} disabled={mobile.length < 10} className="btn-primary w-full disabled:opacity-50">
-              Send Price List on WhatsApp →
+            <button onClick={handleSubmit} disabled={mobile.length < 10 || submitting} className="btn-primary w-full disabled:opacity-50">
+              {submitting ? 'Sending…' : 'Send Price List on WhatsApp →'}
             </button>
             <button onClick={() => { setShow(false); sessionStorage.setItem('scroll_modal_done', '1'); }}
               className="w-full text-center text-brand-muted text-xs mt-3 hover:text-brand-dark">

@@ -22,12 +22,41 @@ router.get('/', async (req, res) => {
 router.put('/', protect, async (req, res) => {
   try {
     let settings = await SiteSettings.findOne();
+
+    // Deep-clone body and strip masked sensitive fields so existing values are preserved
+    const body = JSON.parse(JSON.stringify(req.body));
+    if (body.smtp) {
+      if (body.smtp.pass === '••••••••' || body.smtp.pass === '') delete body.smtp.pass;
+    }
+    if (body.whatsappCloud) {
+      if (body.whatsappCloud.accessToken === '••••••••' || body.whatsappCloud.accessToken === '') {
+        delete body.whatsappCloud.accessToken;
+      }
+    }
+
     if (!settings) {
-      settings = new SiteSettings(req.body);
+      settings = new SiteSettings(body);
     } else {
-      Object.assign(settings, req.body);
+      // Preserve existing sensitive fields before merge
+      const existingSmtpPass = settings.smtp?.pass;
+      const existingWaToken = settings.whatsappCloud?.accessToken;
+
+      Object.assign(settings, body);
+
+      // Re-apply preserved values if they were stripped
+      if (!body.smtp?.pass && existingSmtpPass) {
+        if (!settings.smtp) settings.smtp = {};
+        settings.smtp.pass = existingSmtpPass;
+      }
+      if (!body.whatsappCloud?.accessToken && existingWaToken) {
+        if (!settings.whatsappCloud) settings.whatsappCloud = {};
+        settings.whatsappCloud.accessToken = existingWaToken;
+      }
+
       settings.markModified('marketStats');
       settings.markModified('social');
+      settings.markModified('smtp');
+      settings.markModified('whatsappCloud');
       settings.markModified('testimonials');
       settings.markModified('locations');
       settings.markModified('builders');
@@ -35,6 +64,7 @@ router.put('/', protect, async (req, res) => {
       settings.markModified('heroImages');
       settings.markModified('seoKeywords');
       settings.markModified('conversion');
+      settings.markModified('companyInfo');
     }
     await settings.save();
     res.json({ success: true, data: settings });

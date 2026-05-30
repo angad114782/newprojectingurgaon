@@ -142,6 +142,7 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/blogs', require('./routes/blogs'));
+app.use('/api/authors', require('./routes/authors'));
 
 // ─── 404 ─────────────────────────────────────────────────────────────────────
 app.use((req, res) => {

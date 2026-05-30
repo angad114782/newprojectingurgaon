@@ -296,7 +296,7 @@ export default function AdminPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics' | 'gsc' | 'branding' | 'blog'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics' | 'gsc' | 'branding' | 'blog' | 'team'>('leads');
   const socketRef = useRef<Socket | null>(null);
   const [liveNotif, setLiveNotif] = useState<string | null>(null);
 
@@ -323,6 +323,21 @@ export default function AdminPage() {
   const [csvImporting, setCsvImporting] = useState(false);
   const [csvResult, setCsvResult] = useState<any>(null);
   const [csvSkipImages, setCsvSkipImages] = useState(false);
+
+  // Team (Authors) state
+  const [authors, setAuthors] = useState<any[]>([]);
+  const [authorLoading, setAuthorLoading] = useState(false);
+  const [authorModalOpen, setAuthorModalOpen] = useState(false);
+  const [authorModalMode, setAuthorModalMode] = useState<'add' | 'edit'>('add');
+  const [authorSaving, setAuthorSaving] = useState(false);
+  const emptyAuthorForm = {
+    name: '', slug: '', photo: '', designation: 'Property Advisor', experience: '',
+    specializations: [], credentials: '', reraAgentId: '', bio: '', fullBio: '',
+    education: '', languages: [], dealsCount: '', awards: [],
+    socialLinkedIn: '', socialTwitter: '', email: '', phone: '',
+    isActive: true, isFeatured: false, sortOrder: 0,
+  };
+  const [authorForm, setAuthorForm] = useState<any>({ ...emptyAuthorForm });
 
   // Blog state
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
@@ -495,6 +510,36 @@ export default function AdminPage() {
   }, [leadSearch]);
   useEffect(() => { if (activeTab === 'analytics' && !analytics) fetchAnalytics(); }, [activeTab, analytics, fetchAnalytics]);
   useEffect(() => { if (activeTab === 'blog' && token && blogPosts.length === 0) fetchBlogs(); }, [activeTab, token]);
+  useEffect(() => { if (activeTab === 'team' && token && authors.length === 0) fetchAuthors(); }, [activeTab, token]);
+
+  const fetchAuthors = async () => {
+    setAuthorLoading(true);
+    try {
+      const res = await fetch(`${API}/authors?all=true`, { headers: { Authorization: `Bearer ${token}` } });
+      const d = await res.json();
+      if (d.success) setAuthors(d.data);
+    } finally { setAuthorLoading(false); }
+  };
+
+  const saveAuthor = async () => {
+    if (!authorForm.name || !authorForm.slug) { alert('Name aur Slug required hai'); return; }
+    setAuthorSaving(true);
+    try {
+      const url = authorModalMode === 'edit' ? `${API}/authors/${authorForm._id}` : `${API}/authors`;
+      const method = authorModalMode === 'edit' ? 'PUT' : 'POST';
+      const { _id, ...body } = authorForm;
+      const res = await fetch(url, { method, headers: authH(), body: JSON.stringify(authorModalMode === 'edit' ? authorForm : body) });
+      const d = await res.json();
+      if (d.success) { await fetchAuthors(); setAuthorModalOpen(false); setAuthorForm({ ...emptyAuthorForm }); }
+      else alert(d.message || 'Save failed');
+    } finally { setAuthorSaving(false); }
+  };
+
+  const deleteAuthor = async (id: string) => {
+    if (!confirm('Delete this team member?')) return;
+    await fetch(`${API}/authors/${id}`, { method: 'DELETE', headers: authH() });
+    setAuthors((prev) => prev.filter((a) => a._id !== id));
+  };
 
   const fetchBlogs = async () => {
     setBlogLoading(true);
@@ -787,6 +832,10 @@ export default function AdminPage() {
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'branding' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
               🎨 Logo & Favicon
             </button>
+            <button onClick={() => setActiveTab('team')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'team' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
+              👥 Team (E-E-A-T)
+            </button>
           </div>
         </div>
         <div className="flex gap-3 text-xs">
@@ -828,8 +877,32 @@ export default function AdminPage() {
                   </button>
                 ))}
               </div>
-              <input value={leadSearch} onChange={(e) => setLeadSearch(e.target.value)} placeholder="Search name / mobile…"
-                className="border border-gray-200 rounded-xl px-4 py-2 text-sm w-56 focus:outline-none focus:border-brand-accent" />
+              <div className="flex items-center gap-2">
+                <input value={leadSearch} onChange={(e) => setLeadSearch(e.target.value)} placeholder="Search name / mobile…"
+                  className="border border-gray-200 rounded-xl px-4 py-2 text-sm w-48 focus:outline-none focus:border-brand-accent" />
+                <button
+                  onClick={() => {
+                    const statusQ = leadFilter !== 'all' ? `&status=${leadFilter}` : '';
+                    const searchQ = leadSearch ? `&search=${encodeURIComponent(leadSearch)}` : '';
+                    const url = `${API}/admin/leads/export?${statusQ}${searchQ}`;
+                    const a = document.createElement('a');
+                    a.href = url;
+                    const headers = new Headers({ Authorization: `Bearer ${token}` });
+                    fetch(url, { headers })
+                      .then(r => r.blob())
+                      .then(blob => {
+                        const burl = URL.createObjectURL(blob);
+                        a.href = burl;
+                        a.download = `leads_${new Date().toISOString().slice(0,10)}.csv`;
+                        a.click();
+                        URL.revokeObjectURL(burl);
+                      });
+                  }}
+                  className="flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-3 py-2 rounded-xl hover:bg-green-500 hover:text-white transition-colors"
+                  title="Export leads to CSV">
+                  ⬇️ CSV Export
+                </button>
+              </div>
             </div>
             {loadingLeads ? <div className="p-8 text-center text-sm text-brand-muted">Loading…</div> :
               filtered.length === 0 ? (
@@ -1421,6 +1494,129 @@ export default function AdminPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* About Page / Company Info (E-E-A-T) */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <SectionHeader title="About Page & Company Info (E-E-A-T)" icon="🏛️" />
+              <p className="text-xs text-brand-muted mb-4">Yeh sab /about page pe dikhega. Company ki credibility aur Google ka E-E-A-T score improve karta hai.</p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-brand-muted mb-1">Founded Year</label>
+                    <input className="input-field text-sm" placeholder="2019"
+                      value={(siteSettings as any).companyInfo?.foundingYear || ''}
+                      onChange={(e) => setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, foundingYear: e.target.value } } as any)} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-brand-muted mb-1">Team Size</label>
+                    <input className="input-field text-sm" placeholder="15+"
+                      value={(siteSettings as any).companyInfo?.teamSize || ''}
+                      onChange={(e) => setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, teamSize: e.target.value } } as any)} />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">About Us Title (H1 for /about)</label>
+                  <input className="input-field text-sm" placeholder="Gurgaon's Most Trusted Real Estate Advisory"
+                    value={(siteSettings as any).companyInfo?.aboutTitle || ''}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, aboutTitle: e.target.value } } as any)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">About Us Main Content</label>
+                  <textarea rows={3} className="input-field text-sm resize-none" placeholder="Company ke baare mein — kab se, kya karte ho, kitne projects, etc."
+                    value={(siteSettings as any).companyInfo?.aboutContent || ''}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, aboutContent: e.target.value } } as any)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Mission Statement</label>
+                  <textarea rows={2} className="input-field text-sm resize-none" placeholder="Hamara mission hai..."
+                    value={(siteSettings as any).companyInfo?.missionStatement || ''}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, missionStatement: e.target.value } } as any)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Office Image URL</label>
+                  <input className="input-field text-sm" placeholder="https://... (office ki photo)"
+                    value={(siteSettings as any).companyInfo?.officeImage || ''}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, officeImage: e.target.value } } as any)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Google Maps Embed URL (/contact page ke liye)</label>
+                  <input className="input-field text-sm" placeholder="https://www.google.com/maps/embed?pb=..."
+                    value={(siteSettings as any).companyInfo?.mapEmbedUrl || ''}
+                    onChange={(e) => setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, mapEmbedUrl: e.target.value } } as any)} />
+                  <p className="text-xs text-brand-muted mt-1">Google Maps → Share → Embed a map → copy src URL</p>
+                </div>
+
+                {/* Awards */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide">Awards & Recognition</label>
+                    <button type="button" onClick={() => setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, awards: [...((siteSettings as any).companyInfo?.awards || []), { title: '', year: '', issuer: '' }] } } as any)}
+                      className="text-xs bg-brand-dark text-white px-3 py-1 rounded-lg hover:bg-brand-accent hover:text-brand-dark">+ Add Award</button>
+                  </div>
+                  {((siteSettings as any).companyInfo?.awards || []).map((award: any, i: number) => (
+                    <div key={i} className="grid grid-cols-3 gap-2 mb-2 items-center">
+                      <input className="input-field text-xs py-1.5" value={award.title || ''} placeholder="Award Title"
+                        onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.awards || [])]; arr[i] = { ...arr[i], title: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, awards: arr } } as any); }} />
+                      <input className="input-field text-xs py-1.5" value={award.year || ''} placeholder="2023"
+                        onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.awards || [])]; arr[i] = { ...arr[i], year: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, awards: arr } } as any); }} />
+                      <div className="flex gap-1">
+                        <input className="input-field text-xs py-1.5 flex-1" value={award.issuer || ''} placeholder="Issuing Body"
+                          onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.awards || [])]; arr[i] = { ...arr[i], issuer: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, awards: arr } } as any); }} />
+                        <button type="button" onClick={() => { const arr = ((siteSettings as any).companyInfo?.awards || []).filter((_: any, idx: number) => idx !== i); setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, awards: arr } } as any); }} className="text-red-400 hover:text-red-600 px-2 font-bold">×</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Certifications */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide">Certifications & Memberships</label>
+                    <button type="button" onClick={() => setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, certifications: [...((siteSettings as any).companyInfo?.certifications || []), { name: '', issuer: '', id: '', link: '' }] } } as any)}
+                      className="text-xs bg-brand-dark text-white px-3 py-1 rounded-lg hover:bg-brand-accent hover:text-brand-dark">+ Add</button>
+                  </div>
+                  {((siteSettings as any).companyInfo?.certifications || []).map((cert: any, i: number) => (
+                    <div key={i} className="grid grid-cols-4 gap-2 mb-2 items-center">
+                      <input className="input-field text-xs py-1.5" value={cert.name || ''} placeholder="Certification Name"
+                        onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.certifications || [])]; arr[i] = { ...arr[i], name: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, certifications: arr } } as any); }} />
+                      <input className="input-field text-xs py-1.5" value={cert.issuer || ''} placeholder="Issuer"
+                        onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.certifications || [])]; arr[i] = { ...arr[i], issuer: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, certifications: arr } } as any); }} />
+                      <input className="input-field text-xs py-1.5" value={cert.id || ''} placeholder="ID / Reg No"
+                        onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.certifications || [])]; arr[i] = { ...arr[i], id: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, certifications: arr } } as any); }} />
+                      <div className="flex gap-1">
+                        <input className="input-field text-xs py-1.5 flex-1" value={cert.link || ''} placeholder="Verify URL"
+                          onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.certifications || [])]; arr[i] = { ...arr[i], link: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, certifications: arr } } as any); }} />
+                        <button type="button" onClick={() => { const arr = ((siteSettings as any).companyInfo?.certifications || []).filter((_: any, idx: number) => idx !== i); setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, certifications: arr } } as any); }} className="text-red-400 hover:text-red-600 px-2 font-bold">×</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Media Links */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide">Media Coverage / Press Mentions</label>
+                    <button type="button" onClick={() => setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, mediaLinks: [...((siteSettings as any).companyInfo?.mediaLinks || []), { outlet: '', title: '', href: '', date: '' }] } } as any)}
+                      className="text-xs bg-brand-dark text-white px-3 py-1 rounded-lg hover:bg-brand-accent hover:text-brand-dark">+ Add</button>
+                  </div>
+                  {((siteSettings as any).companyInfo?.mediaLinks || []).map((item: any, i: number) => (
+                    <div key={i} className="grid grid-cols-4 gap-2 mb-2 items-center">
+                      <input className="input-field text-xs py-1.5" value={item.outlet || ''} placeholder="Outlet (e.g. Times of India)"
+                        onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.mediaLinks || [])]; arr[i] = { ...arr[i], outlet: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, mediaLinks: arr } } as any); }} />
+                      <input className="input-field text-xs py-1.5" value={item.title || ''} placeholder="Article Title"
+                        onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.mediaLinks || [])]; arr[i] = { ...arr[i], title: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, mediaLinks: arr } } as any); }} />
+                      <input className="input-field text-xs py-1.5" value={item.date || ''} placeholder="2025-03-01"
+                        onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.mediaLinks || [])]; arr[i] = { ...arr[i], date: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, mediaLinks: arr } } as any); }} />
+                      <div className="flex gap-1">
+                        <input className="input-field text-xs py-1.5 flex-1" value={item.href || ''} placeholder="Article URL"
+                          onChange={(e) => { const arr = [...((siteSettings as any).companyInfo?.mediaLinks || [])]; arr[i] = { ...arr[i], href: e.target.value }; setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, mediaLinks: arr } } as any); }} />
+                        <button type="button" onClick={() => { const arr = ((siteSettings as any).companyInfo?.mediaLinks || []).filter((_: any, idx: number) => idx !== i); setSiteSettings({ ...siteSettings, companyInfo: { ...(siteSettings as any).companyInfo, mediaLinks: arr } } as any); }} className="text-red-400 hover:text-red-600 px-2 font-bold">×</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -2625,7 +2821,22 @@ export default function AdminPage() {
 
               {/* ── Author ── */}
               <div className="border border-gray-200 rounded-xl p-4 space-y-3">
-                <p className="text-xs font-semibold text-brand-text">Author Info (E-E-A-T — Google trust signals)</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-brand-text">Author Info (E-E-A-T — Google trust signals)</p>
+                  {authors.length > 0 && (
+                    <select className="input-field text-xs py-1 w-48"
+                      onChange={(e) => {
+                        const a = authors.find((x) => x._id === e.target.value);
+                        if (a) setBlogForm({ ...blogForm, author: { name: a.name, bio: a.bio || '', credentials: a.credentials || '', avatar: a.photo || '' } });
+                      }}
+                      defaultValue="">
+                      <option value="" disabled>Team se select karo…</option>
+                      {authors.filter((a) => a.isActive).map((a) => (
+                        <option key={a._id} value={a._id}>{a.name} — {a.designation}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-brand-muted mb-1">Author Name *</label>
@@ -2866,6 +3077,242 @@ export default function AdminPage() {
               {settingsSaving ? '⏳ Saving…' : '✓ Save Branding'}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* ── TEAM TAB (E-E-A-T) ── */}
+      {activeTab === 'team' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-display font-semibold text-brand-text">Team Members (E-E-A-T)</h2>
+              <p className="text-xs text-brand-muted mt-0.5">Yeh advisors /about page pe dikhenge aur blog posts mein use ho sakte hain. Google E-E-A-T ke liye zaroori hai.</p>
+            </div>
+            <button className="btn-primary text-sm px-4 py-2"
+              onClick={() => { setAuthorModalMode('add'); setAuthorForm({ ...emptyAuthorForm }); setAuthorModalOpen(true); }}>
+              + Add Member
+            </button>
+          </div>
+
+          {authorLoading ? (
+            <div className="text-center py-12 text-brand-muted">Loading…</div>
+          ) : authors.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
+              <div className="text-5xl mb-3">👥</div>
+              <p className="text-brand-muted text-sm mb-2">Koi team member nahi add kiya abhi tak.</p>
+              <p className="text-brand-muted text-xs mb-4">Advisors add karo — naam, photo, credentials, RERA ID, specializations. Google E-E-A-T score improve hoga.</p>
+              <button onClick={() => { setAuthorModalMode('add'); setAuthorForm({ ...emptyAuthorForm }); setAuthorModalOpen(true); }}
+                className="btn-primary text-sm">+ Add First Member</button>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead><tr className="bg-gray-50 text-brand-muted text-xs uppercase tracking-wide border-b border-gray-100">
+                  <th className="py-3 px-4 text-left">Advisor</th>
+                  <th className="py-3 px-3 text-left">Designation</th>
+                  <th className="py-3 px-3 text-left">Experience</th>
+                  <th className="py-3 px-3 text-left">RERA ID</th>
+                  <th className="py-3 px-3 text-left">Status</th>
+                  <th className="py-3 px-3 text-right">Actions</th>
+                </tr></thead>
+                <tbody>
+                  {authors.map((a) => (
+                    <tr key={a._id} className="border-b border-gray-50 hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-3">
+                          {a.photo ? (
+                            <img src={a.photo} alt={a.name} className="w-9 h-9 rounded-full object-cover border border-gray-200" />
+                          ) : (
+                            <div className="w-9 h-9 rounded-full bg-brand-accent/20 flex items-center justify-center text-brand-dark font-bold text-sm">{a.name.substring(0,2).toUpperCase()}</div>
+                          )}
+                          <div>
+                            <p className="font-medium text-brand-text">{a.name}</p>
+                            <p className="text-xs text-brand-muted">/{a.slug}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 text-brand-muted text-xs">{a.designation}</td>
+                      <td className="py-3 px-3 text-brand-muted text-xs">{a.experience || '—'}</td>
+                      <td className="py-3 px-3 text-xs font-mono text-brand-dark">{a.reraAgentId || '—'}</td>
+                      <td className="py-3 px-3">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${a.isActive ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-50 text-gray-500 border border-gray-200'}`}>
+                          {a.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                        {a.isFeatured && <span className="ml-1 text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 px-1.5 py-0.5 rounded-full">⭐ Featured</span>}
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button className="text-xs text-blue-600 hover:underline"
+                            onClick={() => { setAuthorModalMode('edit'); setAuthorForm({ ...emptyAuthorForm, ...a, specializations: a.specializations || [], languages: a.languages || [], awards: a.awards || [] }); setAuthorModalOpen(true); }}>
+                            Edit
+                          </button>
+                          <button className="text-xs text-red-500 hover:underline" onClick={() => deleteAuthor(a._id)}>Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Team Member Modal */}
+          {authorModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 overflow-y-auto py-8 px-4">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl">
+                <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+                  <h3 className="font-display font-semibold text-brand-text">{authorModalMode === 'add' ? 'Add Team Member' : 'Edit Team Member'}</h3>
+                  <button onClick={() => setAuthorModalOpen(false)} className="text-brand-muted hover:text-brand-text text-xl">✕</button>
+                </div>
+                <div className="p-6 space-y-5">
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-xs text-blue-700">
+                    💡 E-E-A-T tip: Jitni zyada details add karoge — photo, RERA ID, credentials, specializations — utna Google pe trust signal strong hoga. Yeh /about page pe dikhega.
+                  </div>
+
+                  {/* Basic Info */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">Full Name *</label>
+                      <input className="input-field" value={authorForm.name} placeholder="Rahul Sharma"
+                        onChange={(e) => setAuthorForm({ ...authorForm, name: e.target.value, slug: authorModalMode === 'add' ? e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : authorForm.slug })} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">Slug (URL) *</label>
+                      <input className="input-field" value={authorForm.slug} placeholder="rahul-sharma"
+                        onChange={(e) => setAuthorForm({ ...authorForm, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">Designation</label>
+                      <input className="input-field" value={authorForm.designation} placeholder="Senior Property Advisor"
+                        onChange={(e) => setAuthorForm({ ...authorForm, designation: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">Experience</label>
+                      <input className="input-field" value={authorForm.experience} placeholder="8+ years"
+                        onChange={(e) => setAuthorForm({ ...authorForm, experience: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">RERA Agent ID</label>
+                      <input className="input-field font-mono" value={authorForm.reraAgentId} placeholder="HRERA/GGM/AGENT/XXXX"
+                        onChange={(e) => setAuthorForm({ ...authorForm, reraAgentId: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">Deals Closed</label>
+                      <input className="input-field" value={authorForm.dealsCount} placeholder="200+ deals"
+                        onChange={(e) => setAuthorForm({ ...authorForm, dealsCount: e.target.value })} />
+                    </div>
+                  </div>
+
+                  {/* Photo */}
+                  <div>
+                    <label className="block text-xs font-medium text-brand-muted mb-1">Photo URL</label>
+                    <div className="flex gap-2">
+                      <input className="input-field flex-1" value={authorForm.photo} placeholder="https://... professional headshot"
+                        onChange={(e) => setAuthorForm({ ...authorForm, photo: e.target.value })} />
+                      <label className="btn-secondary text-xs px-3 py-2 cursor-pointer shrink-0">
+                        📁 Upload
+                        <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                          const file = e.target.files?.[0]; if (!file || !token) return;
+                          const fd = new FormData(); fd.append('image', file);
+                          const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                          const d = await r.json();
+                          if (d.success) setAuthorForm((f: any) => ({ ...f, photo: d.url }));
+                        }} />
+                      </label>
+                    </div>
+                    {authorForm.photo && <img src={authorForm.photo} alt="preview" className="mt-2 w-16 h-16 rounded-full object-cover border border-gray-200" />}
+                  </div>
+
+                  {/* Credentials */}
+                  <div>
+                    <label className="block text-xs font-medium text-brand-muted mb-1">Credentials (1-2 lines — Google dikhata hai)</label>
+                    <input className="input-field" value={authorForm.credentials} placeholder="RERA Registered Agent | CREDAI Member | 8 years Gurgaon Real Estate"
+                      onChange={(e) => setAuthorForm({ ...authorForm, credentials: e.target.value })} />
+                  </div>
+
+                  {/* Bio */}
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">Short Bio (blog/listing mein)</label>
+                      <textarea className="input-field resize-none" rows={2} value={authorForm.bio} placeholder="Senior advisor at New Projects in Gurgaon specialising in Dwarka Expressway and Golf Course Road micro-markets."
+                        onChange={(e) => setAuthorForm({ ...authorForm, bio: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">Full Bio (/about page mein)</label>
+                      <textarea className="input-field resize-none" rows={3} value={authorForm.fullBio} placeholder="Detailed biography for the About page..."
+                        onChange={(e) => setAuthorForm({ ...authorForm, fullBio: e.target.value })} />
+                    </div>
+                  </div>
+
+                  {/* Specializations */}
+                  <div>
+                    <label className="block text-xs font-medium text-brand-muted mb-1">Specializations (comma separated)</label>
+                    <input className="input-field" value={(authorForm.specializations || []).join(', ')} placeholder="Dwarka Expressway, Golf Course Road, Luxury Properties"
+                      onChange={(e) => setAuthorForm({ ...authorForm, specializations: e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) })} />
+                  </div>
+
+                  {/* Education + Languages */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">Education</label>
+                      <input className="input-field" value={authorForm.education} placeholder="MBA Finance, Delhi University"
+                        onChange={(e) => setAuthorForm({ ...authorForm, education: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">Languages (comma separated)</label>
+                      <input className="input-field" value={(authorForm.languages || []).join(', ')} placeholder="English, Hindi, Punjabi"
+                        onChange={(e) => setAuthorForm({ ...authorForm, languages: e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) })} />
+                    </div>
+                  </div>
+
+                  {/* Social + Contact */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">LinkedIn URL</label>
+                      <input className="input-field" value={authorForm.socialLinkedIn} placeholder="https://linkedin.com/in/..."
+                        onChange={(e) => setAuthorForm({ ...authorForm, socialLinkedIn: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-brand-muted mb-1">Email (optional, for schema)</label>
+                      <input type="email" className="input-field" value={authorForm.email} placeholder="advisor@email.com"
+                        onChange={(e) => setAuthorForm({ ...authorForm, email: e.target.value })} />
+                    </div>
+                  </div>
+
+                  {/* Awards */}
+                  <div>
+                    <label className="block text-xs font-medium text-brand-muted mb-1">Awards (comma separated)</label>
+                    <input className="input-field" value={(authorForm.awards || []).join(', ')} placeholder="Best Advisor Award 2023, Top 10 Gurgaon Advisors"
+                      onChange={(e) => setAuthorForm({ ...authorForm, awards: e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) })} />
+                  </div>
+
+                  {/* Flags */}
+                  <div className="flex items-center gap-6">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm text-brand-muted">
+                      <input type="checkbox" checked={authorForm.isActive} onChange={(e) => setAuthorForm({ ...authorForm, isActive: e.target.checked })} className="accent-brand-accent" />
+                      Active (About page pe dikhega)
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm text-brand-muted">
+                      <input type="checkbox" checked={authorForm.isFeatured} onChange={(e) => setAuthorForm({ ...authorForm, isFeatured: e.target.checked })} className="accent-brand-accent" />
+                      Featured (top pe dikhega)
+                    </label>
+                    <div className="ml-auto flex items-center gap-2">
+                      <label className="text-xs text-brand-muted">Sort Order</label>
+                      <input type="number" className="input-field w-16 text-sm py-1.5" value={authorForm.sortOrder}
+                        onChange={(e) => setAuthorForm({ ...authorForm, sortOrder: parseInt(e.target.value) || 0 })} />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                    <button className="btn-secondary text-sm px-5" onClick={() => setAuthorModalOpen(false)}>Cancel</button>
+                    <button className="btn-primary text-sm px-6" onClick={saveAuthor} disabled={authorSaving}>
+                      {authorSaving ? 'Saving…' : authorModalMode === 'add' ? 'Add Member' : 'Save Changes'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -23,6 +23,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
     })),
     { url: `${BASE}/blog`, changeFrequency: 'weekly' as const, priority: 0.7 },
+    { url: `${BASE}/about`, changeFrequency: 'monthly' as const, priority: 0.75 },
+    { url: `${BASE}/contact`, changeFrequency: 'monthly' as const, priority: 0.75 },
+    { url: `${BASE}/privacy-policy`, changeFrequency: 'yearly' as const, priority: 0.3 },
+    { url: `${BASE}/terms`, changeFrequency: 'yearly' as const, priority: 0.3 },
+    { url: `${BASE}/disclaimer`, changeFrequency: 'yearly' as const, priority: 0.3 },
   ].map((p) => ({ ...p, lastModified: new Date() }));
 
   const projectPages = allSlugs.map((slug) => ({
