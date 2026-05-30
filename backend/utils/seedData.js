@@ -871,7 +871,6 @@ const PROJECTS = [
     metaDescription: 'Signature Global Titanium Sector 71 Gurgaon on SPR Road — 2, 3 BHK from ₹1.2 Cr. New launch 2025.',
     metaKeywords: 'Signature Global SPR Road, Sector 71 Gurgaon property, on SPR Road property, new projects Gurgaon 2025',
   },
-];
 
   // ════════════ DLF Privana West — MOST SEARCHED 2025 ════════════
   {
