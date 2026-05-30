@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
-import dynamic from 'next/dynamic';
 import Script from 'next/script';
 import '../styles/globals.css';
 import { Toaster } from 'react-hot-toast';
@@ -10,14 +9,8 @@ import Footer from '@/components/layout/Footer';
 import MobileBottomCTA from '@/components/layout/MobileBottomCTA';
 import StickyButtons from '@/components/layout/StickyButtons';
 import { TrackingProvider } from '@/components/lead/TrackingProvider';
-import { UrgencyBanner, TrustStrip, BackToTopButton } from '@/components/conversion/PsychTriggers';
+import { UrgencyBanner, TrustStrip, LiveActivityToast, BackToTopButton } from '@/components/conversion/PsychTriggers';
 import { fetchSettings } from '@/lib/settings';
-
-// Dynamic import — keeps socket.io-client out of the initial JS bundle
-const LiveActivityToast = dynamic(
-  () => import('@/components/conversion/PsychTriggers').then((m) => m.LiveActivityToast),
-  { ssr: false }
-);
 
 function getSiteUrl(host: string | null): string {
   if (!host) return 'https://localhost:3000';
