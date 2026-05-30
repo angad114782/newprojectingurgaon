@@ -253,6 +253,39 @@ export default async function NewProjectsPage() {
 
       <InternalLinksBlock currentPage="/new-projects-in-gurgaon" />
 
+      {/* FAQ Section + JSON-LD */}
+      {(() => {
+        const faqs = [
+          { q: 'What are the best new projects in Gurgaon in 2025?', a: 'Top new projects in Gurgaon in 2025 include DLF Privana West (Sector 76, ₹3.5 Cr+), Elan The Mark (Sector 106, ₹2.8 Cr+), Smartworld Orchard (Sector 61, ₹1.5 Cr+), Adani Samsara Vilasa (Sector 63, ₹3.5 Cr+) and ROF Ananda (Sector 95, ₹72 Lakh+). All are RERA-verified with strong appreciation potential.' },
+          { q: 'Which corridor in Gurgaon has maximum appreciation in 2025?', a: 'Dwarka Expressway leads with 35–45% appreciation over 3 years, followed by SPR Road at 30–38% and Golf Course Extension Road at 25–32%. The airport proximity and Metro Phase II on Dwarka Expressway drive the highest returns.' },
+          { q: 'What is the minimum budget to buy property in Gurgaon?', a: 'The minimum budget to buy RERA-approved property in Gurgaon is approximately ₹45–60 Lakh for a 2 BHK under the DDJAY affordable housing scheme in Sector 37D. Mid-segment 3 BHK options start from ₹90 Lakh in New Gurgaon and Sector 102.' },
+          { q: 'Are all Gurgaon projects RERA verified?', a: 'All projects listed on New Projects in Gurgaon are verified on the Haryana RERA portal (haryanarera.gov.in) before listing. You can independently verify any project by visiting haryanarera.gov.in and searching by project name or RERA registration number.' },
+          { q: 'Which builder is most trusted in Gurgaon?', a: 'Sobha Limited is ranked highest for construction quality with 100% in-house construction and zero delayed projects. DLF commands the highest brand premium and resale value. Godrej Properties is best for transparent pricing. All three have delivered every Gurgaon project on or near schedule.' },
+          { q: 'Is Gurgaon property a good investment in 2025?', a: 'Yes. Gurgaon real estate has delivered 35–60% appreciation across premium corridors between 2022 and 2025, outperforming most asset classes. With ongoing Metro expansion, airport growth and sustained corporate demand, 2025–2028 forecasts remain bullish at 25–35% further appreciation on Dwarka Expressway and Golf Course corridors.' },
+        ];
+        return (
+          <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }) }} />
+            <section className="py-14 bg-brand-mint/20">
+              <div className="max-w-3xl mx-auto px-4">
+                <h2 className="text-2xl font-display font-bold text-brand-text mb-8 text-center">FAQs — New Projects in Gurgaon</h2>
+                <div className="space-y-4">
+                  {faqs.map((faq, i) => (
+                    <details key={i} className="bg-white rounded-2xl border border-brand-border/50 overflow-hidden">
+                      <summary className="flex items-center justify-between px-5 py-4 cursor-pointer font-semibold text-brand-text text-sm list-none">
+                        {faq.q}
+                        <span className="text-brand-accent text-lg ml-4 flex-shrink-0">+</span>
+                      </summary>
+                      <div className="px-5 pb-4 text-brand-muted text-sm leading-relaxed border-t border-brand-border/40 pt-3">{faq.a}</div>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </>
+        );
+      })()}
+
       {/* Lead Form */}
       <section className="py-16 bg-brand-dark">
         <div className="max-w-3xl mx-auto px-4 text-center">

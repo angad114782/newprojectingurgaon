@@ -175,6 +175,39 @@ export default function ResidentialPropertyPage() {
         </div>
       </section>
 
+      {/* FAQ Section + JSON-LD */}
+      {(() => {
+        const faqs = [
+          { q: 'What types of residential property are available in Gurgaon?', a: 'Gurgaon offers apartments/flats (₹45 Lakh–₹5 Cr), independent floors (₹40 Lakh–₹2.5 Cr), luxury residences (₹3 Cr–₹15 Cr+) and luxury villas (₹5 Cr–₹25 Cr+). The most popular segment is 2 & 3 BHK apartments in gated communities with clubhouse amenities.' },
+          { q: 'What is the price of a 2 BHK flat in Gurgaon in 2025?', a: 'A 2 BHK flat in Gurgaon ranges from ₹45 Lakh (Sector 37D, DDJAY affordable scheme) to ₹3.5 Cr+ (Golf Course Road luxury). The most popular mid-segment 2 BHK on Dwarka Expressway costs ₹80 Lakh–₹1.5 Cr. Golf Course Extension Road 2 BHK starts from ₹1.5 Cr.' },
+          { q: 'What is the price of a 3 BHK flat in Gurgaon?', a: 'A 3 BHK flat in Gurgaon ranges from ₹90 Lakh (New Gurgaon, affordable segment) to ₹8 Cr+ (Golf Course Road luxury). The most sought-after range is ₹1.5 Cr–₹3 Cr for a quality 3 BHK on Dwarka Expressway or Golf Course Extension Road with full amenities.' },
+          { q: 'Which area is best for buying residential property in Gurgaon?', a: 'Dwarka Expressway (Sectors 99–115) is best for investment ROI with 35–45% appreciation. Golf Course Extension Road is best for premium lifestyle (Sectors 57–75). New Gurgaon is best for affordable first homes. Golf Course Road/Sector 54 is best for ultra-luxury and established addresses.' },
+          { q: 'Can I buy property in Gurgaon without paying brokerage?', a: 'Yes. New Projects in Gurgaon offers completely free advisory — no consultation fee, no brokerage, no hidden charges for buyers. We earn referral fees directly from verified builders, ensuring our advice is always in your interest.' },
+          { q: 'What is the expected rental yield on residential property in Gurgaon?', a: 'Rental yields in Gurgaon range from 3–5.5% annually. New Gurgaon and Sector 37D offer the highest yields (4.5–5.5%) due to industrial demand. Premium sectors on Dwarka Expressway yield 3–4%. Golf Course Road ultra-luxury yields 2–3% but with stronger capital appreciation.' },
+        ];
+        return (
+          <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }) }} />
+            <section className="py-14 bg-brand-mint/20">
+              <div className="max-w-3xl mx-auto px-4">
+                <h2 className="text-2xl font-display font-bold text-brand-text mb-8 text-center">FAQs — Residential Property in Gurgaon</h2>
+                <div className="space-y-4">
+                  {faqs.map((faq, i) => (
+                    <details key={i} className="bg-white rounded-2xl border border-brand-border/50 overflow-hidden">
+                      <summary className="flex items-center justify-between px-5 py-4 cursor-pointer font-semibold text-brand-text text-sm list-none">
+                        {faq.q}
+                        <span className="text-brand-accent text-lg ml-4 flex-shrink-0">+</span>
+                      </summary>
+                      <div className="px-5 pb-4 text-brand-muted text-sm leading-relaxed border-t border-brand-border/40 pt-3">{faq.a}</div>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </>
+        );
+      })()}
+
       <section className="py-16 bg-brand-dark" id="lead-form">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-display font-bold text-white mb-3">Find the Best Residential Property in Gurgaon</h2>

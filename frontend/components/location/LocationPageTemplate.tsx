@@ -35,8 +35,32 @@ export default function LocationPageTemplate({
 }: LocationPageProps) {
   const bestForColor = bestFor === 'Investor' ? 'bg-blue-50 text-blue-700' : bestFor === 'End User' ? 'bg-purple-50 text-purple-700' : 'bg-green-50 text-green-700';
 
+  const faqSchema = faqs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  } : null;
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://newprojectsingurgaon.com' },
+      { '@type': 'ListItem', position: 2, name: 'Projects', item: 'https://newprojectsingurgaon.com/new-projects-in-gurgaon' },
+      { '@type': 'ListItem', position: 3, name: title },
+    ],
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      {faqSchema && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      )}
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">
         <div className="max-w-7xl mx-auto px-4 text-sm text-brand-muted">
           <Link href="/" className="hover:text-brand-dark">Home</Link>
