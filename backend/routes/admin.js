@@ -887,15 +887,15 @@ router.get('/gsc/data', authorize('admin'), async (req, res) => {
     const [queriesResp, pagesResp, countriesResp] = await Promise.all([
       searchconsole.searchanalytics.query({
         siteUrl,
-        body: { startDate, endDate, dimensions: ['query'], rowLimit: 10 },
+        resource: { startDate, endDate, dimensions: ['query'], rowLimit: 10 },
       }),
       searchconsole.searchanalytics.query({
         siteUrl,
-        body: { startDate, endDate, dimensions: ['page'], rowLimit: 10 },
+        resource: { startDate, endDate, dimensions: ['page'], rowLimit: 10 },
       }),
       searchconsole.searchanalytics.query({
         siteUrl,
-        body: { startDate, endDate, dimensions: ['country'], rowLimit: 10 },
+        resource: { startDate, endDate, dimensions: ['country'], rowLimit: 10 },
       }),
     ]);
 
