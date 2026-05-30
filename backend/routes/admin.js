@@ -793,54 +793,63 @@ router.get('/analytics', async (req, res) => {
 });
 
 // ─── Google Search Console ────────────────────────────────────────────────────
+// ── Helper: build GSC auth from either service_account or authorized_user JSON ─
+function buildGscAuth(google, credJson) {
+  if (credJson.type === 'authorized_user') {
+    const oauth2 = new google.auth.OAuth2(
+      credJson.client_id,
+      credJson.client_secret
+    );
+    oauth2.setCredentials({ refresh_token: credJson.refresh_token });
+    return oauth2;
+  }
+  // service_account (default)
+  return new google.auth.GoogleAuth({
+    credentials: credJson,
+    scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
+  });
+}
+
 router.post('/gsc/verify', authorize('admin'), async (req, res) => {
   try {
     const { siteUrl, serviceAccountJson } = req.body;
     if (!siteUrl || !serviceAccountJson) {
-      return res.status(400).json({ success: false, message: 'siteUrl and serviceAccountJson are required' });
+      return res.status(400).json({ success: false, message: 'siteUrl and serviceAccountJson required' });
     }
 
-    let serviceAccount;
+    let credJson;
     try {
-      serviceAccount = JSON.parse(serviceAccountJson);
+      credJson = JSON.parse(serviceAccountJson);
     } catch {
-      return res.status(400).json({ success: false, message: 'Invalid JSON in serviceAccountJson' });
+      return res.status(400).json({ success: false, message: 'Invalid JSON' });
     }
 
     let google;
-    try {
-      ({ google } = require('googleapis'));
-    } catch {
-      return res.status(500).json({ success: false, message: 'googleapis package not installed. Run: npm install googleapis in backend.' });
-    }
+    try { ({ google } = require('googleapis')); }
+    catch { return res.status(500).json({ success: false, message: 'Run: npm install googleapis in backend.' }); }
 
-    const auth = new google.auth.GoogleAuth({
-      credentials: serviceAccount,
-      scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
-    });
+    const auth = buildGscAuth(google, credJson);
+    const webmasters = google.webmasters({ version: 'v3', auth });
 
-    const searchconsole = google.searchconsole({ version: 'v1', auth });
-    // List sites to verify connection
-    const sitesResp = await searchconsole.sites.list();
+    const sitesResp = await webmasters.sites.list();
     const sites = sitesResp.data.siteEntry || [];
     const found = sites.find((s) => s.siteUrl === siteUrl || s.siteUrl === siteUrl + '/');
 
     if (!found) {
       return res.status(400).json({
         success: false,
-        message: `Site "${siteUrl}" not found in GSC. Make sure the service account has access to this property.`,
+        message: `Site "${siteUrl}" not found. Available sites: ${sites.map(s => s.siteUrl).join(', ') || 'none'}`,
         availableSites: sites.map((s) => s.siteUrl),
       });
     }
 
-    // Save to SiteSettings
     await SiteSettings.findOneAndUpdate(
       {},
       { $set: { 'googleSearchConsole.siteUrl': siteUrl, 'googleSearchConsole.serviceAccountJson': serviceAccountJson, 'googleSearchConsole.connected': true } },
       { upsert: true }
     );
 
-    res.json({ success: true, message: 'GSC connected successfully!', siteUrl: found.siteUrl });
+    res.json({ success: true, message: `GSC connected! Property: ${found.siteUrl}`, siteUrl: found.siteUrl });
   } catch (err) {
     res.status(500).json({ success: false, message: err.response?.data?.error?.message || err.message });
   }
@@ -860,19 +869,15 @@ router.get('/gsc/data', authorize('admin'), async (req, res) => {
       return res.status(500).json({ success: false, message: 'googleapis package not installed. Run: npm install googleapis in backend.' });
     }
 
-    let serviceAccount;
+    let credJson;
     try {
-      serviceAccount = JSON.parse(settings.googleSearchConsole.serviceAccountJson);
+      credJson = JSON.parse(settings.googleSearchConsole.serviceAccountJson);
     } catch {
       return res.status(500).json({ success: false, message: 'Stored GSC credentials are invalid JSON.' });
     }
 
-    const auth = new google.auth.GoogleAuth({
-      credentials: serviceAccount,
-      scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
-    });
-
-    const searchconsole = google.searchconsole({ version: 'v1', auth });
+    const auth = buildGscAuth(google, credJson);
+    const searchconsole = google.webmasters({ version: 'v3', auth });
     const siteUrl = settings.googleSearchConsole.siteUrl;
 
     const endDate = new Date().toISOString().split('T')[0];
@@ -881,15 +886,15 @@ router.get('/gsc/data', authorize('admin'), async (req, res) => {
     const [queriesResp, pagesResp, countriesResp] = await Promise.all([
       searchconsole.searchanalytics.query({
         siteUrl,
-        requestBody: { startDate, endDate, dimensions: ['query'], rowLimit: 10 },
+        body: { startDate, endDate, dimensions: ['query'], rowLimit: 10 },
       }),
       searchconsole.searchanalytics.query({
         siteUrl,
-        requestBody: { startDate, endDate, dimensions: ['page'], rowLimit: 10 },
+        body: { startDate, endDate, dimensions: ['page'], rowLimit: 10 },
       }),
       searchconsole.searchanalytics.query({
         siteUrl,
-        requestBody: { startDate, endDate, dimensions: ['country'], rowLimit: 10 },
+        body: { startDate, endDate, dimensions: ['country'], rowLimit: 10 },
       }),
     ]);
 
