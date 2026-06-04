@@ -1300,8 +1300,20 @@ export default function AdminPage() {
               <p className="text-brand-muted text-xs mb-4">Ye sab kuch home page ke bade banner me show hoga. Sab kuch admin se control hoga.</p>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-brand-muted mb-1">Background Image URL (hero ka main photo)</label>
-                  <input className="input-field" value={siteSettings.heroImageUrl || ''} placeholder="https://images.unsplash.com/..." onChange={(e) => setSiteSettings({ ...siteSettings, heroImageUrl: e.target.value })} />
+                  <label className="block text-xs font-medium text-brand-muted mb-1">Background Image (hero ka main photo)</label>
+                  <div className="flex gap-2">
+                    <input className="input-field flex-1" value={siteSettings.heroImageUrl || ''} placeholder="https://images.unsplash.com/..." onChange={(e) => setSiteSettings({ ...siteSettings, heroImageUrl: e.target.value })} />
+                    <label className="btn-secondary text-xs px-3 py-2 cursor-pointer shrink-0">
+                      📁 Upload
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                        const file = e.target.files?.[0]; if (!file || !token) return;
+                        const fd = new FormData(); fd.append('image', file);
+                        const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                        const d = await r.json();
+                        if (d.success) setSiteSettings((s: any) => ({ ...s, heroImageUrl: d.url }));
+                      }} />
+                    </label>
+                  </div>
                   {siteSettings.heroImageUrl && (
                     <div className="mt-2 relative h-24 rounded-xl overflow-hidden border border-brand-border">
                       <Image src={siteSettings.heroImageUrl} alt="hero preview" fill className="object-cover" />
@@ -1367,16 +1379,43 @@ export default function AdminPage() {
               <SectionHeader title="SEO Defaults" icon="🔍" />
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-brand-muted mb-1">Default SEO Title (60 chars max)</label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-xs font-medium text-brand-muted">Default SEO Title (60 chars max)</label>
+                    <span className={`text-xs font-medium ${(siteSettings.seoTitle || '').length > 60 ? 'text-red-500' : (siteSettings.seoTitle || '').length > 50 ? 'text-yellow-500' : 'text-green-500'}`}>
+                      {(siteSettings.seoTitle || '').length}/60
+                    </span>
+                  </div>
                   <input className="input-field" value={siteSettings.seoTitle || ''} onChange={(e) => setSiteSettings({ ...siteSettings, seoTitle: e.target.value })} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-brand-muted mb-1">Default SEO Description</label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-xs font-medium text-brand-muted">Default SEO Description (160 chars max)</label>
+                    <span className={`text-xs font-medium ${(siteSettings.seoDescription || '').length > 160 ? 'text-red-500' : (siteSettings.seoDescription || '').length > 140 ? 'text-yellow-500' : 'text-green-500'}`}>
+                      {(siteSettings.seoDescription || '').length}/160
+                    </span>
+                  </div>
                   <textarea rows={2} className="input-field resize-none" value={siteSettings.seoDescription || ''} onChange={(e) => setSiteSettings({ ...siteSettings, seoDescription: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-brand-muted mb-1">OG Image URL</label>
-                  <input className="input-field" value={siteSettings.ogImage || ''} onChange={(e) => setSiteSettings({ ...siteSettings, ogImage: e.target.value })} />
+                  <div className="flex gap-2">
+                    <input className="input-field flex-1" value={siteSettings.ogImage || ''} placeholder="https://..." onChange={(e) => setSiteSettings({ ...siteSettings, ogImage: e.target.value })} />
+                    <label className="btn-secondary text-xs px-3 py-2 cursor-pointer shrink-0">
+                      📁 Upload
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                        const file = e.target.files?.[0]; if (!file || !token) return;
+                        const fd = new FormData(); fd.append('image', file);
+                        const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                        const d = await r.json();
+                        if (d.success) setSiteSettings((s: any) => ({ ...s, ogImage: d.url }));
+                      }} />
+                    </label>
+                  </div>
+                  {siteSettings.ogImage && (
+                    <div className="mt-2 relative h-20 rounded-xl overflow-hidden border border-brand-border">
+                      <Image src={siteSettings.ogImage} alt="OG preview" fill className="object-cover" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-brand-muted mb-1">Google Analytics GA4 ID</label>
@@ -1457,12 +1496,29 @@ export default function AdminPage() {
                     <button onClick={() => setSiteSettings({ ...siteSettings, locations: siteSettings.locations.filter((_: any, idx: number) => idx !== i) })}
                       className="absolute top-3 right-3 text-red-400 hover:text-red-600 text-lg font-bold">×</button>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {[{ k: 'name', l: 'Name' }, { k: 'projects', l: 'Projects Count' }, { k: 'icon', l: 'Icon (emoji)' }, { k: 'href', l: 'Link (/path)' }, { k: 'highlight', l: 'Highlight Tag' }, { k: 'img', l: 'Image URL' }, { k: 'color', l: 'Gradient Class' }].map(({ k, l }) => (
+                      {[{ k: 'name', l: 'Name' }, { k: 'projects', l: 'Projects Count' }, { k: 'icon', l: 'Icon (emoji)' }, { k: 'href', l: 'Link (/path)' }, { k: 'highlight', l: 'Highlight Tag' }, { k: 'color', l: 'Gradient Class' }].map(({ k, l }) => (
                         <div key={k}>
                           <label className="block text-xs text-brand-muted mb-0.5">{l}</label>
                           <input className="input-field text-sm py-1.5" value={loc[k] || ''} onChange={(e) => { const ls = [...siteSettings.locations]; ls[i] = { ...ls[i], [k]: e.target.value }; setSiteSettings({ ...siteSettings, locations: ls }); }} />
                         </div>
                       ))}
+                    </div>
+                    <div className="mt-3">
+                      <label className="block text-xs text-brand-muted mb-0.5">Image</label>
+                      <div className="flex gap-2">
+                        <input className="input-field text-sm py-1.5 flex-1" value={loc.img || ''} placeholder="https://... or upload" onChange={(e) => { const ls = [...siteSettings.locations]; ls[i] = { ...ls[i], img: e.target.value }; setSiteSettings({ ...siteSettings, locations: ls }); }} />
+                        <label className="btn-secondary text-xs px-3 py-2 cursor-pointer shrink-0">
+                          📁 Upload
+                          <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                            const file = e.target.files?.[0]; if (!file || !token) return;
+                            const fd = new FormData(); fd.append('image', file);
+                            const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                            const d = await r.json();
+                            if (d.success) { const ls = [...siteSettings.locations]; ls[i] = { ...ls[i], img: d.url }; setSiteSettings({ ...siteSettings, locations: ls }); }
+                          }} />
+                        </label>
+                      </div>
+                      {loc.img && <img src={loc.img} alt="preview" className="mt-1.5 h-16 w-full rounded-lg object-cover border border-brand-border" />}
                     </div>
                   </div>
                 ))}
@@ -1481,12 +1537,29 @@ export default function AdminPage() {
                   <div key={i} className="border border-gray-200 rounded-xl p-3 relative">
                     <button onClick={() => setSiteSettings({ ...siteSettings, builders: siteSettings.builders.filter((_: any, idx: number) => idx !== i) })}
                       className="absolute top-2 right-2 text-red-400 text-sm font-bold">×</button>
-                    {['name', 'img', 'website'].map((k) => (
+                    {['name', 'website'].map((k) => (
                       <div key={k} className="mb-1">
                         <label className="block text-xs text-brand-muted mb-0.5 capitalize">{k}</label>
                         <input className="input-field text-xs py-1" value={b[k] || ''} onChange={(e) => { const bs = [...siteSettings.builders]; bs[i] = { ...bs[i], [k]: e.target.value }; setSiteSettings({ ...siteSettings, builders: bs }); }} />
                       </div>
                     ))}
+                    <div className="mb-1">
+                      <label className="block text-xs text-brand-muted mb-0.5">Logo Image</label>
+                      <div className="flex gap-1">
+                        <input className="input-field text-xs py-1 flex-1" value={b.img || ''} placeholder="URL or upload" onChange={(e) => { const bs = [...siteSettings.builders]; bs[i] = { ...bs[i], img: e.target.value }; setSiteSettings({ ...siteSettings, builders: bs }); }} />
+                        <label className="btn-secondary text-xs px-2 py-1 cursor-pointer shrink-0">
+                          📁
+                          <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                            const file = e.target.files?.[0]; if (!file || !token) return;
+                            const fd = new FormData(); fd.append('image', file);
+                            const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                            const d = await r.json();
+                            if (d.success) { const bs = [...siteSettings.builders]; bs[i] = { ...bs[i], img: d.url }; setSiteSettings({ ...siteSettings, builders: bs }); }
+                          }} />
+                        </label>
+                      </div>
+                      {b.img && <img src={b.img} alt="logo" className="mt-1 h-10 object-contain rounded border border-brand-border bg-gray-50 px-1" />}
+                    </div>
                   </div>
                 ))}
               </div>
