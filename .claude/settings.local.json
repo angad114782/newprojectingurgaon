@@ -32,7 +32,19 @@
       "Bash(sed -i '' 's|<Link href=\"/#lead-form\" className=\"btn-primary\">Get Free Advisory →</Link>|<button type=\"button\" onClick={\\(\\) => document.dispatchEvent\\(new CustomEvent\\(\"open-lead-modal\", { detail: { ctaType: \"site_visit_request\" } }\\)\\)} className=\"btn-primary\">Get Free Advisory →</button>|g' app/blog/\\\\[slug\\\\]/page.tsx)",
       "Bash(sed -i '' 's|<a href=\"#lead-form\" className=\"btn-white\">Get Latest Price List</a>|<button type=\"button\" onClick={\\(\\) => document.dispatchEvent\\(new CustomEvent\\(\"open-lead-modal\", { detail: { ctaType: \"price_list\" } }\\)\\)} className=\"btn-white\">Get Latest Price List</button>|g' app/new-launch-projects-in-gurgaon/page.tsx)",
       "Bash(sed -i '' 's|<a href=\"#lead-form\" className=\"btn-white\">Get Expert Advice</a>|<button type=\"button\" onClick={\\(\\) => document.dispatchEvent\\(new CustomEvent\\(\"open-lead-modal\", { detail: { ctaType: \"site_visit_request\" } }\\)\\)} className=\"btn-white\">Get Expert Advice</button>|g' app/dwarka-expressway-projects/page.tsx)",
-      "Bash(sed -i '' 's|<a href=\"#lead-form\" className=\"btn-white\">Find Best Residential Property</a>|<button type=\"button\" onClick={\\(\\) => document.dispatchEvent\\(new CustomEvent\\(\"open-lead-modal\", { detail: { ctaType: \"site_visit_request\" } }\\)\\)} className=\"btn-white\">Find Best Residential Property</button>|g' app/residential-property-in-gurgaon/page.tsx)"
+      "Bash(sed -i '' 's|<a href=\"#lead-form\" className=\"btn-white\">Find Best Residential Property</a>|<button type=\"button\" onClick={\\(\\) => document.dispatchEvent\\(new CustomEvent\\(\"open-lead-modal\", { detail: { ctaType: \"site_visit_request\" } }\\)\\)} className=\"btn-white\">Find Best Residential Property</button>|g' app/residential-property-in-gurgaon/page.tsx)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); s=d.get\\('data',{}\\); print\\('reraNumber:', repr\\(s.get\\('reraNumber'\\)\\)\\); print\\('reraLink:', repr\\(s.get\\('reraLink'\\)\\)\\); print\\('whatsappConfigured:', bool\\(s.get\\('whatsappCloud',{}\\).get\\('phoneNumberId'\\)\\)\\)\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git -C /Users/angadyadav/Downloads/claude-code-demo/gurgaon-realestate diff --name-only)",
+      "Bash(git -C /Users/angadyadav/Downloads/claude-code-demo/gurgaon-realestate ls-files --others --exclude-standard)",
+      "Bash(git -C /Users/angadyadav/Downloads/claude-code-demo/gurgaon-realestate show HEAD~10:frontend/components/home/HomeSections.tsx)",
+      "Bash(git -C /Users/angadyadav/Downloads/claude-code-demo/gurgaon-realestate diff HEAD~5 -- frontend/components/home/HomeSections.tsx)",
+      "Bash(git -C /Users/angadyadav/Downloads/claude-code-demo/gurgaon-realestate log --oneline -- frontend/components/home/HomeSections.tsx)",
+      "Bash(git -C /Users/angadyadav/Downloads/claude-code-demo/gurgaon-realestate show e3a65810:frontend/components/home/HomeSections.tsx)",
+      "WebFetch(domain:newprojectsingurgaon.com)",
+      "Bash(python3 -c ' *)"
     ]
   }
 }
