@@ -1311,6 +1311,7 @@ export default function AdminPage() {
                         const r = await fetch(`${API}/upload/single`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
                         const d = await r.json();
                         if (d.success) setSiteSettings((s: any) => ({ ...s, heroImageUrl: d.url }));
+                        else alert('Upload failed: ' + (d.message || r.status));
                       }} />
                     </label>
                   </div>

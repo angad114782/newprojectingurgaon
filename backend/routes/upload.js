@@ -34,26 +34,38 @@ const upload = multer({
 });
 
 // POST /api/upload/single  — single image upload
-router.post('/single', protect, upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
-  const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
-  res.json({
-    success: true,
-    url: `${baseUrl}/api/uploads/${req.file.filename}`,
-    filename: req.file.filename,
-    originalName: req.file.originalname,
-    size: req.file.size,
+router.post('/single', protect, (req, res) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      console.error('Upload error:', err.message);
+      return res.status(400).json({ success: false, message: err.message });
+    }
+    if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+    const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+    res.json({
+      success: true,
+      url: `${baseUrl}/api/uploads/${req.file.filename}`,
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      size: req.file.size,
+    });
   });
 });
 
 // POST /api/upload/gallery  — multiple images upload (max 10)
-router.post('/gallery', protect, upload.array('images', 10), (req, res) => {
-  if (!req.files || req.files.length === 0) return res.status(400).json({ success: false, message: 'No files uploaded' });
-  const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
-  res.json({
-    success: true,
-    urls: req.files.map((f) => `${baseUrl}/api/uploads/${f.filename}`),
-    count: req.files.length,
+router.post('/gallery', protect, (req, res) => {
+  upload.array('images', 10)(req, res, (err) => {
+    if (err) {
+      console.error('Upload error:', err.message);
+      return res.status(400).json({ success: false, message: err.message });
+    }
+    if (!req.files || req.files.length === 0) return res.status(400).json({ success: false, message: 'No files uploaded' });
+    const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+    res.json({
+      success: true,
+      urls: req.files.map((f) => `${baseUrl}/api/uploads/${f.filename}`),
+      count: req.files.length,
+    });
   });
 });
 
