@@ -14,6 +14,25 @@ const statusColors: Record<string, string> = {
   'Ready To Move': 'bg-purple-50 text-purple-700 border-purple-200',
 };
 
+// Known corridor coordinates for NeighborhoodSchema
+const GEO_COORDS: Record<string, { latitude: number; longitude: number }> = {
+  'Dwarka Expressway'           : { latitude: 28.5923, longitude: 77.0284 },
+  'Golf Course Extension Road'  : { latitude: 28.4089, longitude: 77.0455 },
+  'Golf Course Road'            : { latitude: 28.4421, longitude: 77.0960 },
+  'SPR Road'                    : { latitude: 28.3900, longitude: 77.0600 },
+  'Sohna Road'                  : { latitude: 28.3936, longitude: 77.0313 },
+  'New Gurgaon'                 : { latitude: 28.3515, longitude: 76.9690 },
+  'Sector 113'                  : { latitude: 28.5987, longitude: 77.0456 },
+  'Sector 106'                  : { latitude: 28.5601, longitude: 77.0567 },
+  'Sector 102'                  : { latitude: 28.5396, longitude: 77.0457 },
+  'Sector 37D'                  : { latitude: 28.4680, longitude: 77.0157 },
+};
+
+function resolveGeo(title: string) {
+  const match = Object.keys(GEO_COORDS).find((k) => title.toLowerCase().includes(k.toLowerCase()));
+  return match ? GEO_COORDS[match] : { latitude: 28.4595, longitude: 77.0266 };
+}
+
 interface LocationPageProps {
   title: string;
   metaTitle: string;
@@ -56,6 +75,33 @@ export default function LocationPageTemplate({
     ],
   };
 
+  const geo = resolveGeo(title);
+  const neighborhoodSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Neighborhood',
+    name: title,
+    description: heroSubtitle,
+    geo: { '@type': 'GeoCoordinates', latitude: geo.latitude, longitude: geo.longitude },
+    containedInPlace: {
+      '@type': 'City',
+      name: 'Gurgaon',
+      containedInPlace: {
+        '@type': 'AdministrativeArea',
+        name: 'Haryana',
+        containedInPlace: { '@type': 'Country', name: 'India' },
+      },
+    },
+    ...(landmarks.length > 0 && {
+      containsPlace: landmarks.map((l) => ({ '@type': 'Place', name: l })),
+    }),
+  };
+
+  const speakableSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', 'h2', '.speakable'] },
+  };
+
   // Extract price range and builder names from investmentHighlights + projects
   const priceHighlight = investmentHighlights.find((h) => /price|range|sqft|₹/i.test(h.label));
   const priceRange = priceHighlight ? priceHighlight.value : '';
@@ -64,6 +110,8 @@ export default function LocationPageTemplate({
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(neighborhoodSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }} />
       {faqSchema && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       )}

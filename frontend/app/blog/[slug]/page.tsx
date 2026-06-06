@@ -248,12 +248,17 @@ export default async function BlogPostPage({ params }: Props) {
     author: {
       '@type': 'Person',
       name: authorName,
-      ...(post.author?.credentials ? { description: post.author.credentials } : {}),
+      jobTitle: post.author?.designation || 'Property Advisor',
+      ...(post.author?.credentials ? {
+        description: post.author.credentials,
+        hasCredential: [{ '@type': 'EducationalOccupationalCredential', name: post.author.credentials }],
+      } : {}),
       ...(post.author?.avatar ? { image: post.author.avatar } : {}),
       worksFor: {
         '@type': 'Organization',
         '@id': `${siteUrl}/#organization`,
         name: settings.siteName,
+        url: siteUrl,
       },
     },
     publisher: {
@@ -287,10 +292,17 @@ export default async function BlogPostPage({ params }: Props) {
     .filter((s: any) => /^step\s*\d/i.test(s.heading?.trim() || ''))
     .map((s: any) => ({ name: s.heading, text: s.content }));
 
+  const speakableSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', 'h2', '.speakable'] },
+  };
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }} />
       {faqs.length > 0 && <FAQSchema faqs={faqs} />}
       {howToSteps.length >= 2 && (
         <HowToSchema

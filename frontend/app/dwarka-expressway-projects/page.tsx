@@ -47,9 +47,42 @@ const statusColors: Record<string, string> = {
 export default async function DwarkaExpresswayPage() {
   const projects = await fetchProjectsWithFallback({ corridor: 'Dwarka Expressway', limit: 12 });
 
+  const neighborhoodSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Neighborhood',
+    name: 'Dwarka Expressway',
+    description: 'Dwarka Expressway (NH-248BB) is Gurgaon\'s fastest growing residential corridor connecting Delhi to Gurgaon, with IGI Airport just 15–20 minutes away. Home to projects by DLF, M3M, Godrej, Krisumi, Sobha and Signature Global.',
+    geo: { '@type': 'GeoCoordinates', latitude: 28.5923, longitude: 77.0284 },
+    containedInPlace: {
+      '@type': 'City',
+      name: 'Gurgaon',
+      containedInPlace: {
+        '@type': 'AdministrativeArea',
+        name: 'Haryana',
+        containedInPlace: { '@type': 'Country', name: 'India' },
+      },
+    },
+    containsPlace: [
+      { '@type': 'Place', name: 'Sector 113' },
+      { '@type': 'Place', name: 'Sector 106' },
+      { '@type': 'Place', name: 'Sector 108' },
+      { '@type': 'Place', name: 'Sector 102' },
+      { '@type': 'Place', name: 'Sector 37D' },
+      { '@type': 'Place', name: 'Sector 111' },
+    ],
+  };
+
+  const speakableSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', 'h2', '.speakable'] },
+  };
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(neighborhoodSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }} />
 
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">
         <div className="max-w-7xl mx-auto px-4 text-sm text-brand-muted">

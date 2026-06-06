@@ -61,9 +61,34 @@ export default async function NewLaunchPage() {
     slug: p.slug,
   }));
 
+  const neighborhoodSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Neighborhood',
+    name: 'New Launch Projects in Gurgaon',
+    description: 'Gurgaon\'s new launch real estate market spans premium corridors like Dwarka Expressway, Golf Course Road and Golf Course Extension Road with projects by DLF, M3M, Oberoi, Krisumi and Sobha.',
+    geo: { '@type': 'GeoCoordinates', latitude: 28.4595, longitude: 77.0266 },
+    containedInPlace: {
+      '@type': 'City',
+      name: 'Gurgaon',
+      containedInPlace: {
+        '@type': 'AdministrativeArea',
+        name: 'Haryana',
+        containedInPlace: { '@type': 'Country', name: 'India' },
+      },
+    },
+  };
+
+  const speakableSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', 'h2', '.speakable'] },
+  };
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(neighborhoodSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }} />
 
       {/* Breadcrumb */}
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">

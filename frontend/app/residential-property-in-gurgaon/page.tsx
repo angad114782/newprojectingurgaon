@@ -13,6 +13,37 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+const neighborhoodSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Neighborhood',
+  name: 'Gurgaon Residential Areas',
+  description: 'Gurgaon is Haryana\'s premier residential destination with a wide range of properties — from 2 BHK apartments from ₹45 Lakh to ultra-luxury villas above ₹20 Cr. Home to top builders like DLF, M3M, Godrej, Sobha and Emaar.',
+  geo: { '@type': 'GeoCoordinates', latitude: 28.4595, longitude: 77.0266 },
+  containedInPlace: {
+    '@type': 'City',
+    name: 'Gurgaon',
+    containedInPlace: {
+      '@type': 'AdministrativeArea',
+      name: 'Haryana',
+      containedInPlace: { '@type': 'Country', name: 'India' },
+    },
+  },
+  containsPlace: [
+    { '@type': 'Place', name: 'Dwarka Expressway' },
+    { '@type': 'Place', name: 'Golf Course Road' },
+    { '@type': 'Place', name: 'Golf Course Extension Road' },
+    { '@type': 'Place', name: 'Sohna Road' },
+    { '@type': 'Place', name: 'New Gurgaon' },
+    { '@type': 'Place', name: 'SPR Road' },
+  ],
+};
+
+const speakableSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', 'h2', '.speakable'] },
+};
+
 export default function ResidentialPropertyPage() {
   const propertyTypes = [
     { icon: '🏢', name: 'Apartments & Flats', desc: 'High-rise and mid-rise apartments in gated communities with clubhouse, gym and 24/7 security.', budget: '₹50 Lakh – ₹5 Cr' },
@@ -30,6 +61,8 @@ export default function ResidentialPropertyPage() {
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(neighborhoodSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }} />
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">
         <div className="max-w-7xl mx-auto px-4 text-sm text-brand-muted">
           <Link href="/" className="hover:text-brand-dark">Home</Link>
