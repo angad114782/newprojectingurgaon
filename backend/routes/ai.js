@@ -152,8 +152,21 @@ Return ONLY valid JSON in this exact format:
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      return res.status(500).json({ success: false, error: `Claude API error: ${err}` });
+      let errBody;
+      try { errBody = await response.json(); } catch { errBody = { error: { message: await response.text() } }; }
+
+      // Surface human-readable messages for common billing/auth errors
+      const msg = errBody?.error?.message || 'Unknown API error';
+      if (response.status === 401 || msg.includes('authentication')) {
+        return res.status(400).json({ success: false, error: 'Invalid Anthropic API key. Settings → Integrations mein check karo.' });
+      }
+      if (response.status === 402 || msg.includes('credit balance') || msg.includes('billing')) {
+        return res.status(402).json({ success: false, error: 'Anthropic account ka credit balance khatam ho gaya. console.anthropic.com → Plans & Billing mein credits add karo.' });
+      }
+      if (response.status === 429) {
+        return res.status(429).json({ success: false, error: 'Anthropic rate limit. Kuch minutes baad try karo.' });
+      }
+      return res.status(500).json({ success: false, error: `Claude API error (${response.status}): ${msg}` });
     }
 
     const data = await response.json();
