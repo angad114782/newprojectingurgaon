@@ -296,7 +296,13 @@ export default function AdminPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics' | 'gsc' | 'branding' | 'blog' | 'team' | 'tracking' | 'profile'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'projects' | 'settings' | 'conversion' | 'analytics' | 'gsc' | 'branding' | 'blog' | 'team' | 'tracking' | 'profile' | 'seo-intel'>('leads');
+  const [seoScore, setSeoScore] = useState<any>(null);
+  const [aiAdvice, setAiAdvice] = useState<any>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiContext, setAiContext] = useState('');
+  const [aiFocus, setAiFocus] = useState('all');
+  const [seoScoreLoading, setSeoScoreLoading] = useState(false);
   const [profileForm, setProfileForm] = useState({ name: '', email: '', mobile: '', currentPassword: '', newPassword: '', confirmPassword: '' });
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -852,6 +858,18 @@ export default function AdminPage() {
               }
             }} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === 'profile' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white'}`}>
               👤 My Profile
+            </button>
+            <button onClick={async () => {
+              setActiveTab('seo-intel');
+              if (!seoScore && token) {
+                setSeoScoreLoading(true);
+                const r = await fetch(`${API}/ai/seo-score`, { headers: authH() });
+                const d = await r.json();
+                if (d.success) setSeoScore(d.data);
+                setSeoScoreLoading(false);
+              }
+            }} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 ${activeTab === 'seo-intel' ? 'bg-brand-accent text-brand-dark font-bold' : 'text-white/60 hover:text-white'}`}>
+              🧠 SEO Intelligence
             </button>
           </div>
         </div>
@@ -3679,6 +3697,318 @@ export default function AdminPage() {
               {profileSaving ? '⏳ Saving…' : '✓ Save Profile'}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* ── SEO INTELLIGENCE TAB ─────────────────────────────────────────────── */}
+      {activeTab === 'seo-intel' && (
+        <div className="space-y-6 pb-20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-display font-bold text-brand-text">🧠 SEO Intelligence Dashboard</h2>
+              <p className="text-sm text-brand-muted mt-1">Rule-based scores + AI-powered suggestions for Google ranking</p>
+            </div>
+            <button onClick={async () => {
+              setSeoScoreLoading(true);
+              const r = await fetch(`${API}/ai/seo-score`, { headers: authH() });
+              const d = await r.json();
+              if (d.success) setSeoScore(d.data);
+              setSeoScoreLoading(false);
+            }} className="btn-outline text-sm px-4 py-2" disabled={seoScoreLoading}>
+              {seoScoreLoading ? '⏳ Checking…' : '🔄 Refresh Score'}
+            </button>
+          </div>
+
+          {/* Score Cards */}
+          {seoScoreLoading && !seoScore && (
+            <div className="text-center py-12 text-brand-muted">⏳ Calculating scores…</div>
+          )}
+          {seoScore && (
+            <>
+              {/* Overall + Category Scores */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {[
+                  { label: 'Overall', val: seoScore.overall, color: seoScore.overall >= 80 ? '#10b981' : seoScore.overall >= 60 ? '#f59e0b' : '#ef4444', icon: '🎯' },
+                  { label: 'Technical SEO', val: seoScore.technical, color: seoScore.technical >= 80 ? '#10b981' : seoScore.technical >= 60 ? '#f59e0b' : '#ef4444', icon: '⚙️' },
+                  { label: 'Analytics', val: seoScore.analytics, color: seoScore.analytics >= 80 ? '#10b981' : seoScore.analytics >= 60 ? '#f59e0b' : '#ef4444', icon: '📊' },
+                  { label: 'Local SEO', val: seoScore.local, color: seoScore.local >= 80 ? '#10b981' : seoScore.local >= 60 ? '#f59e0b' : '#ef4444', icon: '📍' },
+                  { label: 'Content', val: seoScore.content, color: seoScore.content >= 80 ? '#10b981' : seoScore.content >= 60 ? '#f59e0b' : '#ef4444', icon: '📝' },
+                  { label: 'Social', val: seoScore.social, color: seoScore.social >= 80 ? '#10b981' : seoScore.social >= 60 ? '#f59e0b' : '#ef4444', icon: '📱' },
+                ].map((s) => {
+                  const r = 30; const c = 2 * Math.PI * r;
+                  const dash = (s.val / 100) * c;
+                  return (
+                    <div key={s.label} className="bg-white rounded-2xl border border-gray-200 p-4 flex flex-col items-center gap-2">
+                      <svg width="80" height="80" viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r={r} fill="none" stroke="#f3f4f6" strokeWidth="8" />
+                        <circle cx="40" cy="40" r={r} fill="none" stroke={s.color} strokeWidth="8"
+                          strokeDasharray={`${dash} ${c - dash}`} strokeLinecap="round"
+                          transform="rotate(-90 40 40)" />
+                        <text x="40" y="45" textAnchor="middle" fontSize="16" fontWeight="bold" fill={s.color}>{s.val}</text>
+                      </svg>
+                      <span className="text-xs font-medium text-brand-muted text-center">{s.icon} {s.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-brand-mint/30 rounded-xl p-4 border border-brand-border/40">
+                  <div className="text-2xl font-bold text-brand-dark">{seoScore.projectCount}</div>
+                  <div className="text-xs text-brand-muted">Active Projects</div>
+                </div>
+                <div className="bg-brand-mint/30 rounded-xl p-4 border border-brand-border/40">
+                  <div className="text-2xl font-bold text-brand-dark">{seoScore.blogCount}</div>
+                  <div className="text-xs text-brand-muted">Published Blogs</div>
+                </div>
+                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                  <div className="text-2xl font-bold text-green-700">{seoScore.passed.length}</div>
+                  <div className="text-xs text-brand-muted">Checks Passed ✅</div>
+                </div>
+                <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+                  <div className="text-2xl font-bold text-red-600">{seoScore.failed.length}</div>
+                  <div className="text-xs text-brand-muted">Checks Failed ❌</div>
+                </div>
+              </div>
+
+              {/* Failed checks */}
+              {seoScore.failed.length > 0 && (
+                <div className="bg-white rounded-2xl border border-red-100 p-5">
+                  <h3 className="font-semibold text-brand-text mb-3 flex items-center gap-2">❌ Fix These First <span className="text-xs text-brand-muted font-normal">(sorted by impact)</span></h3>
+                  <div className="space-y-2">
+                    {seoScore.failed.map((f: any) => (
+                      <div key={f.label} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                        <span className="text-sm text-brand-text">{f.label}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${f.weight >= 6 ? 'bg-red-100 text-red-700' : f.weight >= 4 ? 'bg-orange-100 text-orange-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                          {f.weight >= 6 ? 'High' : f.weight >= 4 ? 'Medium' : 'Low'} Impact
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* AI SEO Advisor Section */}
+          <div className="bg-gradient-to-br from-brand-dark to-brand-accent/20 rounded-2xl p-6 text-white">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="font-display font-bold text-lg flex items-center gap-2">🤖 AI SEO Advisor <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Powered by Claude AI</span></h3>
+                <p className="text-white/70 text-sm mt-1">Deep analysis of your site — get specific ranking improvement suggestions</p>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-xs text-white/70 mb-1.5">Focus Area</label>
+                <select value={aiFocus} onChange={(e) => setAiFocus(e.target.value)}
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white/50">
+                  <option value="all">All (SEO + AIO + GEO)</option>
+                  <option value="seo">Technical SEO only</option>
+                  <option value="aio">AIO — AI Overviews</option>
+                  <option value="geo">GEO — Local & Maps</option>
+                  <option value="content">Content Gaps</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-white/70 mb-1.5">Context (optional — e.g. "I recently added 5 blogs")</label>
+                <input value={aiContext} onChange={(e) => setAiContext(e.target.value)}
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/50"
+                  placeholder="Any context for the AI advisor…" />
+              </div>
+            </div>
+
+            <button onClick={async () => {
+              setAiLoading(true); setAiAdvice(null);
+              try {
+                const r = await fetch(`${API}/ai/seo-advisor`, {
+                  method: 'POST',
+                  headers: { ...authH(), 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ context: aiContext, focus: aiFocus }),
+                });
+                const d = await r.json();
+                if (d.success) setAiAdvice(d.data);
+                else alert(d.error || 'AI advisor failed');
+              } catch { alert('AI advisor error — check backend logs'); }
+              finally { setAiLoading(false); }
+            }} disabled={aiLoading}
+              className="w-full bg-brand-accent text-brand-dark font-bold py-3 rounded-xl hover:bg-brand-accent/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+              {aiLoading ? (<><span className="animate-spin">⏳</span> AI is analyzing your site… (15–30 sec)</>) : '🚀 Run AI SEO Advisor'}
+            </button>
+            {!process.env.NEXT_PUBLIC_API_URL?.includes('localhost') && (
+              <p className="text-white/50 text-xs mt-2 text-center">Requires ANTHROPIC_API_KEY in backend .env. Add it to enable AI suggestions.</p>
+            )}
+          </div>
+
+          {/* AI Advice Results */}
+          {aiAdvice && (
+            <div className="space-y-5">
+              {/* Scores row */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {[
+                  { label: 'Overall', val: aiAdvice.overall_score, color: '#6366f1' },
+                  { label: 'SEO Score', val: aiAdvice.seo_score, color: '#10b981' },
+                  { label: 'AIO Score', val: aiAdvice.aio_score, color: '#f59e0b' },
+                  { label: 'GEO Score', val: aiAdvice.geo_score, color: '#3b82f6' },
+                  { label: 'Content', val: aiAdvice.content_score, color: '#8b5cf6' },
+                ].map((s) => {
+                  const r = 28; const c = 2 * Math.PI * r;
+                  const dash = (s.val / 100) * c;
+                  return (
+                    <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-3 flex flex-col items-center gap-1">
+                      <svg width="70" height="70" viewBox="0 0 70 70">
+                        <circle cx="35" cy="35" r={r} fill="none" stroke="#f3f4f6" strokeWidth="7" />
+                        <circle cx="35" cy="35" r={r} fill="none" stroke={s.color} strokeWidth="7"
+                          strokeDasharray={`${dash} ${c - dash}`} strokeLinecap="round"
+                          transform="rotate(-90 35 35)" />
+                        <text x="35" y="40" textAnchor="middle" fontSize="15" fontWeight="bold" fill={s.color}>{s.val}</text>
+                      </svg>
+                      <span className="text-xs text-brand-muted text-center">{s.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {aiAdvice.score_explanation && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">{aiAdvice.score_explanation}</div>
+              )}
+
+              {/* Critical Issues */}
+              {aiAdvice.critical_issues?.length > 0 && (
+                <div className="bg-white rounded-2xl border border-red-100 p-5">
+                  <h3 className="font-semibold text-brand-text mb-3">🚨 Critical Issues ({aiAdvice.critical_issues.length})</h3>
+                  <div className="space-y-3">
+                    {aiAdvice.critical_issues.map((issue: any, i: number) => (
+                      <div key={i} className="border border-gray-100 rounded-xl p-4">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <p className="font-medium text-sm text-brand-text">{issue.issue}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${issue.impact === 'High' ? 'bg-red-100 text-red-700' : issue.impact === 'Medium' ? 'bg-orange-100 text-orange-700' : 'bg-yellow-100 text-yellow-700'}`}>{issue.impact}</span>
+                        </div>
+                        <p className="text-xs text-brand-muted mb-1"><strong>Fix:</strong> {issue.fix}</p>
+                        {issue.estimated_traffic_gain && <p className="text-xs text-green-700">📈 Potential: {issue.estimated_traffic_gain}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Quick Wins */}
+              {aiAdvice.quick_wins?.length > 0 && (
+                <div className="bg-white rounded-2xl border border-green-100 p-5">
+                  <h3 className="font-semibold text-brand-text mb-3">⚡ Quick Wins</h3>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {aiAdvice.quick_wins.map((w: any, i: number) => (
+                      <div key={i} className="border border-gray-100 rounded-xl p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${w.effort === '15min' ? 'bg-green-100 text-green-700' : w.effort === '1hr' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>{w.effort}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${w.impact === 'High' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>{w.impact} Impact</span>
+                        </div>
+                        <p className="text-sm font-medium text-brand-text">{w.action}</p>
+                        <p className="text-xs text-brand-muted mt-1">{w.why}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* AIO Recommendations */}
+              {aiAdvice.aio_recommendations?.length > 0 && (
+                <div className="bg-white rounded-2xl border border-yellow-100 p-5">
+                  <h3 className="font-semibold text-brand-text mb-3">🤖 AIO — AI Overview Optimizations</h3>
+                  <div className="space-y-3">
+                    {aiAdvice.aio_recommendations.map((r: any, i: number) => (
+                      <div key={i} className="border border-gray-100 rounded-xl p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">{r.ai_engine_benefit}</span>
+                        </div>
+                        <p className="text-sm font-medium text-brand-text">{r.recommendation}</p>
+                        <p className="text-xs text-brand-muted mt-1"><strong>How:</strong> {r.implementation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* GEO Recommendations */}
+              {aiAdvice.geo_recommendations?.length > 0 && (
+                <div className="bg-white rounded-2xl border border-blue-100 p-5">
+                  <h3 className="font-semibold text-brand-text mb-3">📍 GEO — Local SEO Optimizations</h3>
+                  <div className="space-y-3">
+                    {aiAdvice.geo_recommendations.map((r: any, i: number) => (
+                      <div key={i} className="border border-gray-100 rounded-xl p-3">
+                        <p className="text-sm font-medium text-brand-text">{r.recommendation}</p>
+                        <p className="text-xs text-brand-muted mt-1"><strong>How:</strong> {r.implementation}</p>
+                        <p className="text-xs text-green-700 mt-1">📍 {r.local_seo_benefit}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Content Gaps */}
+              {aiAdvice.content_gaps?.length > 0 && (
+                <div className="bg-white rounded-2xl border border-purple-100 p-5">
+                  <h3 className="font-semibold text-brand-text mb-3">📝 Content Gaps — Missing Pages/Topics</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead><tr className="text-brand-muted text-xs uppercase tracking-wide border-b border-gray-100">
+                        <th className="py-2 pr-4 text-left">Missing Content</th>
+                        <th className="py-2 pr-4 text-left">Target Keyword</th>
+                        <th className="py-2 pr-4 text-left">Suggested URL</th>
+                        <th className="py-2 text-left">Volume</th>
+                      </tr></thead>
+                      <tbody>
+                        {aiAdvice.content_gaps.map((g: any, i: number) => (
+                          <tr key={i} className="border-b border-gray-50">
+                            <td className="py-2 pr-4 font-medium text-brand-text">{g.missing_content}</td>
+                            <td className="py-2 pr-4 text-brand-muted">{g.target_keyword}</td>
+                            <td className="py-2 pr-4 text-blue-600 font-mono text-xs">{g.suggested_url}</td>
+                            <td className="py-2"><span className={`text-xs px-2 py-0.5 rounded-full ${g.monthly_searches_estimate === 'high' ? 'bg-green-100 text-green-700' : g.monthly_searches_estimate === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}`}>{g.monthly_searches_estimate}</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Google Update Warnings */}
+              {aiAdvice.google_update_warnings?.length > 0 && (
+                <div className="bg-white rounded-2xl border border-orange-100 p-5">
+                  <h3 className="font-semibold text-brand-text mb-3">⚠️ Google Update Risks</h3>
+                  <div className="space-y-3">
+                    {aiAdvice.google_update_warnings.map((w: any, i: number) => (
+                      <div key={i} className="border border-orange-100 rounded-xl p-3">
+                        <p className="text-sm font-bold text-orange-700">{w.update}</p>
+                        <p className="text-xs text-brand-muted mt-1"><strong>Risk:</strong> {w.risk}</p>
+                        <p className="text-xs text-green-700 mt-1"><strong>Fix:</strong> {w.mitigation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 30-Day Action Plan */}
+              {aiAdvice['30_day_action_plan']?.length > 0 && (
+                <div className="bg-white rounded-2xl border border-brand-border/40 p-5">
+                  <h3 className="font-semibold text-brand-text mb-4">📅 30-Day Action Plan</h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {aiAdvice['30_day_action_plan'].map((week: any, i: number) => (
+                      <div key={i} className="bg-brand-mint/20 rounded-xl p-4 border border-brand-border/30">
+                        <p className="text-xs font-bold text-brand-dark uppercase tracking-wide mb-2">{week.week}</p>
+                        <ul className="space-y-1.5">
+                          {week.tasks.map((task: string, j: number) => (
+                            <li key={j} className="text-xs text-brand-muted flex gap-1.5"><span className="text-brand-accent shrink-0">→</span>{task}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
