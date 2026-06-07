@@ -153,6 +153,9 @@ const SiteSettingsSchema = new mongoose.Schema({
     priceGate: { enabled: { type: Boolean, default: true } },
   },
 
+  // AI / LLM — stored in DB so admin can update without touching .env
+  anthropicApiKey: { type: String, default: '' },
+
   // Google Search Console integration
   googleSearchConsole: {
     verificationCode: { type: String, default: '' }, // meta tag content= value for domain verification

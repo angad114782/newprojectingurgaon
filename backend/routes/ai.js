@@ -4,27 +4,28 @@ const { verifyToken } = require('./admin');
 const Project = require('../models/Project');
 const Lead = require('../models/Lead');
 const Blog = require('../models/Blog');
-const Settings = require('../models/Settings');
+const Settings = require('../models/SiteSettings');
 
 // ── POST /api/ai/seo-advisor ────────────────────────────────────────────────
 // Calls Claude API with current site context → returns SEO/AIO/GEO suggestions
 router.post('/seo-advisor', verifyToken, async (req, res) => {
   try {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      return res.status(400).json({
-        success: false,
-        error: 'ANTHROPIC_API_KEY not set in backend .env file. Add it to enable AI advisor.',
-      });
-    }
-
-    // Gather site metrics
+    // Gather site metrics (settings also contains the API key)
     const [projectCount, leadCount, blogCount, settings] = await Promise.all([
       Project.countDocuments({ isActive: true }),
       Lead.countDocuments({}),
       Blog.countDocuments({ status: 'published' }),
       Settings.findOne({}).lean(),
     ]);
+
+    // API key: DB takes priority, falls back to .env
+    const apiKey = settings?.anthropicApiKey || process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      return res.status(400).json({
+        success: false,
+        error: 'Anthropic API key not configured. Admin → Settings → Integrations mein set karo.',
+      });
+    }
 
     const corridorBreakdown = await Project.aggregate([
       { $match: { isActive: true } },
