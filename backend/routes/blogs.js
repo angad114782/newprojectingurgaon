@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Blog = require('../models/Blog');
 const { protect: auth } = require('../middleware/auth');
+const { autoSubmit } = require('../services/indexing');
 
 const SUMMARY_FIELDS = 'title slug excerpt heroImage category author.name date readTime status';
 
@@ -59,6 +60,17 @@ router.post('/', auth, async (req, res) => {
     const blog = new Blog(req.body);
     await blog.save();
     res.status(201).json({ success: true, data: blog });
+
+    // Auto-submit published blogs
+    if (blog.status === 'published' && blog.slug) {
+      const SiteSettings = require('../models/SiteSettings');
+      SiteSettings.findOne({}).lean().then(s => {
+        if (s?.indexingAutoSubmit !== false && s?.googleSearchConsole?.siteUrl) {
+          const url = `${s.googleSearchConsole.siteUrl.replace(/\/$/, '')}/blog/${blog.slug}`;
+          autoSubmit([url]);
+        }
+      }).catch(() => {});
+    }
   } catch (err) {
     if (err.code === 11000) return res.status(400).json({ success: false, message: 'Slug already exists' });
     res.status(400).json({ success: false, message: err.message });
@@ -72,6 +84,17 @@ router.put('/:id', auth, async (req, res) => {
     const blog = await Blog.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!blog) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, data: blog });
+
+    // Auto-submit on publish
+    if (blog.status === 'published' && blog.slug) {
+      const SiteSettings = require('../models/SiteSettings');
+      SiteSettings.findOne({}).lean().then(s => {
+        if (s?.indexingAutoSubmit !== false && s?.googleSearchConsole?.siteUrl) {
+          const url = `${s.googleSearchConsole.siteUrl.replace(/\/$/, '')}/blog/${blog.slug}`;
+          autoSubmit([url]);
+        }
+      }).catch(() => {});
+    }
   } catch (err) {
     if (err.code === 11000) return res.status(400).json({ success: false, message: 'Slug already exists' });
     res.status(400).json({ success: false, message: err.message });

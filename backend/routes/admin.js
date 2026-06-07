@@ -10,6 +10,7 @@ const Project = require('../models/Project');
 const { protect, authorize } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { autoSubmit } = require('../services/indexing');
 
 // ─── CSV Helpers ──────────────────────────────────────────────────────────────
 function parseCSVLine(line) {
@@ -569,6 +570,17 @@ router.post('/projects', authorize('admin', 'manager'), async (req, res) => {
     if (io) io.to('admin-room').emit('project:created', { project });
 
     res.status(201).json({ success: true, data: project });
+
+    // Auto-submit to search engines (fire-and-forget)
+    if (project.isActive && project.slug) {
+      const SiteSettings = require('../models/SiteSettings');
+      SiteSettings.findOne({}).lean().then(s => {
+        if (s?.indexingAutoSubmit !== false && s?.googleSearchConsole?.siteUrl) {
+          const url = `${s.googleSearchConsole.siteUrl.replace(/\/$/, '')}/projects/${project.slug}`;
+          autoSubmit([url]);
+        }
+      }).catch(() => {});
+    }
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
@@ -582,6 +594,17 @@ router.put('/projects/:id', authorize('admin', 'manager'), async (req, res) => {
     if (io) io.to('admin-room').emit('project:updated', { project });
 
     res.json({ success: true, data: project });
+
+    // Auto-submit to search engines (fire-and-forget)
+    if (project?.isActive && project?.slug) {
+      const SiteSettings = require('../models/SiteSettings');
+      SiteSettings.findOne({}).lean().then(s => {
+        if (s?.indexingAutoSubmit !== false && s?.googleSearchConsole?.siteUrl) {
+          const url = `${s.googleSearchConsole.siteUrl.replace(/\/$/, '')}/projects/${project.slug}`;
+          autoSubmit([url]);
+        }
+      }).catch(() => {});
+    }
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }

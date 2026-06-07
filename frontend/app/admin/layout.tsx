@@ -12,6 +12,7 @@ const NAV = [
   { href: '/admin/blog', label: 'Blog', icon: '✍️' },
   { href: '/admin/analytics', label: 'Analytics', icon: '📊' },
   { href: '/admin/seo-intel', label: 'SEO Intelligence', icon: '🧠', accent: true },
+  { href: '/admin/indexing', label: 'Instant Indexing', icon: '⚡' },
 ];
 const BOTTOM_NAV = [
   { href: '/admin/settings', label: 'Settings', icon: '⚙️' },

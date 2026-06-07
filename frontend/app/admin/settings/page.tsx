@@ -262,6 +262,25 @@ export default function SettingsPage() {
               />
             </div>
 
+            {/* IndexNow */}
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">⚡</span>
+                <div>
+                  <p className="font-semibold text-slate-900 text-sm">IndexNow API Key (Bing / Yandex / DuckDuckGo)</p>
+                  <p className="text-xs text-slate-500">Koi bhi random GUID dalo (e.g. uuidgenerator.net). Bing pe instant indexing ke liye.</p>
+                </div>
+                {g('indexNowKey') && (
+                  <span className="ml-auto text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-semibold">✓ Set</span>
+                )}
+              </div>
+              <Input
+                value={g('indexNowKey')}
+                onChange={(v) => s('indexNowKey', v)}
+                placeholder="550e8400-e29b-41d4-a716-446655440000"
+              />
+            </div>
+
             <Field label="99acres API Key (optional)">
               <Input value={g('integrations.99acres')} onChange={(v) => s('integrations.99acres', v)} placeholder="api_key_..." />
             </Field>

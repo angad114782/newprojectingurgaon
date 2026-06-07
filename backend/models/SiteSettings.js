@@ -156,6 +156,10 @@ const SiteSettingsSchema = new mongoose.Schema({
   // AI / LLM — stored in DB so admin can update without touching .env
   anthropicApiKey: { type: String, default: '' },
 
+  // Instant Indexing — IndexNow key for Bing/Yandex/DuckDuckGo
+  indexNowKey: { type: String, default: '' },
+  indexingAutoSubmit: { type: Boolean, default: true },
+
   // Google Search Console integration
   googleSearchConsole: {
     verificationCode: { type: String, default: '' }, // meta tag content= value for domain verification

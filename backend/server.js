@@ -158,6 +158,7 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/blogs', require('./routes/blogs'));
 app.use('/api/authors', require('./routes/authors'));
 app.use('/api/ai', require('./routes/ai'));
+app.use('/api/indexing', require('./routes/indexing'));
 
 // ─── 404 ─────────────────────────────────────────────────────────────────────
 app.use((req, res) => {
