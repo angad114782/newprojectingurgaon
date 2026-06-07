@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken } = require('./admin');
+const { protect: verifyToken } = require('../middleware/auth');
 const Project = require('../models/Project');
 const Lead = require('../models/Lead');
 const Blog = require('../models/Blog');
