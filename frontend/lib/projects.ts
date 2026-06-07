@@ -71,17 +71,31 @@ export const ALL_PROJECTS: Project[] = [];
 
 // Static navigation pages (used for SEO interlinking — not DB-driven)
 export const ALL_SEO_PAGES = [
+  // Corridor pages
   { title: 'New Launch Projects in Gurgaon', url: '/new-launch-projects-in-gurgaon' },
   { title: 'New Projects in Gurgaon', url: '/new-projects-in-gurgaon' },
   { title: 'Residential Property in Gurgaon', url: '/residential-property-in-gurgaon' },
   { title: 'Dwarka Expressway Projects', url: '/dwarka-expressway-projects' },
+  { title: 'Golf Course Road Projects', url: '/golf-course-road-projects' },
   { title: 'Golf Course Extension Road Projects', url: '/golf-course-extension-road-projects' },
   { title: 'SPR Road Projects', url: '/spr-road-projects' },
+  { title: 'New Gurgaon Projects', url: '/new-gurgaon-projects' },
+  // Sector pages
   { title: 'Sector 113 Gurgaon Property', url: '/sector-113-gurgaon-property' },
   { title: 'Sector 106 Gurgaon Property', url: '/sector-106-gurgaon-property' },
   { title: 'Sector 102 Gurgaon Property', url: '/sector-102-gurgaon-property' },
   { title: 'Sector 37D Gurgaon Property', url: '/sector-37d-gurgaon-property' },
-  { title: 'New Gurgaon Projects', url: '/new-gurgaon-projects' },
+  // BHK-specific pages
+  { title: '3 BHK Flats in Dwarka Expressway Gurgaon', url: '/3-bhk-flats-in-dwarka-expressway-gurgaon' },
+  { title: '2 BHK Flats in Dwarka Expressway Gurgaon', url: '/2-bhk-flats-in-dwarka-expressway-gurgaon' },
+  { title: '3 BHK Flats Golf Course Extension Road Gurgaon', url: '/3-bhk-flats-golf-course-extension-road-gurgaon' },
+  { title: 'Penthouse in Gurgaon', url: '/penthouse-in-gurgaon' },
+  // Budget pages
+  { title: 'Flats Under 1 Crore in Gurgaon', url: '/flats-under-1-crore-gurgaon' },
+  { title: 'Flats Under 50 Lakh in Gurgaon', url: '/flats-under-50-lakh-gurgaon' },
+  { title: 'Luxury Apartments Above 3 Crore Gurgaon', url: '/luxury-apartments-above-3-crore-gurgaon' },
+  // Intent pages
+  { title: 'Ready to Move Flats in Gurgaon', url: '/ready-to-move-flats-gurgaon' },
 ];
 
 // Static corridor nav (used for header/footer links)

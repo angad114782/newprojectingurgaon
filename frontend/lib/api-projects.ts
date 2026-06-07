@@ -118,6 +118,42 @@ export async function fetchApiProjects(params: {
   }
 }
 
+// ── Fetch projects filtered by BHK type (client-side regex filter) ───────────
+export async function fetchProjectsByBHK(params: {
+  bhk: '2 BHK' | '3 BHK' | '4 BHK' | '5 BHK' | 'Penthouse';
+  corridor?: string;
+  status?: string;
+  limit?: number;
+}) {
+  const allProjects = await fetchApiProjects({
+    corridor: params.corridor,
+    status: params.status,
+    limit: params.limit || 60,
+  });
+  const pattern = new RegExp(params.bhk.replace(' ', '\\s*'), 'i');
+  return allProjects
+    .filter((p) => p.configurations?.some((c: string) => pattern.test(c)))
+    .map(mapToTemplateProject);
+}
+
+// ── Fetch projects by budget (price in lakhs) ─────────────────────────────────
+export async function fetchProjectsByBudget(params: {
+  minPrice?: number;
+  maxPrice?: number;
+  corridor?: string;
+  status?: string;
+  limit?: number;
+}) {
+  const apiProjects = await fetchApiProjects({
+    minPrice: params.minPrice,
+    maxPrice: params.maxPrice,
+    corridor: params.corridor,
+    status: params.status,
+    limit: params.limit || 30,
+  });
+  return apiProjects.map(mapToTemplateProject);
+}
+
 // ── Fetch a single project by slug ────────────────────────────────────────────
 export async function fetchProjectBySlug(slug: string): Promise<ApiProject | null> {
   try {
