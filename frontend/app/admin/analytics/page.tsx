@@ -41,7 +41,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <PageHeader title="Analytics" subtitle="Lead intelligence & performance" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[...Array(4)].map((_, i) => (
@@ -78,7 +78,7 @@ export default function AnalyticsPage() {
     : 0;
 
   return (
-    <div className="p-6 max-w-7xl">
+    <div className="p-4 sm:p-6 max-w-7xl">
       <PageHeader title="Analytics" subtitle="Lead intelligence & performance" />
 
       {/* KPI cards */}

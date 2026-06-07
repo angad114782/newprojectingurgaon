@@ -112,7 +112,7 @@ export default function BlogPage() {
   ];
 
   return (
-    <div className="p-6 max-w-6xl">
+    <div className="p-4 sm:p-6 max-w-6xl">
       <PageHeader title="Blog" subtitle={`${posts.length} posts`}
         action={<Btn onClick={openAdd}>+ New Post</Btn>} />
 

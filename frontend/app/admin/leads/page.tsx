@@ -227,7 +227,7 @@ export default function LeadsPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl">
+    <div className="p-4 sm:p-6 max-w-7xl">
       <PageHeader title="Leads" subtitle="Real-time lead management"
         action={
           <div className="flex gap-2">

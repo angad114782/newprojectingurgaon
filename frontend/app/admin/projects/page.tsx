@@ -135,7 +135,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl">
+    <div className="p-4 sm:p-6 max-w-7xl">
       <PageHeader title="Projects" subtitle={`${projects.length} total projects`}
         action={
           <div className="flex gap-2">

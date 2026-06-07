@@ -66,7 +66,7 @@ export default function TeamPage() {
   const f = (key: string, val: any) => setForm((p: any) => ({ ...p, [key]: val }));
 
   return (
-    <div className="p-6 max-w-6xl">
+    <div className="p-4 sm:p-6 max-w-6xl">
       <PageHeader title="Team" subtitle="Manage team members and property advisors"
         action={<Btn onClick={openAdd}>+ Add Member</Btn>} />
 

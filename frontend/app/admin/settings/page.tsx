@@ -87,7 +87,7 @@ export default function SettingsPage() {
 
   if (!settings) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <PageHeader title="Settings" />
         <div className="animate-pulse space-y-4">
           {[...Array(3)].map((_, i) => <div key={i} className="bg-white rounded-2xl h-32 border border-slate-200" />)}
@@ -97,7 +97,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl">
+    <div className="p-4 sm:p-6 max-w-5xl">
       <PageHeader title="Settings" subtitle="Site configuration, SEO, integrations"
         action={
           <Btn onClick={save} disabled={saving}>
@@ -117,7 +117,7 @@ export default function SettingsPage() {
         ))}
       </div>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         {/* GENERAL */}
         {activeTab === 'general' && (
           <div className="space-y-5">

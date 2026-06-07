@@ -61,7 +61,7 @@ export default function SeoIntelPage() {
   ];
 
   return (
-    <div className="p-6 max-w-6xl">
+    <div className="p-4 sm:p-6 max-w-6xl">
       <PageHeader title="SEO Intelligence" subtitle="AI-powered SEO, AIO & GEO advisor powered by Claude" />
 
       {/* Score rings */}
@@ -72,7 +72,7 @@ export default function SeoIntelPage() {
             {scoreLoading ? '⏳ Checking…' : '↻ Refresh Score'}
           </Btn>
         </div>
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {scoreLoading ? (
             <div className="flex gap-8 justify-center animate-pulse">
               {[...Array(5)].map((_, i) => <div key={i} className="w-20 h-24 bg-slate-100 rounded-xl" />)}
