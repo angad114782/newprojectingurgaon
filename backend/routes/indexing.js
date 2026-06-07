@@ -114,6 +114,56 @@ router.get('/stats', auth, async (req, res) => {
   }
 });
 
+// ─── POST /api/indexing/test-google — verify service account works ────────────
+router.post('/test-google', auth, authorize('admin'), async (req, res) => {
+  try {
+    const settings = await SiteSettings.findOne({}).lean();
+    const json = settings?.googleSearchConsole?.serviceAccountJson;
+    const siteUrl = settings?.googleSearchConsole?.siteUrl;
+
+    if (!json) return res.status(400).json({ success: false, message: 'Service Account JSON not configured. Settings → SEO → Google Search Console mein paste karo.' });
+
+    let sa;
+    try { sa = JSON.parse(json); } catch { return res.status(400).json({ success: false, message: 'Service Account JSON invalid — proper JSON nahi hai. Dobara download karke paste karo.' }); }
+
+    if (!sa.private_key) return res.status(400).json({ success: false, message: 'private_key field missing hai JSON mein. Sahi service account .json file download karo.' });
+    if (!sa.client_email) return res.status(400).json({ success: false, message: 'client_email field missing hai JSON mein. Sahi service account .json file download karo.' });
+    if (!siteUrl || !siteUrl.startsWith('http')) return res.status(400).json({ success: false, message: `Site URL "${siteUrl || '(empty)'}" invalid hai. https://newprojectsingurgaon.com format mein hona chahiye (sc-domain: nahi chalega).` });
+
+    // Try getting a token — this confirms the key is valid
+    const { getGoogleToken: _getToken } = (() => {
+      const crypto = require('crypto');
+      function b64url(obj) {
+        return Buffer.from(typeof obj === 'string' ? obj : JSON.stringify(obj)).toString('base64url');
+      }
+      async function getGoogleToken(serviceAccountJson) {
+        const now = Math.floor(Date.now() / 1000);
+        const header = b64url({ alg: 'RS256', typ: 'JWT' });
+        const payload = b64url({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/indexing', aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 });
+        const toSign = `${header}.${payload}`;
+        const signature = crypto.createSign('RSA-SHA256').update(toSign).sign(sa.private_key).toString('base64url');
+        const jwt = `${toSign}.${signature}`;
+        const r = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth2:grant_type:jwt-bearer', assertion: jwt }),
+        });
+        return r.json();
+      }
+      return { getGoogleToken };
+    })();
+
+    const tokenData = await _getToken(json);
+    if (!tokenData.access_token) {
+      return res.status(400).json({ success: false, message: `Google token error: ${tokenData.error_description || tokenData.error || 'Unknown'}. Service account ko Google Search Console property mein Owner permission de aur Indexing API enable karo.` });
+    }
+
+    res.json({ success: true, message: `✅ Google connection working! Service account: ${sa.client_email}. Site URL: ${siteUrl}` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: `Connection test failed: ${err.message}` });
+  }
+});
+
 // ─── DELETE /api/indexing/history — clear log ─────────────────────────────────
 router.delete('/history', auth, authorize('admin'), async (req, res) => {
   try {

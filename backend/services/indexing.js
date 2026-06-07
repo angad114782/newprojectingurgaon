@@ -126,7 +126,9 @@ async function submitUrls(urls, { triggeredBy = 'manual', action = 'URL_UPDATED'
 
   const serviceAccountJson = settings?.googleSearchConsole?.serviceAccountJson || '';
   const indexNowKey = settings?.indexNowKey || '';
-  const siteUrl = settings?.googleSearchConsole?.siteUrl || (settings?.siteName ? '' : '');
+  // Must be a real https:// URL — sc-domain: format is NOT valid here
+  let siteUrl = settings?.googleSearchConsole?.siteUrl || '';
+  if (siteUrl && !siteUrl.startsWith('http')) siteUrl = '';
 
   const googleResults = [];
   const indexnowResults = [];

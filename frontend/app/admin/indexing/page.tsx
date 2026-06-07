@@ -52,6 +52,7 @@ export default function IndexingPage() {
   const [urlInput, setUrlInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [bulkSubmitting, setBulkSubmitting] = useState(false);
+  const [testing, setTesting] = useState(false);
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') =>
     setToast({ msg, type });
@@ -126,6 +127,16 @@ export default function IndexingPage() {
     } catch { showToast('Network error', 'error'); }
   };
 
+  const testGoogle = async () => {
+    setTesting(true);
+    try {
+      const r = await fetch(`${API}/indexing/test-google`, { method: 'POST', headers: authH() });
+      const d = await r.json();
+      showToast(d.message, d.success ? 'success' : 'error');
+    } catch { showToast('Network error', 'error'); }
+    finally { setTesting(false); }
+  };
+
   const clearHistory = async () => {
     if (!confirm('Clear all indexing history?')) return;
     try {
@@ -161,12 +172,19 @@ export default function IndexingPage() {
         }
       />
 
-      {/* Info banner */}
-      <div className="mb-5 bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800 space-y-1">
-        <p className="font-semibold">Setup Required:</p>
-        <p>1. <strong>Google Indexing API</strong> — Settings → SEO → Google Search Console mein Service Account JSON paste karo</p>
-        <p>2. <strong>IndexNow (Bing/Yandex)</strong> — Settings → Integrations mein IndexNow Key dalo, phir "Write Key File" click karo</p>
-        <p>3. <strong>Site URL</strong> — Settings → SEO → Search Console mein apni site URL set karo (e.g. https://newprojectsingurgaon.com)</p>
+      {/* Setup guide */}
+      <div className="mb-5 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900 space-y-2">
+        <p className="font-bold">⚠️ Common Errors aur Fix:</p>
+        <div className="space-y-1.5 text-xs leading-relaxed">
+          <p><strong className="text-red-600">❌ "Service account missing private_key"</strong> — incomplete JSON paste hua. Google Cloud Console → IAM → Service Accounts → Keys → Add Key → JSON download karo. Poora file content paste karo.</p>
+          <p><strong className="text-red-600">❌ "sc-domain:..." URLs wrong</strong> — Settings → SEO → GSC Site URL mein <code className="bg-amber-100 px-1 rounded font-mono">https://newprojectsingurgaon.com</code> hona chahiye, <strong>sc-domain: nahi</strong>.</p>
+          <p><strong className="text-amber-700">ℹ️ Google Indexing API setup:</strong> Service account banao → Google Search Console property mein Owner add karo → Indexing API enable karo (Google Cloud Console → APIs).</p>
+        </div>
+        <div className="flex gap-2 pt-1">
+          <Btn size="sm" onClick={testGoogle} disabled={testing} variant="secondary">
+            {testing ? 'Testing…' : '🔍 Test Google Connection'}
+          </Btn>
+        </div>
       </div>
 
       {/* Tabs */}
