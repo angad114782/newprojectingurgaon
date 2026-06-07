@@ -37,7 +37,7 @@ jobs:
             npm install --omit=dev
 
             echo "🔁 Restart backend..."
-            pm2 restart newproject-backend
+            pm2 restart realestate-backend --update-env
 
             echo "📦 Frontend install..."
             cd /var/www/gurgaon-realestate/frontend
