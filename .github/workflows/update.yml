@@ -44,7 +44,7 @@ jobs:
             npm install
 
             echo "⚙️ Write production env..."
-            printf 'NEXT_PUBLIC_API_URL=https://newprojectsingurgaon.com/api\nNEXT_PUBLIC_WS_URL=https://newprojectsingurgaon.com\n' > /var/www/gurgaon-realestate/frontend/.env.local
+            printf 'NEXT_PUBLIC_API_URL=https://newprojectsingurgaon.com/api\nNEXT_PUBLIC_WS_URL=https://newprojectsingurgaon.com\nNEXT_PUBLIC_SITE_URL=https://newprojectsingurgaon.com\n' > /var/www/gurgaon-realestate/frontend/.env.local
 
             echo "🏗️ Frontend build..."
             npm run build
