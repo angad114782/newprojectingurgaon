@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import Link from 'next/link';
 import Image from 'next/image';
 import { fetchBlogs } from '@/lib/api-blogs';
@@ -8,10 +7,7 @@ import { fetchSettings } from '@/lib/settings';
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = headers();
-  const host = headersList.get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const pageUrl = `${siteUrl}/blog`;
   const settings = await fetchSettings();
 
@@ -53,10 +49,7 @@ export default async function BlogPage() {
 
   const displayBlogs = blogs.length > 0 ? blogs : staticBlogs;
 
-  const headersList = headers();
-  const host = headersList.get('host') || 'newprojectsingurgaon.com';
-  const proto = host.startsWith('localhost') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',

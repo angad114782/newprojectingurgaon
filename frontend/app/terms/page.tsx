@@ -1,13 +1,9 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import Link from 'next/link';
 import { fetchSettings } from '@/lib/settings';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = headers();
-  const host = headersList.get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const settings = await fetchSettings();
 
   return {
@@ -19,10 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TermsPage() {
-  const headersList = headers();
-  const host = headersList.get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const settings = await fetchSettings();
 
   return (

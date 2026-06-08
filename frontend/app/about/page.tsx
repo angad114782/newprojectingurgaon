@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
 import { fetchSettings } from '@/lib/settings';
@@ -7,10 +6,7 @@ import { fetchAuthors } from '@/lib/api-authors';
 import LeadCTA from '@/components/lead/LeadCTA';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = headers();
-  const host = headersList.get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const settings = await fetchSettings();
 
   const title = `About Us | ${settings.siteName} — Gurgaon's Most Trusted Real Estate Advisory`;
@@ -29,10 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
-  const headersList = headers();
-  const host = headersList.get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
 
   const [settings, authors] = await Promise.all([fetchSettings(), fetchAuthors()]);
 

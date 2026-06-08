@@ -1,4 +1,3 @@
-import { headers } from 'next/headers';
 import type { Metadata } from 'next';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedProjects from '@/components/home/FeaturedProjects';
@@ -9,10 +8,7 @@ import { FAQSchema, SpeakableSchema } from '@/components/seo/SchemaMarkup';
 import { fetchSettings } from '@/lib/settings';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = headers();
-  const host = headersList.get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const settings = await fetchSettings();
 
   const title = settings.seoTitle || `Luxury Apartments & New Projects in Gurgaon 2025 | ₹2 Cr–₹15 Cr | ${settings.siteName}`;
@@ -39,10 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const headersList = headers();
-  const host = headersList.get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const settings = await fetchSettings();
 
   const faqsForSchema = settings.faqs?.length ? settings.faqs : [

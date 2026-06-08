@@ -17,7 +17,6 @@ import {
 } from '@/components/seo/SchemaMarkup';
 import { InternalLinksBlock } from '@/components/home/HomeSections';
 import LeadCTA from '@/components/lead/LeadCTA';
-import { headers } from 'next/headers';
 import { fetchSettings } from '@/lib/settings';
 import {
   fetchProjectBySlug,
@@ -81,10 +80,7 @@ export async function generateStaticParams() {
 export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const headersList = headers();
-  const host = headersList.get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const [project, settings] = await Promise.all([getProject(params.slug), fetchSettings()]);
 
   if (!project) {
@@ -169,10 +165,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     tags.find((t: string) => typeof t === 'string' && (t.includes('expressway') || t.includes('road') || t.includes('golf') || t.includes('spr'))) ||
     'new-projects-in-gurgaon';
 
-  const headersList = headers();
-  const host = headersList.get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
 
   const [sameCorridor, similarBudgetRaw] = await Promise.all([
     fetchRelatedByCorridor(project.corridor, project.slug, 3),

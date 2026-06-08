@@ -1,12 +1,9 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsByBudget } from '@/lib/api-projects';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const host = headers().get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const pageUrl = `${siteUrl}/flats-under-1-crore-gurgaon`;
   return {
     title: 'Flats Under 1 Crore in Gurgaon 2025 | 2/3 BHK Budget Apartments',

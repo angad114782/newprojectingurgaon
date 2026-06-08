@@ -1,12 +1,9 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsByBHK } from '@/lib/api-projects';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const host = headers().get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const pageUrl = `${siteUrl}/3-bhk-flats-golf-course-extension-road-gurgaon`;
   return {
     title: '3 BHK Flats in Golf Course Extension Road Gurgaon | ₹1.8 Cr to ₹8 Cr',

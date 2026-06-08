@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import Link from 'next/link';
 import LeadForm from '@/components/home/LeadForm';
 import { fetchApiProjects } from '@/lib/api-projects';
@@ -7,10 +6,7 @@ import { fetchSettings } from '@/lib/settings';
 import LeadCTA from '@/components/lead/LeadCTA';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = headers();
-  const host = headersList.get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const settings = await fetchSettings();
   const pageUrl = `${siteUrl}/new-launch-projects-in-gurgaon`;
 

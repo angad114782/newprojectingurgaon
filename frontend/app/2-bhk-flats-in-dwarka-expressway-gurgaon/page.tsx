@@ -1,12 +1,9 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsByBHK } from '@/lib/api-projects';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const host = headers().get('host') || '';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const pageUrl = `${siteUrl}/2-bhk-flats-in-dwarka-expressway-gurgaon`;
   return {
     title: '2 BHK Flats in Dwarka Expressway Gurgaon 2025 | Price ₹60 Lakh to ₹1.8 Cr',
