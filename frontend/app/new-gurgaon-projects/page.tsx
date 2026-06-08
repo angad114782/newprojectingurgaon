@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsWithFallback } from '@/lib/api-projects';
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'New Gurgaon Projects 2025 | Affordable Property in New Gurgaon',
   description: 'Best affordable projects in New Gurgaon — Godrej Nurture, Signature Global 37D. 2 BHK from ₹45 Lakh. Property in New Gurgaon near Manesar. Free site visit.',

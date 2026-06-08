@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsWithFallback } from '@/lib/api-projects';
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Sector 106 Gurgaon Property | Premium Projects on Dwarka Expressway',
   description: 'Find the best residential projects in Sector 106 Gurgaon — premium 2BHK, 3BHK and 4BHK apartments on Dwarka Expressway from top builders like Godrej, Tata and Hero Homes.',

@@ -6,6 +6,8 @@ import { fetchApiProjects } from '@/lib/api-projects';
 import { InternalLinksBlock } from '@/components/home/HomeSections';
 import { fetchSettings } from '@/lib/settings';
 
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const settings = await fetchSettings();

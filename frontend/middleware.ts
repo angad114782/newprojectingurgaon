@@ -10,10 +10,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(clean + url.search, req.url), { status: 301 });
   }
 
-  // Inject pathname header so root layout can detect admin pages
-  const res = NextResponse.next();
-  res.headers.set('x-pathname', url.pathname);
-  return res;
+  return NextResponse.next();
 }
 
 export const config = {

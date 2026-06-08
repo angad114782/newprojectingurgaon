@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsWithFallback } from '@/lib/api-projects';
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Sector 102 Gurgaon Property | Affordable Projects near Palam Vihar',
   description: 'Explore residential property in Sector 102 Gurgaon with affordable pricing, Palam Vihar connectivity and upcoming metro extension. Best budget projects on Dwarka Expressway.',

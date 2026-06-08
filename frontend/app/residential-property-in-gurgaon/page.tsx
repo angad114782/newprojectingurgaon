@@ -3,6 +3,8 @@ import Link from 'next/link';
 import LeadForm from '@/components/home/LeadForm';
 import LeadCTA from '@/components/lead/LeadCTA';
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Residential Property in Gurgaon 2025 | 2/3 BHK Apartments, Luxury Homes',
   description:

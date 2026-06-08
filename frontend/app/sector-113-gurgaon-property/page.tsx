@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsWithFallback } from '@/lib/api-projects';
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Sector 113 Gurgaon Property 2025 | Near IGI Airport | M3M Capital Walk',
   description: 'Best property in Sector 113 Gurgaon — near IGI Airport, Dwarka Expressway. M3M Capital Walk 2/3/4 BHK from ₹1.5 Cr. Airport zone investment. Free site visit.',

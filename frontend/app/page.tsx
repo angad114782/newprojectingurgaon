@@ -7,6 +7,8 @@ import { ROICalculator } from '@/components/conversion/PsychTriggers';
 import { FAQSchema, SpeakableSchema } from '@/components/seo/SchemaMarkup';
 import { fetchSettings } from '@/lib/settings';
 
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const settings = await fetchSettings();

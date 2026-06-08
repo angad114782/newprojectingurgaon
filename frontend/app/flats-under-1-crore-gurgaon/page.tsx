@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsByBudget } from '@/lib/api-projects';
 
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
   const pageUrl = `${siteUrl}/flats-under-1-crore-gurgaon`;

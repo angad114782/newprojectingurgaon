@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsWithFallback } from '@/lib/api-projects';
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'SPR Road Projects Gurgaon 2025 | Southern Peripheral Road Property',
   description: 'Best projects on SPR Road (Southern Peripheral Road) Gurgaon — DLF Privana, M3M Altitude, M3M Antalya Hills. Luxury & premium 3/4 BHK from ₹1.8 Cr. Free advisory.',

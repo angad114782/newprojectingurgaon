@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsWithFallback } from '@/lib/api-projects';
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Golf Course Extension Road Projects 2025 | Luxury & Premium Property Gurgaon',
   description: 'Best projects on Golf Course Extension Road Gurgaon — Oberoi Sky Heights, Emaar Digi Homes, DLF Arbour, Tata One. Luxury 3/4 BHK from ₹1.2 Cr to ₹12 Cr. Free advisory.',

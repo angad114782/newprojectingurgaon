@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import LocationPageTemplate from '@/components/location/LocationPageTemplate';
 import { fetchProjectsWithFallback } from '@/lib/api-projects';
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Sector 37D Gurgaon Property | Affordable New Projects in New Gurgaon',
   description: 'Explore affordable residential projects in Sector 37D Gurgaon near Dwarka Expressway metro. Signature Global, Hero Homes and budget-friendly new launches for first-time homebuyers.',

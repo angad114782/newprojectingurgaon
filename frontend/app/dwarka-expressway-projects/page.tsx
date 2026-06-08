@@ -6,6 +6,8 @@ import { fetchProjectsWithFallback } from '@/lib/api-projects';
 import { InternalLinksBlock } from '@/components/home/HomeSections';
 import LeadCTA from '@/components/lead/LeadCTA';
 
+export const revalidate = 60;
+
 const DEFAULT_IMG = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80';
 
 export const metadata: Metadata = {
