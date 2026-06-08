@@ -1,29 +1,13 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import Script from 'next/script';
 import '../styles/globals.css';
-import { Toaster } from 'react-hot-toast';
-import Header from '@/components/layout/Header';
-import Topbar from '@/components/layout/Topbar';
-import Footer from '@/components/layout/Footer';
-import MobileBottomCTA from '@/components/layout/MobileBottomCTA';
-import StickyButtons from '@/components/layout/StickyButtons';
-import { TrackingProvider } from '@/components/lead/TrackingProvider';
-import { UrgencyBanner, TrustStrip, LiveActivityToast, BackToTopButton } from '@/components/conversion/PsychTriggers';
+import SiteShell from '@/components/layout/SiteShell';
 import { fetchSettings } from '@/lib/settings';
 
-function getSiteUrl(host: string | null): string {
-  if (!host) return 'https://localhost:3000';
-  if (host.startsWith('localhost') || host.startsWith('127.') || host.startsWith('192.168')) {
-    return `http://${host}`;
-  }
-  return `https://${host}`;
-}
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = headers();
-  const host = headersList.get('host');
-  const siteUrl = getSiteUrl(host);
+  const siteUrl = SITE_URL;
   const settings = await fetchSettings();
 
   const siteName = settings.siteName || 'New Projects in Gurgaon';
@@ -88,11 +72,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const headersList = headers();
-  const host = headersList.get('host');
-  const pathname = headersList.get('x-pathname') || '';
-  const isAdmin = pathname.startsWith('/admin');
-  const siteUrl = getSiteUrl(host);
+  const siteUrl = SITE_URL;
   const settings = await fetchSettings();
   const ga4Id              = settings.ga4Id              || process.env.NEXT_PUBLIC_GA4_ID || '';
   const metaPixelId        = settings.metaPixelId        || '';
@@ -187,48 +167,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         }) }} />
       </head>
       <body>
-        {isAdmin ? (
-          // Admin pages — no site navbar/footer/widgets
-          <>{children}</>
-        ) : (
-          <TrackingProvider>
-            <UrgencyBanner config={settings.conversion?.urgencyBanner} />
-            <Topbar
-              phone={settings.phone}
-              email={settings.email}
-              address={settings.address}
-              totalProjects={settings.marketStats?.totalProjects}
-            />
-            <Header phone={settings.phone} siteName={settings.siteName} logoUrl={settings.logoUrl} />
-            <TrustStrip config={settings.conversion?.trustStrip} />
-            <main>{children}</main>
-            <Footer
-              phone={settings.phone}
-              email={settings.email}
-              whatsapp={settings.whatsapp}
-              siteName={settings.siteName}
-              address={settings.address}
-              openingHours={settings.openingHours}
-              social={settings.social}
-              reraNumber={settings.reraNumber}
-              reraLink={settings.reraLink}
-              logoUrl={settings.footerLogoUrl || settings.logoUrl}
-            />
-            <MobileBottomCTA phone={settings.phone} whatsapp={settings.whatsapp} />
-            <StickyButtons phone={settings.phone} whatsapp={settings.whatsapp} />
-            <LiveActivityToast config={settings.conversion?.liveActivity} />
-            <BackToTopButton />
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: { background: '#075B63', color: '#fff', borderRadius: '12px', fontSize: '14px' },
-                success: { style: { background: '#065B63' } },
-                error: { style: { background: '#c62828' } },
-              }}
-            />
-          </TrackingProvider>
-        )}
+        <SiteShell settings={settings}>
+          {children}
+        </SiteShell>
       </body>
       {/* ── Google Tag Manager ─────────────────────────────────── */}
       {gtmId && (

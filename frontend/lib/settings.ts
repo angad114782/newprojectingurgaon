@@ -167,12 +167,12 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroImageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85',
 };
 
-// Server-side fetch — no-store so logo/favicon/phone changes show immediately.
+// Server-side fetch — 60s ISR so pages get public Cache-Control (Googlebot-friendly).
 // Backend has its own 5-min memory cache so MongoDB load stays low.
 export async function fetchSettings(): Promise<SiteSettings> {
   try {
     const res = await fetch(`${API}/settings`, {
-      cache: 'no-store',
+      next: { revalidate: 60 },
     });
     if (!res.ok) return DEFAULT_SETTINGS;
     const data = await res.json();

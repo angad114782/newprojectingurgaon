@@ -5,8 +5,7 @@ import Image from 'next/image';
 import { fetchBlogs } from '@/lib/api-blogs';
 import { fetchSettings } from '@/lib/settings';
 
-// Always fetch fresh from DB — never serve stale static HTML
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = headers();
