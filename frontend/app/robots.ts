@@ -65,7 +65,7 @@ export default function robots(): MetadataRoute.Robots {
       // Default rule for everything else
       { userAgent: '*', allow: '/', disallow: BLOCKED_PATHS },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
+    sitemap: [`${siteUrl}/sitemap.xml`, `${siteUrl}/image-sitemap.xml`],
     host: siteUrl,
   };
 }

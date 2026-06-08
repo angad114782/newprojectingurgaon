@@ -375,6 +375,122 @@ export function LuxuryHighlightsStrip() {
 }
 
 // ── Internal Links Block — important for SEO / AIO / GEO ──────────────────────
+// ── Gurgaon Real Estate Guide ──────────────────────────────────────────────────
+export function GurgaonRealEstateGuide() {
+  return (
+    <section className="py-16 bg-white border-t border-brand-border/30">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="text-center mb-10">
+          <span className="inline-block bg-brand-mint text-brand-dark text-xs font-semibold px-4 py-1.5 rounded-full mb-3 border border-brand-border/40 uppercase tracking-widest">
+            Complete Buyer's Guide
+          </span>
+          <h2 className="text-3xl font-display font-bold text-brand-dark mb-3">
+            Gurgaon Real Estate 2026 — Area-by-Area Investment Guide
+          </h2>
+          <p className="text-brand-muted text-base max-w-2xl mx-auto">
+            Gurgaon (Gurugram) is India's fastest-growing real estate market. From ultra-luxury towers on Golf Course Road to high-ROI corridors on Dwarka Expressway — here's everything you need to make the right investment decision.
+          </p>
+        </div>
+
+        <div className="space-y-10 text-brand-text leading-relaxed">
+
+          <div>
+            <h3 className="text-xl font-display font-bold text-brand-dark mb-3 flex items-center gap-2">
+              <span className="text-brand-accent">01.</span> Golf Course Road — Gurgaon's Most Prestigious Address
+            </h3>
+            <p className="mb-3">
+              Golf Course Road (Sectors 54, 55, 56, 57) remains Gurgaon's most coveted residential corridor. Home to DLF, Emaar, M3M and Sobha projects, this stretch commands ₹15,000–₹35,000 per sq ft — the highest in the National Capital Region outside South Delhi. Properties here have delivered 30–45% appreciation over the past 3 years.
+            </p>
+            <p className="mb-3">
+              The corridor connects directly to MG Road metro, Cyber City and the upcoming metro Phase-3 extension. Buyers here typically target 3 BHK, 4 BHK and penthouse configurations for both end-use and luxury investment.
+            </p>
+            <p>
+              <strong>Best suited for:</strong> Ultra-HNI buyers, NRI investors, luxury end-use buyers with ₹5 Cr+ budget.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-display font-bold text-brand-dark mb-3 flex items-center gap-2">
+              <span className="text-brand-accent">02.</span> Dwarka Expressway — Highest ROI Corridor in NCR
+            </h3>
+            <p className="mb-3">
+              Dwarka Expressway (Sectors 99–115, 37C, 37D) is Gurgaon's fastest appreciating corridor. Since metro connectivity opened in 2024 and the 8-lane expressway was completed, property values have jumped 40–60% across sectors. With the Indira Gandhi International Airport just 15 minutes away, this is a strategic investment zone.
+            </p>
+            <p className="mb-3">
+              Projects by BPTP, Smart World, Signature Global, M3M and Sobha are actively under construction. The typical buyer gets 3 BHK apartments in the ₹1.2 Cr–₹3.5 Cr range — excellent value compared to Golf Course Road.
+            </p>
+            <p>
+              <strong>Best suited for:</strong> First-time buyers, salaried professionals, investors looking for 5–7 year capital appreciation play.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-display font-bold text-brand-dark mb-3 flex items-center gap-2">
+              <span className="text-brand-accent">03.</span> SPR Road (Southern Peripheral Road) — The Emerging Luxury Belt
+            </h3>
+            <p className="mb-3">
+              SPR Road connects Golf Course Extension Road to Sohna Road, creating a new luxury micro-market (Sectors 69–79). DLF Privana, Central Park, Vatika and Godrej projects have launched here at ₹10,000–₹18,000 per sq ft. The area offers Golf Course Road-quality living at a 20–30% discount.
+            </p>
+            <p>
+              Corporate hubs from AIPL, Bestech and Emaar along SPR drive robust rental demand (3.5–5% rental yield). For buyers wanting luxury with better value, SPR is the #1 choice in 2026.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-display font-bold text-brand-dark mb-3 flex items-center gap-2">
+              <span className="text-brand-accent">04.</span> New Gurgaon (Sectors 80–115) — Mass Market + Emerging Zones
+            </h3>
+            <p className="mb-3">
+              New Gurgaon encompasses the rapidly developing sectors beyond NH-48 and Pataudi Road. Sectors 80–95 offer the most affordable new projects — 2 BHK starting at ₹45–65 lakh and 3 BHK from ₹75 lakh to ₹1.8 Cr. Builders like Signature Global, Pareena and ROF are delivering completed projects.
+            </p>
+            <p>
+              Infrastructure development — new metro corridors, DMIC (Delhi-Mumbai Industrial Corridor) proximity and IMT Manesar expansion — makes New Gurgaon a long-term growth story. Possession timelines are 2025–2028 for most new launches.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-display font-bold text-brand-dark mb-3 flex items-center gap-2">
+              <span className="text-brand-accent">05.</span> Sohna Road — Gurgaon's Mid-Luxury Sweet Spot
+            </h3>
+            <p className="mb-3">
+              Sohna Road (Sectors 48–70) bridges the gap between Golf Course Road pricing and New Gurgaon affordability. Projects like Paras The Manor, Central Park Bellavista and Emaar Urban Oasis offer 3–4 BHK apartments at ₹2.5 Cr–₹6 Cr — right in the sweet spot for upgrade buyers.
+            </p>
+            <p>
+              The Sohna elevated road has dramatically cut travel time to the Golf Course Extension corridor. Proximity to Rajiv Chowk metro, multiple schools (GD Goenka, Shriram, Heritage), and hospital clusters makes this ideal for families.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-display font-bold text-brand-dark mb-3 flex items-center gap-2">
+              <span className="text-brand-accent">06.</span> Gwal Pahari — Aravalli Views, Emerging Luxury Zone
+            </h3>
+            <p className="mb-3">
+              Gwal Pahari sits on the Gurgaon-Faridabad border with unobstructed Aravalli forest views. Godrej Meridien and Emaar projects have established this as Gurgaon's next luxury frontier. With limited land supply and the Aravalli zone being protected, properties here are a scarce asset — prices have risen 25% in 18 months.
+            </p>
+            <p>
+              The proposed RRTS (Rapid Rail Transit) corridor and proximity to Faridabad's industrial belt add long-term upside. Typical price: ₹8,000–₹14,000 per sq ft for new launches.
+            </p>
+          </div>
+
+          <div className="bg-brand-mint/40 border border-brand-border/40 rounded-2xl p-6">
+            <h3 className="text-lg font-display font-bold text-brand-dark mb-3">
+              Key Things to Verify Before Buying Any Project in Gurgaon
+            </h3>
+            <ul className="space-y-2 text-brand-muted text-sm">
+              <li className="flex gap-2"><span className="text-brand-accent font-bold flex-shrink-0">✓</span><span><strong className="text-brand-text">RERA Registration:</strong> Check haryanarera.gov.in for valid RERA number — never buy without it.</span></li>
+              <li className="flex gap-2"><span className="text-brand-accent font-bold flex-shrink-0">✓</span><span><strong className="text-brand-text">Builder Track Record:</strong> Verify previous project delivery timelines — DLF, Sobha, Godrej have the best delivery records in Gurgaon.</span></li>
+              <li className="flex gap-2"><span className="text-brand-accent font-bold flex-shrink-0">✓</span><span><strong className="text-brand-text">Possession Timeline:</strong> Under-construction projects carry higher risk — budget for 6–18 months delay beyond stated possession.</span></li>
+              <li className="flex gap-2"><span className="text-brand-accent font-bold flex-shrink-0">✓</span><span><strong className="text-brand-text">Floor Plans & Carpet Area:</strong> Super built-up area is 15–25% more than carpet area — always compare on carpet area basis.</span></li>
+              <li className="flex gap-2"><span className="text-brand-accent font-bold flex-shrink-0">✓</span><span><strong className="text-brand-text">Loan Approvals:</strong> Check if SBI, HDFC or ICICI has approved the project — it signals due diligence is done.</span></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function InternalLinksBlock({ currentPage }: { currentPage?: string }) {
   const allLinks = [
     { label: 'Luxury Property in Gurgaon', href: '/new-projects-in-gurgaon' },

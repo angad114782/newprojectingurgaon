@@ -123,11 +123,13 @@ export default function ProjectCard({ project, variant = 'default' }: ProjectCar
             <Link href={`/project/${slug}`}>
               <h3 className="font-display font-semibold text-brand-text text-base mb-1 group-hover:text-brand-dark transition-colors leading-snug">
                 {name}
+                {location && (
+                  <span className="block text-xs font-normal font-sans text-brand-muted mt-0.5">
+                    📍 {location}
+                  </span>
+                )}
               </h3>
             </Link>
-            <p className="text-brand-muted text-sm mb-3 flex items-center gap-1">
-              <span className="text-brand-accent">📍</span> {location}
-            </p>
 
             {/* Configs */}
             {configs.length > 0 && (

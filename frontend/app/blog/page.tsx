@@ -45,11 +45,11 @@ export default async function BlogPage() {
 
   // Fallback static blogs if DB is empty
   const staticBlogs = [
-    { slug: 'best-sectors-to-invest-in-gurgaon', title: 'Best Sectors to Invest in Gurgaon in 2025', excerpt: 'A sector-by-sector breakdown of where smart money is going in Gurgaon real estate in 2025.', category: 'Investment Guide', date: '2025-03-01', readTime: '8 min', heroImage: '', author: { name: 'New Projects in Gurgaon' } },
-    { slug: 'dwarka-expressway-investment-guide', title: "Dwarka Expressway Investment Guide 2025 — Why It's Still Gurgaon's Best Bet", excerpt: 'Everything you need to know before investing in a property on Dwarka Expressway.', category: 'Investment Guide', date: '2025-02-01', readTime: '10 min', heroImage: '', author: { name: 'New Projects in Gurgaon' } },
-    { slug: 'new-launch-vs-ready-to-move-property', title: 'New Launch vs Ready to Move Property in Gurgaon — What Should You Buy?', excerpt: 'A detailed comparison of new launch and ready-to-move properties in Gurgaon.', category: 'Buying Guide', date: '2025-01-01', readTime: '7 min', heroImage: '', author: { name: 'New Projects in Gurgaon' } },
-    { slug: 'how-to-check-rera-before-buying-property', title: 'How to Check RERA Registration Before Buying a Property in Gurgaon', excerpt: "Step-by-step guide to verifying a project's RERA status on haryanarera.gov.in.", category: 'Legal & RERA', date: '2024-12-01', readTime: '5 min', heroImage: '', author: { name: 'New Projects in Gurgaon' } },
-    { slug: 'best-builders-in-gurgaon', title: 'Best Builders in Gurgaon — Ranked by Delivery Record, Quality & Trust', excerpt: 'An honest ranking of top real estate builders in Gurgaon — DLF, Sobha, Godrej, M3M and more.', category: 'Builder Guide', date: '2024-11-01', readTime: '9 min', heroImage: '', author: { name: 'New Projects in Gurgaon' } },
+    { slug: 'best-sectors-to-invest-in-gurgaon', title: 'Best Sectors to Invest in Gurgaon in 2025', excerpt: 'A sector-by-sector breakdown of where smart money is going in Gurgaon real estate in 2025.', category: 'Investment Guide', date: '2025-03-01', readTime: '8 min', heroImage: '', author: { name: 'Priya Arora', designation: 'Senior Property Advisor' } },
+    { slug: 'dwarka-expressway-investment-guide', title: "Dwarka Expressway Investment Guide 2025 — Why It's Still Gurgaon's Best Bet", excerpt: 'Everything you need to know before investing in a property on Dwarka Expressway.', category: 'Investment Guide', date: '2025-02-01', readTime: '10 min', heroImage: '', author: { name: 'Rahul Mehta', designation: 'Investment Consultant' } },
+    { slug: 'new-launch-vs-ready-to-move-property', title: 'New Launch vs Ready to Move Property in Gurgaon — What Should You Buy?', excerpt: 'A detailed comparison of new launch and ready-to-move properties in Gurgaon.', category: 'Buying Guide', date: '2025-01-01', readTime: '7 min', heroImage: '', author: { name: 'Priya Arora', designation: 'Senior Property Advisor' } },
+    { slug: 'how-to-check-rera-before-buying-property', title: 'How to Check RERA Registration Before Buying a Property in Gurgaon', excerpt: "Step-by-step guide to verifying a project's RERA status on haryanarera.gov.in.", category: 'Legal & RERA', date: '2024-12-01', readTime: '5 min', heroImage: '', author: { name: 'Vikram Sharma', designation: 'RERA & Legal Expert' } },
+    { slug: 'best-builders-in-gurgaon', title: 'Best Builders in Gurgaon — Ranked by Delivery Record, Quality & Trust', excerpt: 'An honest ranking of top real estate builders in Gurgaon — DLF, Sobha, Godrej, M3M and more.', category: 'Builder Guide', date: '2024-11-01', readTime: '9 min', heroImage: '', author: { name: 'Rahul Mehta', designation: 'Investment Consultant' } },
   ];
 
   const displayBlogs = blogs.length > 0 ? blogs : staticBlogs;
@@ -144,7 +144,10 @@ export default async function BlogPage() {
                   </h2>
                   <p className="text-brand-muted text-sm leading-relaxed line-clamp-3">{blog.excerpt}</p>
                   {blog.author?.name && (
-                    <p className="text-xs text-brand-muted mt-2">By {blog.author.name}</p>
+                    <p className="text-xs text-brand-muted mt-2">
+                      By <span className="font-medium text-brand-text">{blog.author.name}</span>
+                      {blog.author.designation && <span className="text-brand-muted"> · {blog.author.designation}</span>}
+                    </p>
                   )}
                   <div className="mt-3 text-brand-dark text-sm font-semibold">Read More →</div>
                 </div>
