@@ -1,11 +1,9 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import ProjectCard from '@/components/project/ProjectCard';
 import LeadCTA from '@/components/lead/LeadCTA';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
 
 const TABS = [
   { label: 'All', value: '' },
@@ -14,23 +12,12 @@ const TABS = [
   { label: 'Ready To Move', value: 'Ready To Move' },
 ];
 
-export default function FeaturedProjects({ phone }: { phone?: string }) {
+export default function FeaturedProjects({ phone, initialProjects = [] }: { phone?: string; initialProjects?: any[] }) {
   const [activeTab, setActiveTab] = useState('');
-  const [allProjects, setAllProjects] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch(`${API}/projects?limit=20`)
-      .then((r) => r.json())
-      .then((d) => { if (d.success && d.data?.length > 0) setAllProjects(d.data); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
 
   const displayed = (() => {
-    if (loading) return [];
-    if (activeTab) return allProjects.filter((p) => p.status === activeTab).slice(0, 6);
-    return allProjects.filter((p) => p.isFeatured).concat(allProjects.filter((p) => !p.isFeatured)).slice(0, 6);
+    if (activeTab) return initialProjects.filter((p) => p.status === activeTab).slice(0, 6);
+    return initialProjects.filter((p) => p.isFeatured).concat(initialProjects.filter((p) => !p.isFeatured)).slice(0, 6);
   })();
 
   const callPhone = phone || process.env.NEXT_PUBLIC_PHONE || '+91-8619930583';
@@ -65,13 +52,7 @@ export default function FeaturedProjects({ phone }: { phone?: string }) {
           ))}
         </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-80 bg-gray-100 rounded-2xl animate-pulse" />
-            ))}
-          </div>
-        ) : displayed.length > 0 ? (
+        {displayed.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayed.map((project) => (
               <ProjectCard key={project.slug} project={project} />

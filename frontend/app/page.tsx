@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedProjects from '@/components/home/FeaturedProjects';
 import LeadForm from '@/components/home/LeadForm';
-import { LocationsSection, WhyChooseUs, BuilderLogos, TestimonialsSection, MarketStatsSection, FAQSection, InternalLinksBlock, LuxuryHighlightsStrip, GurgaonRealEstateGuide } from '@/components/home/HomeSections';
+import { LocationsSection, WhyChooseUs, BuilderLogos, TestimonialsSection, MarketStatsSection, FAQSection, InternalLinksBlock, LuxuryHighlightsStrip, GurgaonRealEstateGuide, LatestGuidesSection, MarketIntelligenceSection } from '@/components/home/HomeSections';
 import { ROICalculator } from '@/components/conversion/PsychTriggers';
 import { FAQSchema, SpeakableSchema } from '@/components/seo/SchemaMarkup';
 import { fetchSettings } from '@/lib/settings';
+import { fetchApiProjects } from '@/lib/api-projects';
 
 export const revalidate = 60;
 
@@ -38,7 +39,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
-  const settings = await fetchSettings();
+  const [settings, featuredProjects] = await Promise.all([
+    fetchSettings(),
+    fetchApiProjects({ limit: 20 }).catch(() => []),
+  ]);
 
   const faqsForSchema = settings.faqs?.length ? settings.faqs : [
     { q: 'What are luxury apartments available in Gurgaon above 5 crore?', a: 'Gurgaon has premium luxury apartments from ₹5 Cr–₹25 Cr+ across Golf Course Road, Dwarka Expressway and SPR Road by DLF, Sobha, M3M, Emaar and Oberoi. These offer 4–5 BHK configurations, private pools, smart-home technology and ultra-luxury amenities.' },
@@ -75,14 +79,17 @@ export default async function HomePage() {
       {/* Builder logos */}
       <BuilderLogos />
 
-      {/* Featured Projects */}
-      <FeaturedProjects phone={settings.phone} />
+      {/* Featured Projects — SSR data passed as props so Googlebot sees full content */}
+      <FeaturedProjects phone={settings.phone} initialProjects={featuredProjects} />
 
       {/* Location grid */}
       <LocationsSection />
 
       {/* Market Stats */}
       <MarketStatsSection />
+
+      {/* Market Intelligence — corridor data table + editorial insight for Google authority */}
+      <MarketIntelligenceSection />
 
       {/* Why Choose Us */}
       <WhyChooseUs />
@@ -125,6 +132,9 @@ export default async function HomePage() {
 
       {/* FAQs */}
       <FAQSection />
+
+      {/* Latest Investment Guides — direct blog post links for Google crawlability */}
+      <LatestGuidesSection />
 
       {/* Gurgaon Real Estate Area Guide — rich editorial content for Google */}
       <GurgaonRealEstateGuide />

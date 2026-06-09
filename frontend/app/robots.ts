@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
-import { headers } from 'next/headers';
 
 const BLOCKED_PATHS = ['/admin', '/admin/', '/api/'];
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com').replace(/\/$/, '');
 
 const AI_BOTS = [
   // Google
@@ -47,11 +48,6 @@ const AI_BOTS = [
 ];
 
 export default function robots(): MetadataRoute.Robots {
-  const headersList = headers();
-  const host = headersList.get('host') || 'localhost:3000';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const siteUrl = `${proto}://${host}`;
-
   const aiRules = AI_BOTS.map((bot) => ({
     userAgent: bot,
     allow: '/',
@@ -65,7 +61,7 @@ export default function robots(): MetadataRoute.Robots {
       // Default rule for everything else
       { userAgent: '*', allow: '/', disallow: BLOCKED_PATHS },
     ],
-    sitemap: [`${siteUrl}/sitemap.xml`, `${siteUrl}/image-sitemap.xml`],
-    host: siteUrl,
+    sitemap: [`${SITE_URL}/sitemap.xml`, `${SITE_URL}/image-sitemap.xml`],
+    host: SITE_URL,
   };
 }

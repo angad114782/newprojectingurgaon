@@ -374,6 +374,254 @@ export function LuxuryHighlightsStrip() {
   );
 }
 
+// ── Market Intelligence Section — unique data signals for Google authority ────
+export function MarketIntelligenceSection() {
+  const corridors = [
+    {
+      name: 'Dwarka Expressway',
+      href: '/dwarka-expressway-projects',
+      priceRange: '₹7,000–14,500/sqft',
+      appreciation: '45–65%',
+      rentalYield: '3.5–4.5%',
+      hotSectors: 'Sectors 104–113',
+      bestFor: 'Investment + NRI',
+      tag: '🔥 Highest ROI',
+      tagColor: 'bg-red-50 text-red-700 border-red-200',
+    },
+    {
+      name: 'Golf Course Ext Road',
+      href: '/golf-course-extension-road-projects',
+      priceRange: '₹10,500–17,500/sqft',
+      appreciation: '40–55%',
+      rentalYield: '3–4%',
+      hotSectors: 'Sectors 57–75',
+      bestFor: 'Luxury End-Use',
+      tag: '⭐ Premium Lifestyle',
+      tagColor: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    },
+    {
+      name: 'SPR Road',
+      href: '/spr-road-projects',
+      priceRange: '₹8,000–13,500/sqft',
+      appreciation: '50–62%',
+      rentalYield: '3.5–5%',
+      hotSectors: 'Sectors 65–85',
+      bestFor: 'Investors 3–5Y',
+      tag: '📈 Emerging Luxury',
+      tagColor: 'bg-green-50 text-green-700 border-green-200',
+    },
+    {
+      name: 'New Gurgaon',
+      href: '/new-gurgaon-projects',
+      priceRange: '₹4,500–7,500/sqft',
+      appreciation: '40–52%',
+      rentalYield: '4.5–5.5%',
+      hotSectors: 'Sectors 81–95',
+      bestFor: 'Affordable Entry',
+      tag: '💰 Best Value',
+      tagColor: 'bg-blue-50 text-blue-700 border-blue-200',
+    },
+  ];
+
+  const dataPoints = [
+    { label: 'Avg 3-Year Appreciation', value: '38%', sub: 'Across key Gurgaon corridors', icon: '📈' },
+    { label: 'New Projects in 2025', value: '65+', sub: 'RERA-registered new launches', icon: '🏗️' },
+    { label: 'Airport Distance', value: '10 min', sub: 'Sector 113 to IGI Terminal 3', icon: '✈️' },
+    { label: 'Metro Connectivity', value: '8 Lines', sub: 'DMRC lines serving Gurgaon', icon: '🚇' },
+    { label: 'Top Builder Count', value: '25+', sub: 'Active in Gurgaon 2025', icon: '🏢' },
+    { label: 'RERA Registered', value: '100%', sub: 'All listed projects verified', icon: '✅' },
+  ];
+
+  return (
+    <section className="py-16 bg-brand-dark">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="text-center mb-12">
+          <span className="inline-block bg-brand-accent/20 text-brand-accent text-xs font-semibold px-4 py-1.5 rounded-full mb-3 uppercase tracking-widest">
+            📊 Gurgaon Property Market Report 2025
+          </span>
+          <h2 className="text-3xl font-display font-bold text-white mb-3">
+            Live Market Intelligence — Corridor-by-Corridor Breakdown
+          </h2>
+          <p className="text-white/60 text-base max-w-2xl mx-auto">
+            Data-backed pricing, appreciation trends and rental yields across Gurgaon's top investment corridors — updated quarterly by our research team.
+          </p>
+        </div>
+
+        {/* Key data points */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+          {dataPoints.map((d) => (
+            <div key={d.label} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+              <div className="text-2xl mb-1">{d.icon}</div>
+              <div className="text-2xl font-display font-bold text-brand-accent">{d.value}</div>
+              <div className="text-white/80 text-xs font-medium mt-0.5 leading-snug">{d.label}</div>
+              <div className="text-white/40 text-xs mt-0.5">{d.sub}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Corridor comparison table */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+          {corridors.map((c) => (
+            <Link key={c.href} href={c.href}
+              className="group bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 hover:border-brand-accent/30 transition-all duration-300">
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="font-display font-bold text-white text-base group-hover:text-brand-accent transition-colors">
+                  {c.name}
+                </h3>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${c.tagColor}`}>
+                  {c.tag}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-3">
+                <div>
+                  <span className="text-white/40 text-xs block">Price Range</span>
+                  <span className="text-white/90 font-medium">{c.priceRange}</span>
+                </div>
+                <div>
+                  <span className="text-white/40 text-xs block">3-Year Appreciation</span>
+                  <span className="text-brand-accent font-bold">{c.appreciation}</span>
+                </div>
+                <div>
+                  <span className="text-white/40 text-xs block">Rental Yield</span>
+                  <span className="text-white/90 font-medium">{c.rentalYield}</span>
+                </div>
+                <div>
+                  <span className="text-white/40 text-xs block">Best Suited For</span>
+                  <span className="text-white/90 font-medium">{c.bestFor}</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/40 text-xs">Hot zone: {c.hotSectors}</span>
+                <span className="text-brand-accent text-xs font-semibold group-hover:translate-x-1 transition-transform inline-block">
+                  View Projects →
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Editorial insight */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 max-w-4xl mx-auto">
+          <h3 className="text-white font-display font-bold text-lg mb-3">
+            Our 2025 Investment View — Where Smart Money Is Going
+          </h3>
+          <p className="text-white/70 text-sm leading-relaxed mb-3">
+            Dwarka Expressway remains the standout corridor for ROI — with IGI Airport at 10–15 minutes, Metro Phase II incoming,
+            and a permanent supply constraint from the Delhi border just 2 km away, the structural case for appreciation is the strongest in NCR.
+            Sectors 104–113 are our top pick for capital preservation with upside.
+          </p>
+          <p className="text-white/70 text-sm leading-relaxed">
+            For luxury end-use with the best lifestyle infrastructure, Golf Course Extension Road (Sectors 57–75) remains unmatched.
+            SPR Road (DLF Privana belt) is our dark horse — prices will reprice further when DLF Privana West takes possession in 2026.
+            New Gurgaon is the best entry-level play with rental yields above 5% from Manesar industrial demand.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/blog/best-sectors-to-invest-in-gurgaon" className="text-brand-accent text-sm font-semibold hover:underline">
+              Read Full Sector Analysis →
+            </Link>
+            <Link href="/blog/dwarka-expressway-investment-guide" className="text-brand-accent text-sm font-semibold hover:underline">
+              Dwarka Expressway Deep Dive →
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Latest Real Estate Guides — direct blog post links for crawlability ───────
+export function LatestGuidesSection() {
+  const guides = [
+    {
+      href: '/blog/best-sectors-to-invest-in-gurgaon',
+      title: 'Best Sectors to Invest in Gurgaon in 2025',
+      excerpt: 'Sector-by-sector breakdown of where smart money is going — Dwarka Expressway, Golf Course Extension & SPR Road ranked.',
+      category: 'Investment Guide',
+      icon: '📊',
+    },
+    {
+      href: '/blog/dwarka-expressway-investment-guide',
+      title: "Dwarka Expressway Investment Guide 2025",
+      excerpt: 'Why Dwarka Expressway outperforms every Gurgaon corridor — IGI Airport proximity, Metro Phase II and sector-wise prices.',
+      category: 'Investment Guide',
+      icon: '✈️',
+    },
+    {
+      href: '/blog/best-builders-in-gurgaon',
+      title: 'Best Builders in Gurgaon — Ranked by Delivery & Trust',
+      excerpt: 'Honest ranking of top Gurgaon builders — DLF, Sobha, Godrej, M3M — by delivery record, quality and resale value.',
+      category: 'Builder Guide',
+      icon: '🏗️',
+    },
+    {
+      href: '/blog/how-to-check-rera-before-buying-property',
+      title: 'How to Check RERA Before Buying a Property',
+      excerpt: 'Step-by-step guide to verify any Gurgaon project on haryanarera.gov.in — protect yourself from fraud.',
+      category: 'Legal & RERA',
+      icon: '✅',
+    },
+    {
+      href: '/blog/new-launch-vs-ready-to-move-property',
+      title: 'New Launch vs Ready to Move — What Should You Buy?',
+      excerpt: 'Detailed comparison of under-construction vs RTM properties in Gurgaon — ROI, risks and our recommendation.',
+      category: 'Buying Guide',
+      icon: '🔑',
+    },
+  ];
+
+  return (
+    <section className="py-16 bg-brand-mint/20 border-t border-brand-border/30">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="text-center mb-10">
+          <span className="inline-block bg-white text-brand-dark text-xs font-semibold px-4 py-1.5 rounded-full mb-3 border border-brand-border/40 uppercase tracking-widest">
+            📚 Buyer's Resource Centre
+          </span>
+          <h2 className="text-3xl font-display font-bold text-brand-dark mb-3">
+            Gurgaon Real Estate Investment Guides
+          </h2>
+          <p className="text-brand-muted text-base max-w-2xl mx-auto">
+            Expert guides written by RERA-registered advisors — everything you need to make the right property decision in Gurgaon.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {guides.map((g) => (
+            <Link
+              key={g.href}
+              href={g.href}
+              className="group bg-white rounded-2xl border border-brand-border/50 p-5 hover:border-brand-accent/40 hover:shadow-card hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">{g.icon}</span>
+                <span className="text-xs font-semibold bg-brand-mint text-brand-dark border border-brand-border px-2.5 py-1 rounded-full">
+                  {g.category}
+                </span>
+              </div>
+              <h3 className="font-display font-bold text-brand-text text-base mb-2 group-hover:text-brand-dark leading-snug">
+                {g.title}
+              </h3>
+              <p className="text-brand-muted text-sm leading-relaxed line-clamp-2">{g.excerpt}</p>
+              <div className="mt-3 text-brand-accent text-sm font-semibold group-hover:translate-x-1 transition-transform inline-block">
+                Read Guide →
+              </div>
+            </Link>
+          ))}
+
+          {/* View all blogs CTA */}
+          <Link
+            href="/blog"
+            className="group bg-gradient-to-br from-brand-dark to-[#06616B] rounded-2xl border border-white/10 p-5 flex flex-col justify-center items-center text-center hover:shadow-card hover:-translate-y-1 transition-all duration-300"
+          >
+            <span className="text-4xl mb-3">📖</span>
+            <h3 className="font-display font-bold text-white text-base mb-2">All Investment Guides</h3>
+            <p className="text-white/60 text-sm">Read all Gurgaon real estate guides and market updates →</p>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Internal Links Block — important for SEO / AIO / GEO ──────────────────────
 // ── Gurgaon Real Estate Guide ──────────────────────────────────────────────────
 export function GurgaonRealEstateGuide() {
@@ -496,7 +744,6 @@ export function InternalLinksBlock({ currentPage }: { currentPage?: string }) {
     { label: 'Luxury Property in Gurgaon', href: '/new-projects-in-gurgaon' },
     { label: 'New Launch Projects Gurgaon', href: '/new-launch-projects-in-gurgaon' },
     { label: 'Residential Property in Gurgaon', href: '/residential-property-in-gurgaon' },
-    { label: 'New Projects in Gurgaon 2025', href: '/new-projects-in-gurgaon' },
     { label: 'Projects on Dwarka Expressway', href: '/dwarka-expressway-projects' },
     { label: 'Projects on SPR Road', href: '/spr-road-projects' },
     { label: 'Golf Course Extension Road', href: '/golf-course-extension-road-projects' },
@@ -506,6 +753,11 @@ export function InternalLinksBlock({ currentPage }: { currentPage?: string }) {
     { label: 'Sector 102 Property Gurgaon', href: '/sector-102-gurgaon-property' },
     { label: '2 BHK in Sector 37D Gurgaon', href: '/sector-37d-gurgaon-property' },
     { label: 'Gurgaon Real Estate Blog', href: '/blog' },
+    { label: 'Best Builders in Gurgaon', href: '/blog/best-builders-in-gurgaon' },
+    { label: 'Best Sectors to Invest in Gurgaon', href: '/blog/best-sectors-to-invest-in-gurgaon' },
+    { label: 'Dwarka Expressway Investment Guide', href: '/blog/dwarka-expressway-investment-guide' },
+    { label: 'How to Check RERA Registration', href: '/blog/how-to-check-rera-before-buying-property' },
+    { label: 'New Launch vs Ready to Move', href: '/blog/new-launch-vs-ready-to-move-property' },
   ];
   const links = allLinks.filter((l) => l.href !== currentPage);
 

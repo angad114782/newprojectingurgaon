@@ -1,19 +1,26 @@
 import { MetadataRoute } from 'next';
 import { ALL_SEO_PAGES } from '@/lib/projects';
 import { fetchBlogs } from '@/lib/api-blogs';
-import { headers } from 'next/headers';
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
 
 // Fixed date — update this only when the page's content meaningfully changes.
 const SITE_LAUNCH = new Date('2025-12-01');
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const headersList = headers();
-  const host = headersList.get('host') || 'localhost:3000';
-  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https';
-  const BASE = `${proto}://${host}`;
+// Use env var as primary — reliable in all environments (CDN, proxy, Vercel, etc.)
+const BASE = (process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com').replace(/\/$/, '');
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
+
+// These 5 blog posts always exist as static fallbacks in /blog/[slug]/page.tsx
+// regardless of DB state — they MUST be in the sitemap at all times.
+const STATIC_BLOG_SLUGS: { slug: string; date: string }[] = [
+  { slug: 'best-sectors-to-invest-in-gurgaon',       date: '2025-03-01' },
+  { slug: 'dwarka-expressway-investment-guide',        date: '2025-02-01' },
+  { slug: 'new-launch-vs-ready-to-move-property',     date: '2025-01-01' },
+  { slug: 'how-to-check-rera-before-buying-property', date: '2024-12-01' },
+  { slug: 'best-builders-in-gurgaon',                 date: '2024-11-01' },
+];
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Projects — fetch with real timestamps so Google gets accurate freshness signals
   type ProjectEntry = { slug: string; updatedAt?: string };
   let projects: ProjectEntry[] = [];
@@ -27,9 +34,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {}
 
-  // Blogs — only published entries from DB (no hardcoded static slugs)
+  // DB blogs (published only) merged with static fallbacks — deduplicated by slug
   const allBlogs = await fetchBlogs();
-  const publishedBlogs = allBlogs.filter((b) => b.status === 'published');
+  const publishedDbBlogs = allBlogs.filter((b) => b.status === 'published');
+  const dbSlugs = new Set(publishedDbBlogs.map((b) => b.slug));
+
+  // Static blogs that are NOT already in the DB result
+  const staticBlogEntries = STATIC_BLOG_SLUGS.filter((s) => !dbSlugs.has(s.slug));
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE, changeFrequency: 'daily', priority: 1.0, lastModified: new Date() },
@@ -39,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
       lastModified: SITE_LAUNCH,
     })),
-    { url: `${BASE}/blog`,          changeFrequency: 'weekly',  priority: 0.7,  lastModified: new Date() },
+    { url: `${BASE}/blog`,          changeFrequency: 'weekly',  priority: 0.75, lastModified: new Date() },
     { url: `${BASE}/about`,         changeFrequency: 'monthly', priority: 0.75, lastModified: SITE_LAUNCH },
     { url: `${BASE}/contact`,       changeFrequency: 'monthly', priority: 0.75, lastModified: SITE_LAUNCH },
     { url: `${BASE}/privacy-policy`,changeFrequency: 'yearly',  priority: 0.3,  lastModified: SITE_LAUNCH },
@@ -54,7 +65,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  const blogPages: MetadataRoute.Sitemap = publishedBlogs.map((blog) => ({
+  // DB blog pages
+  const dbBlogPages: MetadataRoute.Sitemap = publishedDbBlogs.map((blog) => ({
     url: `${BASE}/blog/${blog.slug}`,
     lastModified: blog.dateModified
       ? new Date(blog.dateModified)
@@ -62,8 +74,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? new Date(blog.date)
       : SITE_LAUNCH,
     changeFrequency: 'monthly',
-    priority: 0.7,
+    priority: 0.75,
   }));
 
-  return [...staticPages, ...projectPages, ...blogPages];
+  // Static fallback blog pages (always present)
+  const staticBlogPages: MetadataRoute.Sitemap = staticBlogEntries.map((b) => ({
+    url: `${BASE}/blog/${b.slug}`,
+    lastModified: new Date(b.date),
+    changeFrequency: 'monthly',
+    priority: 0.75,
+  }));
+
+  return [...staticPages, ...projectPages, ...dbBlogPages, ...staticBlogPages];
 }

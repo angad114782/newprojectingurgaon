@@ -42,7 +42,6 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [{ url: ogImage, width: 1200, height: 630, alt: `New Projects in Gurgaon 2025 — ${siteName}` }],
     },
     twitter: { card: 'summary_large_image', title, description, images: [ogImage], site: '@newprojectsingurgaon' },
-    alternates: { canonical: siteUrl },
     icons: {
       icon: settings.faviconUrl
         ? [{ url: settings.faviconUrl, sizes: '32x32', type: 'image/png' }]

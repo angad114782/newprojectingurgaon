@@ -289,6 +289,29 @@ export default async function NewLaunchPage() {
         </div>
       </section>
 
+      {/* Blog Guides */}
+      <section className="py-12 bg-white border-t border-brand-border/30">
+        <div className="max-w-7xl mx-auto px-4">
+          <p className="text-brand-muted text-xs font-semibold uppercase tracking-widest mb-6 text-center">Expert Guides for New Launch Buyers</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { href: '/blog/new-launch-vs-ready-to-move-property', label: 'New Launch vs Ready to Move — What to Buy?', icon: '🔑' },
+              { href: '/blog/best-sectors-to-invest-in-gurgaon', label: 'Best Sectors to Invest in Gurgaon 2025', icon: '📊' },
+              { href: '/blog/dwarka-expressway-investment-guide', label: 'Dwarka Expressway Investment Guide', icon: '✈️' },
+              { href: '/blog/how-to-check-rera-before-buying-property', label: 'How to Check RERA Before Buying', icon: '✅' },
+              { href: '/blog/best-builders-in-gurgaon', label: 'Best Builders in Gurgaon — Ranked', icon: '🏗️' },
+              { href: '/blog', label: 'All Real Estate Guides & Market Updates', icon: '📚' },
+            ].map((g) => (
+              <Link key={g.href} href={g.href}
+                className="flex items-center gap-3 bg-brand-mint/30 border border-brand-border/50 px-4 py-3 rounded-xl text-brand-muted text-sm hover:text-brand-dark hover:border-brand-accent/40 hover:bg-brand-mint/60 transition-all duration-200">
+                <span className="text-xl flex-shrink-0">{g.icon}</span>
+                <span className="font-medium leading-snug">{g.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Internal Links */}
       <section className="py-10 bg-brand-mint/30 border-y border-brand-border/40">
         <div className="max-w-7xl mx-auto px-4">
@@ -300,6 +323,8 @@ export default async function NewLaunchPage() {
               { label: 'Residential Property Gurgaon', href: '/residential-property-in-gurgaon' },
               { label: 'Sector 113 Property', href: '/sector-113-gurgaon-property' },
               { label: 'Golf Course Ext Road', href: '/golf-course-extension-road-projects' },
+              { label: 'SPR Road Projects', href: '/spr-road-projects' },
+              { label: 'New Gurgaon Projects', href: '/new-gurgaon-projects' },
             ].map((l) => (
               <Link key={l.href} href={l.href} className="bg-white border border-brand-border/60 px-4 py-2 rounded-full text-brand-muted text-sm hover:text-brand-dark hover:border-brand-accent/40 transition-all">
                 {l.label}

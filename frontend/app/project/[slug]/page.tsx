@@ -72,12 +72,13 @@ async function getProject(slug: string) {
   return await fetchProjectBySlug(slug);
 }
 
+export const revalidate = 60;
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
   const apiSlugs = await fetchAllProjectSlugs();
   return apiSlugs.map((slug) => ({ slug }));
 }
-
-export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';

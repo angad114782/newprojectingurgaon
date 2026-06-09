@@ -151,13 +151,18 @@ export default async function BlogPage() {
 
       <section className="py-10 bg-brand-mint/30 border-y border-brand-border/40">
         <div className="max-w-7xl mx-auto px-4">
-          <p className="text-brand-muted text-sm mb-4 text-center">Related Pages</p>
+          <p className="text-brand-muted text-sm font-semibold mb-4 text-center uppercase tracking-widest">Explore More</p>
           <div className="flex flex-wrap justify-center gap-3">
             {[
               { label: 'New Projects in Gurgaon', href: '/new-projects-in-gurgaon' },
               { label: 'New Launch Projects', href: '/new-launch-projects-in-gurgaon' },
-              { label: 'Dwarka Expressway', href: '/dwarka-expressway-projects' },
+              { label: 'Dwarka Expressway Projects', href: '/dwarka-expressway-projects' },
+              { label: 'Golf Course Extension Road', href: '/golf-course-extension-road-projects' },
+              { label: 'SPR Road Projects', href: '/spr-road-projects' },
+              { label: 'New Gurgaon Projects', href: '/new-gurgaon-projects' },
               { label: 'Residential Property', href: '/residential-property-in-gurgaon' },
+              { label: 'Sector 113 Gurgaon', href: '/sector-113-gurgaon-property' },
+              { label: 'Sector 106 Gurgaon', href: '/sector-106-gurgaon-property' },
             ].map((l) => (
               <Link key={l.href} href={l.href} className="bg-white border border-brand-border/60 px-4 py-2 rounded-full text-brand-muted text-sm hover:text-brand-dark transition-all">
                 {l.label}
