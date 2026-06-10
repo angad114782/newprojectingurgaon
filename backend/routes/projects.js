@@ -1,15 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
+const SiteSettings = require('../models/SiteSettings');
 
 // GET /api/projects — List with filters
 router.get('/', async (req, res) => {
   try {
-    const { status, corridor, sector, microLocation, minPrice, maxPrice, config, featured, limit = 12, page = 1, sort = '-createdAt' } = req.query;
+    const { status, corridor, city, sector, microLocation, minPrice, maxPrice, config, featured, limit = 12, page = 1, sort = '-createdAt' } = req.query;
 
     const query = { isActive: true };
     if (status) query.status = status;
     if (corridor) query.corridor = { $regex: corridor, $options: 'i' };
+    if (city) {
+      // Map city slug to corridor names, then filter projects by those corridors
+      const settings = await SiteSettings.findOne().lean().select('corridors');
+      const cityName = city.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      const corridorNames = (settings?.corridors || [])
+        .filter(c => (c.city || 'Gurgaon').toLowerCase() === city.toLowerCase())
+        .map(c => c.name);
+      if (!corridorNames.length) {
+        return res.json({ success: true, data: [], total: 0, page: 1, pages: 0 });
+      }
+      query.corridor = { $in: corridorNames };
+    }
     if (sector) query.sector = { $regex: sector, $options: 'i' };
     if (microLocation) query.microLocation = { $regex: microLocation, $options: 'i' };
     if (featured === 'true') query.isFeatured = true;

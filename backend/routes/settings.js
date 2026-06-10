@@ -111,7 +111,9 @@ router.post('/corridors', protect, async (req, res) => {
     const { name, icon, city } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Name required' });
     const slug = name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim('-');
-    const href = `/corridor/${slug}`;
+    const citySlug = (city || 'Gurgaon').toLowerCase().replace(/\s+/g, '-');
+    // Non-Gurgaon cities get a clean city page URL (e.g. /bhiwadi), Gurgaon gets corridor URL
+    const href = (!city || city === 'Gurgaon') ? `/corridor/${slug}` : `/${citySlug}`;
     let settings = await SiteSettings.findOne();
     if (!settings) settings = await SiteSettings.create({});
     // Prevent duplicate

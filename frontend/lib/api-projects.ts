@@ -90,6 +90,7 @@ async function apiFetch(path: string, options: RequestInit = {}): Promise<any> {
 // ── Fetch projects with query params ─────────────────────────────────────────
 export async function fetchApiProjects(params: {
   corridor?: string;
+  city?: string;
   sector?: string;
   status?: string;
   featured?: boolean;
@@ -102,6 +103,7 @@ export async function fetchApiProjects(params: {
   try {
     const qs = new URLSearchParams();
     if (params.corridor) qs.set('corridor', params.corridor);
+    if (params.city) qs.set('city', params.city);
     if (params.sector) qs.set('sector', params.sector);
     if (params.status) qs.set('status', params.status);
     if (params.featured) qs.set('featured', 'true');
