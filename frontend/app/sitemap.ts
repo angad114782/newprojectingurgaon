@@ -2,8 +2,11 @@ import { MetadataRoute } from 'next';
 import { ALL_SEO_PAGES } from '@/lib/projects';
 import { fetchBlogs } from '@/lib/api-blogs';
 
-// Fixed date — update this only when the page's content meaningfully changes.
-const SITE_LAUNCH = new Date('2025-12-01');
+export const revalidate = 3600; // regenerate sitemap every hour
+
+// Use today as the lastmod for all active pages — signals freshness to Google
+const TODAY = new Date();
+const SITE_LAUNCH = TODAY; // kept for naming compat
 
 // Use env var as primary — reliable in all environments (CDN, proxy, Vercel, etc.)
 const BASE = (process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com').replace(/\/$/, '');
