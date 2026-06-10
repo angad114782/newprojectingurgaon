@@ -10,6 +10,7 @@ type Lead = {
   _id: string; name: string; mobile: string; email?: string;
   score: number; status: string; source?: string; interestedProject?: string;
   budget?: string; buyerType?: string; createdAt: string;
+  isVerified?: boolean; sourceURL?: string; projectSlug?: string;
   assignedTo?: { name: string };
 };
 
@@ -93,9 +94,38 @@ function LeadDrawer({ lead, onClose, onUpdate, token, authH }: {
             ].map(item => (
               <div key={item.label} className="bg-slate-50 rounded-xl p-3">
                 <p className="text-[10px] font-semibold text-slate-400 uppercase">{item.label}</p>
-                <p className="text-sm font-semibold text-slate-700 mt-0.5 truncate">{item.value}</p>
+                <p className="text-sm font-semibold text-slate-700 mt-0.5 truncate">{String(item.value)}</p>
               </div>
             ))}
+
+            {/* OTP Verified */}
+            <div className="bg-slate-50 rounded-xl p-3">
+              <p className="text-[10px] font-semibold text-slate-400 uppercase">OTP Verified</p>
+              {lead.isVerified
+                ? <span className="inline-flex items-center gap-1 text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full mt-1">✅ Verified</span>
+                : <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full mt-1">⏳ Not verified</span>
+              }
+            </div>
+
+            {/* Source URL */}
+            {lead.sourceURL && (
+              <div className="bg-slate-50 rounded-xl p-3 col-span-2">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase">Source Page</p>
+                <a href={lead.sourceURL} target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-emerald-600 underline truncate block mt-0.5 hover:text-emerald-800">
+                  {lead.sourceURL}
+                </a>
+              </div>
+            )}
+            {lead.projectSlug && (
+              <div className="bg-slate-50 rounded-xl p-3 col-span-2">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase">Project Page</p>
+                <a href={`/project/${lead.projectSlug}`} target="_blank" rel="noopener noreferrer"
+                  className="text-xs text-blue-600 underline truncate block mt-0.5 hover:text-blue-800">
+                  /project/{lead.projectSlug}
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Status update */}
@@ -304,7 +334,12 @@ export default function LeadsPage() {
                       <span className="font-medium text-slate-800 truncate max-w-28">{lead.name || 'Unknown'}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{lead.mobile}</td>
+                  <td className="px-4 py-3 text-slate-600">
+                    <div className="flex items-center gap-1.5">
+                      {lead.mobile}
+                      {lead.isVerified && <span title="OTP Verified" className="text-green-600 text-xs">✅</span>}
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-slate-500 truncate max-w-32">{lead.interestedProject || '—'}</td>
                   <td className="px-4 py-3 text-slate-500">{lead.budget || '—'}</td>
                   <td className="px-4 py-3 text-slate-500">{lead.source || '—'}</td>

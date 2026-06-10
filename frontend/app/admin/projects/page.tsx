@@ -7,7 +7,7 @@ import {
   ListInput, ImageUploader, FloorPlansInput, FAQInput, Toast,
 } from '../_components/shared';
 
-const CORRIDORS = ['Dwarka Expressway', 'Golf Course Road', 'Golf Course Extension Road', 'SPR Road', 'Sohna Road', 'New Gurgaon', 'MG Road', 'Other'];
+const DEFAULT_CORRIDORS = ['Dwarka Expressway', 'Golf Course Road', 'Golf Course Extension Road', 'SPR Road', 'Sohna Road', 'New Gurgaon', 'MG Road', 'Other'];
 const STATUSES = ['New Launch', 'Pre Launch', 'Under Construction', 'Ready To Move'];
 const SECTIONS = [
   { key: 'basic', label: 'Basic Info' },
@@ -52,6 +52,11 @@ export default function ProjectsPage() {
   const [csvImporting, setCsvImporting] = useState(false);
   const [csvResult, setCsvResult] = useState<any>(null);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [corridors, setCorridors] = useState<{ name: string; slug: string }[]>([]);
+  const [newCorridorName, setNewCorridorName] = useState('');
+  const [newCorridorIcon, setNewCorridorIcon] = useState('🛣️');
+  const [corridorModalOpen, setCorridorModalOpen] = useState(false);
+  const [corridorSaving, setCorridorSaving] = useState(false);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -62,7 +67,42 @@ export default function ProjectsPage() {
     setLoading(false);
   }, [token, authH]);
 
-  useEffect(() => { load(); }, [load]);
+  const loadCorridors = useCallback(async () => {
+    try {
+      const r = await fetch(`${API}/settings/corridors`);
+      const d = await r.json();
+      if (d.success) setCorridors(d.data || []);
+      else setCorridors(DEFAULT_CORRIDORS.map(n => ({ name: n, slug: n.toLowerCase().replace(/\s+/g, '-') })));
+    } catch { setCorridors(DEFAULT_CORRIDORS.map(n => ({ name: n, slug: n.toLowerCase().replace(/\s+/g, '-') }))); }
+  }, []);
+
+  const addCorridor = async () => {
+    if (!newCorridorName.trim()) return;
+    setCorridorSaving(true);
+    try {
+      const r = await fetch(`${API}/settings/corridors`, {
+        method: 'POST', headers: authH(), body: JSON.stringify({ name: newCorridorName.trim(), icon: newCorridorIcon }),
+      });
+      const d = await r.json();
+      if (d.success) { setCorridors(d.data); setNewCorridorName(''); setNewCorridorIcon('🛣️'); setToast({ msg: 'Corridor added!', type: 'success' }); }
+      else setToast({ msg: d.message || 'Failed', type: 'error' });
+    } catch { setToast({ msg: 'Network error', type: 'error' }); }
+    finally { setCorridorSaving(false); }
+  };
+
+  const deleteCorridor = async (slug: string) => {
+    if (!confirm('Delete this corridor? Projects using it won\'t be deleted.')) return;
+    try {
+      const r = await fetch(`${API}/settings/corridors/${slug}`, { method: 'DELETE', headers: authH() });
+      const d = await r.json();
+      if (d.success) { setCorridors(d.data); setToast({ msg: 'Corridor deleted', type: 'success' }); }
+      else setToast({ msg: d.message || 'Failed', type: 'error' });
+    } catch { setToast({ msg: 'Network error', type: 'error' }); }
+  };
+
+  useEffect(() => { load(); loadCorridors(); }, [load, loadCorridors]);
+
+  const allCorridorNames = corridors.length ? corridors.map(c => c.name) : DEFAULT_CORRIDORS;
 
   const filtered = projects.filter(p => {
     const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.builder?.name?.toLowerCase().includes(search.toLowerCase());
@@ -154,12 +194,16 @@ export default function ProjectsPage() {
             className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${corridorFilter === 'all' ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
             All
           </button>
-          {CORRIDORS.slice(0, 5).map(c => (
+          {allCorridorNames.slice(0, 6).map(c => (
             <button key={c} onClick={() => setCorridorFilter(c)}
               className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${corridorFilter === c ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>
               {c.replace('Expressway', 'Exp.').replace('Extension', 'Ext.')}
             </button>
           ))}
+          <button onClick={() => setCorridorModalOpen(true)}
+            className="px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-all whitespace-nowrap">
+            ⚙️ Corridors
+          </button>
         </div>
         <p className="text-xs text-slate-400 ml-auto">{filtered.length} shown</p>
       </div>
@@ -274,7 +318,7 @@ export default function ProjectsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Corridor">
                   <Select value={form.corridor} onChange={(v) => f('corridor', v)}
-                    options={CORRIDORS.map(c => ({ value: c, label: c }))} />
+                    options={allCorridorNames.map(c => ({ value: c, label: c }))} />
                 </Field>
                 <Field label="Status">
                   <Select value={form.status} onChange={(v) => f('status', v)}
@@ -508,6 +552,47 @@ export default function ProjectsPage() {
       </Modal>
 
       {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+
+      {/* Corridor Management Modal */}
+      <Modal open={corridorModalOpen} onClose={() => setCorridorModalOpen(false)} title="Corridors Manager" width="max-w-lg">
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-xs text-blue-700">
+            Corridor add karo → automatically header nav aur homepage mein show hoga. New corridors ka page <code>/corridor/[slug]</code> pe banta hai.
+          </div>
+
+          {/* Add new */}
+          <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+            <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Add New Corridor</p>
+            <div className="flex gap-2">
+              <input className="w-12 border border-slate-200 rounded-xl px-2 py-2 text-center text-lg focus:outline-none"
+                value={newCorridorIcon} onChange={(e) => setNewCorridorIcon(e.target.value)} placeholder="🛣️" />
+              <input className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+                value={newCorridorName} onChange={(e) => setNewCorridorName(e.target.value)}
+                placeholder="e.g. Palam Vihar Road" onKeyDown={(e) => e.key === 'Enter' && addCorridor()} />
+              <button onClick={addCorridor} disabled={corridorSaving || !newCorridorName.trim()}
+                className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-semibold hover:bg-emerald-600 disabled:opacity-50 transition-colors">
+                {corridorSaving ? '…' : '+ Add'}
+              </button>
+            </div>
+          </div>
+
+          {/* Existing corridors */}
+          <div className="divide-y divide-slate-100">
+            {corridors.map(c => (
+              <div key={c.slug} className="flex items-center justify-between py-2.5 px-1">
+                <div>
+                  <p className="text-sm font-medium text-slate-800">{(c as any).icon || '🛣️'} {c.name}</p>
+                  <p className="text-xs text-slate-400 font-mono">{(c as any).href || `/corridor/${c.slug}`}</p>
+                </div>
+                <button onClick={() => deleteCorridor(c.slug)}
+                  className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors">
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

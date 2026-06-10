@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedProjects from '@/components/home/FeaturedProjects';
 import LeadForm from '@/components/home/LeadForm';
-import { LocationsSection, WhyChooseUs, BuilderLogos, TestimonialsSection, MarketStatsSection, FAQSection, InternalLinksBlock, LuxuryHighlightsStrip, GurgaonRealEstateGuide, LatestGuidesSection, MarketIntelligenceSection } from '@/components/home/HomeSections';
+import { LocationsSection, WhyChooseUs, BuilderLogos, TestimonialsSection, MarketStatsSection, FAQSection, InternalLinksBlock, LuxuryHighlightsStrip, GurgaonRealEstateGuide, LatestGuidesSection, MarketIntelligenceSection, DynamicCorridorsSection } from '@/components/home/HomeSections';
 import { ROICalculator } from '@/components/conversion/PsychTriggers';
 import { FAQSchema, SpeakableSchema } from '@/components/seo/SchemaMarkup';
 import { fetchSettings } from '@/lib/settings';
@@ -90,6 +90,7 @@ export default async function HomePage() {
 
       {/* Market Intelligence — corridor data table + editorial insight for Google authority */}
       <MarketIntelligenceSection />
+      <DynamicCorridorsSection />
 
       {/* Why Choose Us */}
       <WhyChooseUs />

@@ -44,7 +44,13 @@
       "Bash(git -C /Users/angadyadav/Downloads/claude-code-demo/gurgaon-realestate log --oneline -- frontend/components/home/HomeSections.tsx)",
       "Bash(git -C /Users/angadyadav/Downloads/claude-code-demo/gurgaon-realestate show e3a65810:frontend/components/home/HomeSections.tsx)",
       "WebFetch(domain:newprojectsingurgaon.com)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "WebSearch",
+      "Bash(grep -n \"^      }\\\\\\)$\\\\|^      }\\\\\\)\" /Users/angadyadav/Downloads/claude-code-demo/gurgaon-realestate/frontend/app/admin/page.tsx)",
+      "Bash(git commit *)",
+      "Bash(gh run *)",
+      "Bash(python3 *)",
+      "Bash(xargs ls -la)"
     ]
   }
 }

@@ -777,3 +777,50 @@ export function InternalLinksBlock({ currentPage }: { currentPage?: string }) {
     </section>
   );
 }
+
+// ── DynamicCorridorsSection — shows only custom (non-default) corridors added from admin ──
+const DEFAULT_CORRIDOR_SLUGS = new Set([
+  'dwarka-expressway', 'golf-course-road', 'golf-course-extension-road',
+  'spr-road', 'sohna-road', 'new-gurgaon', 'mg-road',
+]);
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
+
+export async function DynamicCorridorsSection() {
+  let corridors: any[] = [];
+  try {
+    const r = await fetch(`${API_BASE_URL}/settings/corridors`, { next: { revalidate: 300 } });
+    const d = await r.json();
+    if (d.success) corridors = (d.data || []).filter((c: any) => !DEFAULT_CORRIDOR_SLUGS.has(c.slug));
+  } catch { return null; }
+
+  if (!corridors.length) return null;
+
+  return (
+    <section className="py-12 px-4 bg-white border-t border-slate-100">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-8">
+          <span className="inline-block bg-emerald-50 text-emerald-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-3 uppercase tracking-widest">
+            New Corridors
+          </span>
+          <h2 className="text-2xl font-bold text-slate-900">More Gurgaon Corridors</h2>
+          <p className="text-slate-500 text-sm mt-1 max-w-xl mx-auto">Explore projects across newly added Gurgaon corridors</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {corridors.map((c: any) => (
+            <Link key={c.slug} href={c.href}
+              className="group flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-5 hover:bg-emerald-50 hover:border-emerald-200 transition-all">
+              <div className="w-12 h-12 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-2xl shadow-sm shrink-0">
+                {c.icon || '🛣️'}
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">{c.name}</h3>
+                <p className="text-xs text-slate-500 mt-0.5">View Projects →</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

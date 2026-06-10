@@ -176,6 +176,25 @@ const SiteSettingsSchema = new mongoose.Schema({
   googleAdsConversionValue:  { type: Number, default: 0 },    // optional INR value per lead
   gtmId:                     { type: String, default: '' },   // GTM-XXXXXXX
 
+  // Corridors — dynamically managed from admin
+  corridors: {
+    type: [{
+      name:  { type: String, required: true },
+      slug:  { type: String, required: true },
+      href:  { type: String, required: true },
+      icon:  { type: String, default: '🛣️' },
+    }],
+    default: [
+      { name: 'Dwarka Expressway',          slug: 'dwarka-expressway',          href: '/dwarka-expressway-projects',          icon: '✈️' },
+      { name: 'Golf Course Road',            slug: 'golf-course-road',            href: '/golf-course-road-projects',            icon: '⛳' },
+      { name: 'Golf Course Extension Road',  slug: 'golf-course-extension-road',  href: '/golf-course-extension-road-projects',  icon: '🏌️' },
+      { name: 'SPR Road',                    slug: 'spr-road',                    href: '/spr-road-projects',                    icon: '🛣️' },
+      { name: 'Sohna Road',                  slug: 'sohna-road',                  href: '/sohna-road-projects',                  icon: '🌳' },
+      { name: 'New Gurgaon',                 slug: 'new-gurgaon',                 href: '/new-gurgaon-projects',                 icon: '🌿' },
+      { name: 'MG Road',                     slug: 'mg-road',                     href: '/mg-road-projects',                     icon: '🏙️' },
+    ],
+  },
+
   heroTagline: { type: String, default: "Gurgaon's #1 Real Estate Advisory" },
   heroTitle: { type: String, default: 'New Projects in Gurgaon 2025' },
   heroTitleAccent: { type: String, default: '' },

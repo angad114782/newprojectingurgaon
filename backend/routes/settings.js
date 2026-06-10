@@ -90,4 +90,56 @@ router.put('/', protect, async (req, res) => {
   }
 });
 
+// GET /api/settings/corridors — public
+router.get('/corridors', async (req, res) => {
+  try {
+    const now = Date.now();
+    if (!_cache || now > _cacheExpiry) {
+      let settings = await SiteSettings.findOne().lean();
+      if (!settings) { const c = await SiteSettings.create({}); settings = c.toObject(); }
+      _cache = settings; _cacheExpiry = now + CACHE_TTL;
+    }
+    res.json({ success: true, data: _cache.corridors || [] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST /api/settings/corridors — admin only
+router.post('/corridors', protect, async (req, res) => {
+  try {
+    const { name, icon } = req.body;
+    if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Name required' });
+    const slug = name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim('-');
+    const href = `/corridor/${slug}`;
+    let settings = await SiteSettings.findOne();
+    if (!settings) settings = await SiteSettings.create({});
+    // Prevent duplicate
+    if ((settings.corridors || []).some(c => c.slug === slug))
+      return res.status(400).json({ success: false, message: 'Corridor already exists' });
+    settings.corridors.push({ name: name.trim(), slug, href, icon: icon || '🛣️' });
+    settings.markModified('corridors');
+    await settings.save();
+    invalidateSettingsCache();
+    res.json({ success: true, data: settings.corridors });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// DELETE /api/settings/corridors/:slug — admin only
+router.delete('/corridors/:slug', protect, async (req, res) => {
+  try {
+    let settings = await SiteSettings.findOne();
+    if (!settings) return res.status(404).json({ success: false, message: 'Settings not found' });
+    settings.corridors = (settings.corridors || []).filter(c => c.slug !== req.params.slug);
+    settings.markModified('corridors');
+    await settings.save();
+    invalidateSettingsCache();
+    res.json({ success: true, data: settings.corridors });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;

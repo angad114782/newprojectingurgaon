@@ -8,17 +8,13 @@ import clsx from 'clsx';
 import Image from 'next/image';
 import LeadCTA from '@/components/lead/LeadCTA';
 
-const navLinks = [
+type NavItem = { label: string; href: string; dropdown?: { label: string; href: string }[] };
+
+const BASE_NAV: NavItem[] = [
   {
     label: 'New Launch',
     href: '/new-launch-projects-in-gurgaon',
-    dropdown: [
-      { label: 'Dwarka Expressway', href: '/dwarka-expressway-projects' },
-      { label: 'Golf Course Road', href: '/golf-course-road-projects' },
-      { label: 'Golf Course Ext Road', href: '/golf-course-extension-road-projects' },
-      { label: 'SPR Road', href: '/spr-road-projects' },
-      { label: 'New Gurgaon', href: '/new-gurgaon-projects' },
-    ],
+    dropdown: [], // corridors injected dynamically
   },
   {
     label: 'By BHK',
@@ -54,11 +50,27 @@ const navLinks = [
   },
 ];
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
+
 export default function Header({ phone = '{phone}', siteName = 'New Projects in Gurgaon', logoUrl }: { phone?: string; siteName?: string; logoUrl?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [navLinks, setNavLinks] = useState<NavItem[]>(BASE_NAV);
   const pathname = usePathname();
+
+  useEffect(() => {
+    fetch(`${API_URL}/settings/corridors`)
+      .then(r => r.json())
+      .then(d => {
+        if (!d.success || !d.data?.length) return;
+        const corridorDropdown = d.data.map((c: any) => ({ label: c.name, href: c.href }));
+        setNavLinks(prev => prev.map(n =>
+          n.label === 'New Launch' ? { ...n, dropdown: corridorDropdown } : n
+        ));
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);
