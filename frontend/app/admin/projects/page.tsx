@@ -618,6 +618,15 @@ export default function ProjectsPage() {
               <input className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
                 value={newCorridorName} onChange={(e) => setNewCorridorName(e.target.value)}
                 placeholder="e.g. Palam Vihar Road" onKeyDown={(e) => e.key === 'Enter' && addCorridor()} />
+              <select value={newCorridorCity} onChange={(e) => setNewCorridorCity(e.target.value)}
+                className="border border-slate-200 rounded-xl px-2 py-2 text-sm bg-white text-slate-700 focus:outline-none focus:border-emerald-500">
+                <option value="Gurgaon">Gurgaon</option>
+                <option value="Bhiwadi">Bhiwadi</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Noida">Noida</option>
+                <option value="Faridabad">Faridabad</option>
+                <option value="NCR">NCR</option>
+              </select>
               <button onClick={addCorridor} disabled={corridorSaving || !newCorridorName.trim()}
                 className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-semibold hover:bg-emerald-600 disabled:opacity-50 transition-colors">
                 {corridorSaving ? '…' : '+ Add'}
@@ -631,7 +640,10 @@ export default function ProjectsPage() {
               <div key={c.slug} className="flex items-center justify-between py-2.5 px-1">
                 <div>
                   <p className="text-sm font-medium text-slate-800">{(c as any).icon || '🛣️'} {c.name}</p>
-                  <p className="text-xs text-slate-400 font-mono">{(c as any).href || `/corridor/${c.slug}`}</p>
+                  <p className="text-xs text-slate-400 font-mono">
+                    {c.city && <span className="mr-2 bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[10px] font-semibold">{c.city}</span>}
+                    {(c as any).href || `/corridor/${c.slug}`}
+                  </p>
                 </div>
                 <button onClick={() => deleteCorridor(c.slug)}
                   className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors">
