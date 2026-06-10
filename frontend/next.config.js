@@ -75,6 +75,12 @@ const nextConfig = {
         destination: 'https://newprojectsingurgaon.com/:path*',
         permanent: true,
       },
+      // /projects/:slug → /project/:slug (plural → singular)
+      {
+        source: '/projects/:slug',
+        destination: '/project/:slug',
+        permanent: true,
+      },
       // Trailing slash removal
       {
         source: '/:path+/',

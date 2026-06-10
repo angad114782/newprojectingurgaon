@@ -13,10 +13,15 @@ const NAV = [
   { href: '/admin/analytics', label: 'Analytics', icon: '📊' },
   { href: '/admin/seo-intel', label: 'SEO Intelligence', icon: '🧠', accent: true },
   { href: '/admin/indexing', label: 'Instant Indexing', icon: '⚡' },
+  { href: '/admin/conversion', label: 'Conversion Tools', icon: '🎯' },
+  { href: '/admin/branding', label: 'Branding', icon: '🏢' },
+  { href: '/admin/tracking', label: 'Ads & Tracking', icon: '📈' },
+  { href: '/admin/gsc', label: 'Google Search Console', icon: '🔍' },
 ];
 const BOTTOM_NAV = [
   { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
   { href: '/admin/team', label: 'Team', icon: '👤' },
+  { href: '/admin/profile', label: 'My Profile', icon: '👤' },
 ];
 
 function NavLink({

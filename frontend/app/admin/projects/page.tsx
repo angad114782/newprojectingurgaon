@@ -224,7 +224,7 @@ export default function ProjectsPage() {
                 <div className="flex gap-2 mt-3">
                   <Btn size="sm" variant="secondary" onClick={() => openEdit(project)} className="flex-1 justify-center">Edit</Btn>
                   <Btn size="sm" variant="danger" onClick={() => deleteProject(project._id)}>Delete</Btn>
-                  <a href={`/projects/${project.slug}`} target="_blank"
+                  <a href={`/project/${project.slug}`} target="_blank"
                     className="flex items-center justify-center px-2 py-1 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 hover:text-slate-800 transition-colors text-xs">
                     🔗
                   </a>
