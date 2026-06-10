@@ -228,6 +228,6 @@ export async function fetchProjectsWithFallback(params: {
   featured?: boolean;
   limit?: number;
 } = {}) {
-  const apiProjects = await fetchApiProjects(params);
+  const apiProjects = await fetchApiProjects({ sort: '-createdAt', ...params });
   return apiProjects.map(mapToTemplateProject);
 }

@@ -108,7 +108,7 @@ router.get('/corridors', async (req, res) => {
 // POST /api/settings/corridors — admin only
 router.post('/corridors', protect, async (req, res) => {
   try {
-    const { name, icon } = req.body;
+    const { name, icon, city } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Name required' });
     const slug = name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim('-');
     const href = `/corridor/${slug}`;
@@ -117,7 +117,7 @@ router.post('/corridors', protect, async (req, res) => {
     // Prevent duplicate
     if ((settings.corridors || []).some(c => c.slug === slug))
       return res.status(400).json({ success: false, message: 'Corridor already exists' });
-    settings.corridors.push({ name: name.trim(), slug, href, icon: icon || '🛣️' });
+    settings.corridors.push({ name: name.trim(), slug, href, icon: icon || '🛣️', city: city || 'Gurgaon' });
     settings.markModified('corridors');
     await settings.save();
     invalidateSettingsCache();

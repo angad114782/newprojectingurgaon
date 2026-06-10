@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import Image from 'next/image';
 import LeadCTA from '@/components/lead/LeadCTA';
 
-type NavItem = { label: string; href: string; dropdown?: { label: string; href: string }[] };
+type NavItem = { label: string; href: string; dropdown?: { label: string; href: string; isHeader?: boolean }[] };
 
 const BASE_NAV: NavItem[] = [
   {
@@ -64,7 +64,18 @@ export default function Header({ phone = '{phone}', siteName = 'New Projects in 
       .then(r => r.json())
       .then(d => {
         if (!d.success || !d.data?.length) return;
-        const corridorDropdown = d.data.map((c: any) => ({ label: c.name, href: c.href }));
+        const raw: { name: string; href: string; city?: string }[] = d.data;
+        // Group by city — if only one city, flat list; if multiple, add city headers
+        const cities = Array.from(new Set(raw.map(c => c.city || 'Gurgaon')));
+        let corridorDropdown: { label: string; href: string; isHeader?: boolean }[];
+        if (cities.length <= 1) {
+          corridorDropdown = raw.map(c => ({ label: c.name, href: c.href }));
+        } else {
+          corridorDropdown = cities.flatMap(city => [
+            { label: `— ${city} —`, href: '#', isHeader: true },
+            ...raw.filter(c => (c.city || 'Gurgaon') === city).map(c => ({ label: c.name, href: c.href })),
+          ]);
+        }
         setNavLinks(prev => prev.map(n =>
           n.label === 'New Launch' ? { ...n, dropdown: corridorDropdown } : n
         ));
@@ -138,8 +149,13 @@ export default function Header({ phone = '{phone}', siteName = 'New Projects in 
 
                 {/* Dropdown */}
                 {link.dropdown && activeDropdown === link.label && (
-                  <div className="absolute top-full left-0 mt-1 w-52 bg-white rounded-xl shadow-card border border-brand-border/60 py-2 z-50 animate-fade-in">
-                    {link.dropdown.map((item) => (
+                  <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-card border border-brand-border/60 py-2 z-50 animate-fade-in">
+                    {link.dropdown.map((item: any) => item.isHeader ? (
+                      <div key={item.label}
+                        className="px-4 pt-3 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest first:pt-1">
+                        {item.label.replace(/^—\s*|\s*—$/g, '')}
+                      </div>
+                    ) : (
                       <Link
                         key={item.label}
                         href={item.href}

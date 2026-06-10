@@ -176,22 +176,23 @@ const SiteSettingsSchema = new mongoose.Schema({
   googleAdsConversionValue:  { type: Number, default: 0 },    // optional INR value per lead
   gtmId:                     { type: String, default: '' },   // GTM-XXXXXXX
 
-  // Corridors — dynamically managed from admin
+  // Corridors — dynamically managed from admin, grouped by city
   corridors: {
     type: [{
       name:  { type: String, required: true },
       slug:  { type: String, required: true },
       href:  { type: String, required: true },
       icon:  { type: String, default: '🛣️' },
+      city:  { type: String, default: 'Gurgaon' },
     }],
     default: [
-      { name: 'Dwarka Expressway',          slug: 'dwarka-expressway',          href: '/dwarka-expressway-projects',          icon: '✈️' },
-      { name: 'Golf Course Road',            slug: 'golf-course-road',            href: '/golf-course-road-projects',            icon: '⛳' },
-      { name: 'Golf Course Extension Road',  slug: 'golf-course-extension-road',  href: '/golf-course-extension-road-projects',  icon: '🏌️' },
-      { name: 'SPR Road',                    slug: 'spr-road',                    href: '/spr-road-projects',                    icon: '🛣️' },
-      { name: 'Sohna Road',                  slug: 'sohna-road',                  href: '/sohna-road-projects',                  icon: '🌳' },
-      { name: 'New Gurgaon',                 slug: 'new-gurgaon',                 href: '/new-gurgaon-projects',                 icon: '🌿' },
-      { name: 'MG Road',                     slug: 'mg-road',                     href: '/mg-road-projects',                     icon: '🏙️' },
+      { name: 'Dwarka Expressway',          slug: 'dwarka-expressway',          href: '/dwarka-expressway-projects',          icon: '✈️', city: 'Gurgaon' },
+      { name: 'Golf Course Road',            slug: 'golf-course-road',            href: '/golf-course-road-projects',            icon: '⛳', city: 'Gurgaon' },
+      { name: 'Golf Course Extension Road',  slug: 'golf-course-extension-road',  href: '/golf-course-extension-road-projects',  icon: '🏌️', city: 'Gurgaon' },
+      { name: 'SPR Road',                    slug: 'spr-road',                    href: '/spr-road-projects',                    icon: '🛣️', city: 'Gurgaon' },
+      { name: 'Sohna Road',                  slug: 'sohna-road',                  href: '/sohna-road-projects',                  icon: '🌳', city: 'Gurgaon' },
+      { name: 'New Gurgaon',                 slug: 'new-gurgaon',                 href: '/new-gurgaon-projects',                 icon: '🌿', city: 'Gurgaon' },
+      { name: 'MG Road',                     slug: 'mg-road',                     href: '/mg-road-projects',                     icon: '🏙️', city: 'Gurgaon' },
     ],
   },
 

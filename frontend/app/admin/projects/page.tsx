@@ -52,9 +52,10 @@ export default function ProjectsPage() {
   const [csvImporting, setCsvImporting] = useState(false);
   const [csvResult, setCsvResult] = useState<any>(null);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
-  const [corridors, setCorridors] = useState<{ name: string; slug: string }[]>([]);
+  const [corridors, setCorridors] = useState<{ name: string; slug: string; city?: string }[]>([]);
   const [newCorridorName, setNewCorridorName] = useState('');
   const [newCorridorIcon, setNewCorridorIcon] = useState('🛣️');
+  const [newCorridorCity, setNewCorridorCity] = useState('Gurgaon');
   const [corridorModalOpen, setCorridorModalOpen] = useState(false);
   const [corridorSaving, setCorridorSaving] = useState(false);
 
@@ -81,7 +82,7 @@ export default function ProjectsPage() {
     setCorridorSaving(true);
     try {
       const r = await fetch(`${API}/settings/corridors`, {
-        method: 'POST', headers: authH(), body: JSON.stringify({ name: newCorridorName.trim(), icon: newCorridorIcon }),
+        method: 'POST', headers: authH(), body: JSON.stringify({ name: newCorridorName.trim(), icon: newCorridorIcon, city: newCorridorCity }),
       });
       const d = await r.json();
       if (d.success) {
@@ -89,6 +90,7 @@ export default function ProjectsPage() {
         f('corridor', newCorridorName.trim()); // auto-select the new corridor in form
         setNewCorridorName('');
         setNewCorridorIcon('🛣️');
+        setNewCorridorCity('Gurgaon');
         setToast({ msg: 'Corridor added!', type: 'success' });
       } else setToast({ msg: d.message || 'Failed', type: 'error' });
     } catch { setToast({ msg: 'Network error', type: 'error' }); }
@@ -344,16 +346,25 @@ export default function ProjectsPage() {
                       </button>
                     </div>
                     {/* Inline add new corridor */}
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1.5 flex-wrap">
                       <input type="text" value={newCorridorName} onChange={e => setNewCorridorName(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && addCorridor()}
-                        placeholder="+ New corridor name…"
+                        placeholder="New corridor name…"
                         className="flex-1 text-xs px-3 py-2 border border-dashed border-emerald-300 rounded-xl bg-emerald-50/30 focus:outline-none focus:border-emerald-500 placeholder:text-slate-400 min-w-0" />
+                      <select value={newCorridorCity} onChange={e => setNewCorridorCity(e.target.value)}
+                        className="text-xs px-2 py-2 border border-slate-200 rounded-xl bg-white text-slate-700 shrink-0">
+                        <option value="Gurgaon">Gurgaon</option>
+                        <option value="Bhiwadi">Bhiwadi</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Noida">Noida</option>
+                        <option value="Faridabad">Faridabad</option>
+                        <option value="NCR">NCR</option>
+                      </select>
                       <input type="text" value={newCorridorIcon} onChange={e => setNewCorridorIcon(e.target.value)}
                         className="w-9 text-center text-base border border-slate-200 rounded-xl bg-white shrink-0" />
                       <button type="button" onClick={addCorridor} disabled={corridorSaving || !newCorridorName.trim()}
                         className="px-2.5 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-xl hover:bg-emerald-600 disabled:opacity-40 transition-colors shrink-0">
-                        {corridorSaving ? '…' : 'Add'}
+                        {corridorSaving ? '…' : '+ Add'}
                       </button>
                     </div>
                   </div>
