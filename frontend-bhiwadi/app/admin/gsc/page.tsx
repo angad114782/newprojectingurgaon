@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
-import { useAdmin, API, SITE_KEY } from '../_context';
+import { useAdmin, API } from '../_context';
 import { PageHeader } from '../_components/shared';
 
 function SectionHeader({ title, icon }: { title: string; icon: string }) {
@@ -20,7 +20,7 @@ export default function GscPage() {
 
   const load = useCallback(async () => {
     if (!token) return;
-    const r = await fetch(`${API}/admin/settings?siteKey=${SITE_KEY}`, { headers: authH() });
+    const r = await fetch(`${API}/admin/settings`, { headers: authH() });
     const d = await r.json();
     if (d.success) setSettings(d.settings);
   }, [token, authH]);
@@ -31,7 +31,7 @@ export default function GscPage() {
     if (!settings) return;
     setSaving(true);
     try {
-      const r = await fetch(`${API}/admin/settings?siteKey=${SITE_KEY}`, { method: 'PUT', headers: authH(), body: JSON.stringify({ ...settings, siteKey: SITE_KEY }) });
+      const r = await fetch(`${API}/admin/settings`, { method: 'PUT', headers: authH(), body: JSON.stringify(settings) });
       const d = await r.json();
       if (d.success) { setSettings(d.settings); setToast('Saved!'); setTimeout(() => setToast(null), 3000); }
     } finally { setSaving(false); }

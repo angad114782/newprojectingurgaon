@@ -1,8 +1,7 @@
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 
-export const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
-export const SITE_KEY = process.env.NEXT_PUBLIC_SITE_KEY || 'bhiwadi';
+export const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5008/api';
 
 interface AdminCtx {
   token: string | null;
