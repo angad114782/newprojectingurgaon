@@ -3,41 +3,47 @@ const router = express.Router();
 const SiteSettings = require('../models/SiteSettings');
 const { protect } = require('../middleware/auth');
 
-// ── In-memory cache — eliminates MongoDB round-trip on every page render ──────
-let _cache = null;
-let _cacheExpiry = 0;
+// ── In-memory cache — per siteKey ────────────────────────────────────────────
+const _cache = {};
+const _cacheExpiry = {};
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-function invalidateSettingsCache() {
-  _cache = null;
-  _cacheExpiry = 0;
+function invalidateSettingsCache(siteKey = 'gurgaon') {
+  delete _cache[siteKey];
+  delete _cacheExpiry[siteKey];
 }
 module.exports.invalidateSettingsCache = invalidateSettingsCache;
 
-// GET /api/settings — public, served from memory cache (no DB hit after first load)
+// GET /api/settings?siteKey=bhiwadi — public, served from memory cache
 router.get('/', async (req, res) => {
   try {
+    const siteKey = (req.query.siteKey || 'gurgaon').toLowerCase();
     const now = Date.now();
-    if (!_cache || now > _cacheExpiry) {
-      let settings = await SiteSettings.findOne().lean();
+    if (!_cache[siteKey] || now > (_cacheExpiry[siteKey] || 0)) {
+      let settings = await SiteSettings.findOne({ siteKey }).lean();
       if (!settings) {
-        const created = await SiteSettings.create({});
-        settings = created.toObject();
+        // Fallback: if no siteKey-specific settings exist, use default (gurgaon)
+        settings = await SiteSettings.findOne().lean();
+        if (!settings) {
+          const created = await SiteSettings.create({ siteKey });
+          settings = created.toObject();
+        }
       }
-      _cache = settings;
-      _cacheExpiry = now + CACHE_TTL;
+      _cache[siteKey] = settings;
+      _cacheExpiry[siteKey] = now + CACHE_TTL;
     }
     res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600, stale-if-error=86400');
-    res.json({ success: true, data: _cache });
+    res.json({ success: true, data: _cache[siteKey] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// PUT /api/settings — admin only
+// PUT /api/settings?siteKey=bhiwadi — admin only
 router.put('/', protect, async (req, res) => {
   try {
-    let settings = await SiteSettings.findOne();
+    const siteKey = (req.query.siteKey || req.body.siteKey || 'gurgaon').toLowerCase();
+    let settings = await SiteSettings.findOne({ siteKey });
 
     // Deep-clone body and strip masked sensitive fields so existing values are preserved
     const body = JSON.parse(JSON.stringify(req.body));
@@ -51,7 +57,7 @@ router.put('/', protect, async (req, res) => {
     }
 
     if (!settings) {
-      settings = new SiteSettings(body);
+      settings = new SiteSettings({ ...body, siteKey });
     } else {
       // Preserve existing sensitive fields before merge
       const existingSmtpPass = settings.smtp?.pass;
@@ -83,7 +89,7 @@ router.put('/', protect, async (req, res) => {
       settings.markModified('companyInfo');
     }
     await settings.save();
-    invalidateSettingsCache(); // flush public cache immediately after save
+    invalidateSettingsCache(siteKey);
     res.json({ success: true, data: settings });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

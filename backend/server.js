@@ -47,7 +47,7 @@ connectDB().then(async () => {
     const { seedProjects, seedSettings } = require('./utils/seedData');
 
     const Author = require('./models/Author');
-    const { seedTeam } = require('./utils/seedData');
+    const { seedTeam, seedBhiwadiProjects, seedBhiwadiSettings } = require('./utils/seedData');
 
     const [projectCount, settingsCount, authorCount] = await Promise.all([
       Project.countDocuments(),
@@ -71,6 +71,11 @@ connectDB().then(async () => {
       console.log('👥 Seeding team members…');
       await seedTeam();
     }
+
+    // Bhiwadi multi-site sync (always idempotent)
+    console.log('🏙️  Syncing Bhiwadi projects…');
+    await seedBhiwadiProjects();
+    await seedBhiwadiSettings();
   } catch (e) {
     console.error('Auto-seed skipped:', e.message);
   }

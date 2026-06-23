@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const SiteSettingsSchema = new mongoose.Schema({
+  siteKey: { type: String, default: 'gurgaon', index: true },  // 'gurgaon' | 'bhiwadi' | etc.
   siteName: { type: String, default: 'New Projects in Gurgaon' },
   phone: { type: String, default: '+91-8619930583' },
   phone2: { type: String, default: '+91-7378006609' },

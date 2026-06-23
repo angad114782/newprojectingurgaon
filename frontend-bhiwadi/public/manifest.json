@@ -1,0 +1,20 @@
+{
+  "name": "Property in Bhiwadi",
+  "short_name": "Bhiwadi Property",
+  "description": "Verified residential and industrial property in Bhiwadi — flats, plots & new launch projects from ₹28 Lakh. RERA registered. Zero brokerage. Free site visit.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1B4F72",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["real-estate", "business"],
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }
+  ],
+  "screenshots": [
+    { "src": "/og-home.jpg", "sizes": "1200x630", "type": "image/jpeg", "form_factor": "wide" }
+  ]
+}
