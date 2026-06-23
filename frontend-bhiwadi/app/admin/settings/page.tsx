@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
-import { useAdmin, API } from '../_context';
+import { useAdmin, API, SITE_KEY } from '../_context';
 import { Card, PageHeader, Btn, Field, Input, ImageUploader, Toast } from '../_components/shared';
 
 const TABS = [
@@ -24,7 +24,7 @@ export default function SettingsPage() {
 
   const load = useCallback(async () => {
     if (!token) return;
-    const r = await fetch(`${API}/admin/settings`, { headers: authH() });
+    const r = await fetch(`${API}/admin/settings?siteKey=${SITE_KEY}`, { headers: authH() });
     const d = await r.json();
     if (d.success) setSettings(d.settings);
   }, [token, authH]);
@@ -35,8 +35,8 @@ export default function SettingsPage() {
     if (!settings) return;
     setSaving(true);
     try {
-      const r = await fetch(`${API}/admin/settings`, {
-        method: 'PUT', headers: authH(), body: JSON.stringify(settings),
+      const r = await fetch(`${API}/admin/settings?siteKey=${SITE_KEY}`, {
+        method: 'PUT', headers: authH(), body: JSON.stringify({ ...settings, siteKey: SITE_KEY }),
       });
       const d = await r.json();
       if (d.success) { setSettings(d.settings); setToast({ msg: 'Settings saved!', type: 'success' }); }

@@ -628,8 +628,9 @@ const SiteSettings = require('../models/SiteSettings');
 
 router.get('/settings', async (req, res) => {
   try {
-    let settings = await SiteSettings.findOne({});
-    if (!settings) settings = await SiteSettings.create({});
+    const siteKey = (req.query.siteKey || 'gurgaon').toLowerCase();
+    let settings = await SiteSettings.findOne({ siteKey });
+    if (!settings) settings = await SiteSettings.create({ siteKey });
     res.json({ success: true, settings: maskSettings(settings.toObject()) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -638,8 +639,9 @@ router.get('/settings', async (req, res) => {
 
 router.put('/settings', authorize('admin'), async (req, res) => {
   try {
+    const siteKey = (req.query.siteKey || req.body.siteKey || 'gurgaon').toLowerCase();
     // Fetch existing to preserve sensitive fields
-    let settings = await SiteSettings.findOne({});
+    let settings = await SiteSettings.findOne({ siteKey });
     const existingSmtpPass = settings?.smtp?.pass;
     const existingWaToken = settings?.whatsappCloud?.accessToken;
 
@@ -660,7 +662,7 @@ router.put('/settings', authorize('admin'), async (req, res) => {
     }
 
     if (!settings) {
-      settings = new SiteSettings(body);
+      settings = new SiteSettings({ ...body, siteKey });
     } else {
       Object.assign(settings, body);
       settings.markModified('smtp');
@@ -683,7 +685,7 @@ router.put('/settings', authorize('admin'), async (req, res) => {
     try {
       require('../services/emailService')._invalidateCache?.();
       require('../services/whatsappService')._invalidateCache?.();
-      require('./settings').invalidateSettingsCache?.();
+      require('./settings').invalidateSettingsCache?.(siteKey);
     } catch (_) {}
 
     // Return masked settings (never expose real password/token)

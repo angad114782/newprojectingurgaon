@@ -2,7 +2,7 @@
 import { useEffect, useState, ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { AdminProvider, useAdmin, API } from './_context';
+import { AdminProvider, useAdmin, API, SITE_KEY } from './_context';
 import clsx from 'clsx';
 
 const NAV = [
@@ -338,7 +338,7 @@ function AdminShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!token) return;
-    fetch(`${API}/admin/settings`, { headers: authH() })
+    fetch(`${API}/admin/settings?siteKey=${SITE_KEY}`, { headers: authH() })
       .then(r => r.json())
       .then(d => { if (d.success && d.settings?.siteName) setSiteName(d.settings.siteName); })
       .catch(() => {});
