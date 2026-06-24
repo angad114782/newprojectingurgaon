@@ -10,11 +10,10 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
       { protocol: 'https', hostname: 'plus.unsplash.com', pathname: '/**' },
-      { protocol: 'https', hostname: 'newprojectsingurgaon.com', pathname: '/**' },
-      { protocol: 'https', hostname: 'www.newprojectsingurgaon.com', pathname: '/**' },
-      { protocol: 'http', hostname: 'localhost', port: '5007', pathname: '/**' },
-      { protocol: 'http', hostname: '127.0.0.1', port: '5007', pathname: '/**' },
-      { protocol: 'http', hostname: '192.168.1.11', port: '5007', pathname: '/**' },
+      { protocol: 'https', hostname: 'propertyinbhiwadi.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.propertyinbhiwadi.com', pathname: '/**' },
+      { protocol: 'http', hostname: 'localhost', port: '5008', pathname: '/**' },
+      { protocol: 'http', hostname: '127.0.0.1', port: '5008', pathname: '/**' },
     ],
   },
 
@@ -71,8 +70,8 @@ const nextConfig = {
       // www → non-www canonical (301 permanent)
       {
         source: '/:path*',
-        has: [{ type: 'host', value: 'www.newprojectsingurgaon.com' }],
-        destination: 'https://newprojectsingurgaon.com/:path*',
+        has: [{ type: 'host', value: 'www.propertyinbhiwadi.com' }],
+        destination: 'https://propertyinbhiwadi.com/:path*',
         permanent: true,
       },
       // /projects/:slug → /project/:slug (plural → singular)
