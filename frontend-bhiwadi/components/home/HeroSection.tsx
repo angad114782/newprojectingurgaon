@@ -28,13 +28,13 @@ const TYPES = ['All Types', 'New Launch', 'Pre Launch', 'Under Construction', 'R
 const BUDGETS = ['Any Budget', 'Under ₹50L', '₹50L – ₹1 Cr', '₹1 Cr – ₹2 Cr', '₹2 Cr – ₹5 Cr', '₹5 Cr – ₹10 Cr', '₹10 Cr+'];
 
 export default function HeroSection({
-  siteName = 'New Projects in Gurgaon',
+  siteName = 'New Projects in Bhiwadi',
   phone = '+91-8619930583',
   whatsapp = '918619930583',
-  heroTagline = "Gurgaon's #1 Real Estate Advisory",
-  heroTitle = 'New Projects in Gurgaon 2025',
+  heroTagline = "Bhiwadi's #1 Real Estate Advisory",
+  heroTitle = 'New Projects in Bhiwadi 2025',
   heroTitleAccent = '',
-  heroSubtitle = '150+ verified new launch, pre-launch and ready-to-move properties. Free site visit. Transparent pricing. RERA approved.',
+  heroSubtitle = '150+ verified new launch, pre-launch and ready-to-move properties in Bhiwadi. Free site visit. Transparent pricing. RERA approved.',
   heroCTAPrimary = '🏠 Book Free Site Visit',
   heroCTASecondary = 'View New Launches →',
   heroImageUrl = 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85',
@@ -52,12 +52,12 @@ export default function HeroSection({
     if (search.location) params.set('location', search.location);
     if (search.type && search.type !== 'All Types') params.set('status', search.type);
     if (search.budget && search.budget !== 'Any Budget') params.set('budget', search.budget);
-    window.location.href = `/new-projects-in-gurgaon?${params.toString()}`;
+    window.location.href = `/new-projects-in-bhiwadi?${params.toString()}`;
   };
 
   // Split hero title — first word(s) are primary, accent part is highlighted
   const accentText = heroTitleAccent || '';
-  const baseTitle = heroTitle || 'New Projects in Gurgaon 2025';
+  const baseTitle = heroTitle || 'New Projects in Bhiwadi 2025';
 
   const statsCards = [
     { value: stats.totalProjects || '150+', label: 'Verified Projects' },
@@ -72,7 +72,7 @@ export default function HeroSection({
       <div className="absolute inset-0 z-0">
         <Image
           src={heroImageUrl || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85'}
-          alt={`Luxury apartments in Gurgaon — ${siteName}`}
+          alt={`New apartments in Bhiwadi — ${siteName}`}
           fill
           priority
           className="object-cover object-center"
@@ -127,7 +127,7 @@ export default function HeroSection({
                   <option value="">All Locations</option>
                   {locations.length > 0
                     ? locations.map((l) => <option key={l.name} value={l.name}>{l.name}</option>)
-                    : ['Dwarka Expressway', 'Golf Course Extension', 'SPR Road', 'Sector 113', 'Sector 106', 'New Gurgaon', 'Sohna Road'].map((l) => <option key={l}>{l}</option>)
+                    : ['NH-48 Corridor', 'Bhiwadi Extension', 'Chopanki', 'Khushkhera', 'Tapukara', 'Bhiwadi Phase 3'].map((l) => <option key={l}>{l}</option>)
                   }
                 </select>
               </div>
@@ -174,11 +174,11 @@ export default function HeroSection({
             >
               {heroCTAPrimary}
             </button>
-            <Link href="/new-launch-projects-in-gurgaon" className="btn-white text-sm">
+            <Link href="/new-launch-projects-in-bhiwadi" className="btn-white text-sm">
               {heroCTASecondary}
             </Link>
             <a
-              href={`https://wa.me/${wa}?text=${encodeURIComponent(`Hi, I am looking for property in Gurgaon. Please help me.`)}`}
+              href={`https://wa.me/${wa}?text=${encodeURIComponent(`Hi, I am looking for property in Bhiwadi. Please help me.`)}`}
               target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 bg-green-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-green-600 transition-colors"
             >

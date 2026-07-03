@@ -21,9 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
-  const params: any = {};
-  params.limit = 12;
-  const projects = await fetchApiProjects(params);
+  const all = await fetchApiProjects({ maxPrice: 50, limit: 50 });
+  const projects = all.filter(p => !(p.configurations || []).some((c: string) => /plot/i.test(c)));
   return (
     <>
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">

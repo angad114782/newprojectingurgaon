@@ -11,6 +11,7 @@ const TABS = [
   { key: 'integrations', label: '🔗 Integrations' },
   { key: 'whatsapp', label: '💬 WhatsApp' },
   { key: 'email', label: '📧 Email / SMTP' },
+  { key: 'webmail', label: '🌐 Webmail' },
 ];
 
 export default function SettingsPage() {
@@ -124,7 +125,7 @@ export default function SettingsPage() {
             <h3 className="font-bold text-slate-900 pb-2 border-b border-slate-100">General Information</h3>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Site Name">
-                <Input value={g('siteName')} onChange={(v) => s('siteName', v)} placeholder="New Projects in Gurgaon" />
+                <Input value={g('siteName')} onChange={(v) => s('siteName', v)} placeholder="Property in Bhiwadi" />
               </Field>
               <Field label="Tag Line">
                 <Input value={g('tagline')} onChange={(v) => s('tagline', v)} placeholder="Find Your Dream Home..." />
@@ -139,7 +140,7 @@ export default function SettingsPage() {
               </Field>
             </div>
             <Field label="Address">
-              <Input value={g('address')} onChange={(v) => s('address', v)} placeholder="Sector 50, Gurgaon, Haryana 122018" rows={2} />
+              <Input value={g('address')} onChange={(v) => s('address', v)} placeholder="RIICO Industrial Area, Bhiwadi, Rajasthan 301019" rows={2} />
             </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Street Address">
@@ -159,10 +160,10 @@ export default function SettingsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Latitude (for GEO)">
-                <Input value={g('geoLat')} onChange={(v) => s('geoLat', v)} placeholder="28.4595" />
+                <Input value={g('geoLat')} onChange={(v) => s('geoLat', v)} placeholder="28.2055" />
               </Field>
               <Field label="Longitude (for GEO)">
-                <Input value={g('geoLng')} onChange={(v) => s('geoLng', v)} placeholder="77.0266" />
+                <Input value={g('geoLng')} onChange={(v) => s('geoLng', v)} placeholder="76.8480" />
               </Field>
             </div>
             {token && (
@@ -179,17 +180,17 @@ export default function SettingsPage() {
           <div className="space-y-5">
             <h3 className="font-bold text-slate-900 pb-2 border-b border-slate-100">SEO & Meta</h3>
             <Field label="SEO Title" hint="Shown in Google search results. 50-60 characters.">
-              <Input value={g('seoTitle')} onChange={(v) => s('seoTitle', v)} placeholder="New Projects in Gurgaon | Best Properties 2025" />
+              <Input value={g('seoTitle')} onChange={(v) => s('seoTitle', v)} placeholder="Property in Bhiwadi | Best Projects 2025" />
               <p className="text-[10px] text-slate-400 mt-1">{g('seoTitle').length}/60 chars</p>
             </Field>
             <Field label="Meta Description" hint="Google snippet. 155-160 characters.">
-              <Input value={g('seoDescription')} onChange={(v) => s('seoDescription', v)} placeholder="Find new launch & ready-to-move projects in Gurgaon..." rows={3} />
+              <Input value={g('seoDescription')} onChange={(v) => s('seoDescription', v)} placeholder="Find new launch & ready-to-move projects in Bhiwadi. RERA verified. Free site visit. Zero brokerage." rows={3} />
               <p className="text-[10px] text-slate-400 mt-1">{g('seoDescription').length}/160 chars</p>
             </Field>
             <Field label="SEO Keywords (comma-separated)">
               <Input value={Array.isArray(g('seoKeywords', [])) ? g('seoKeywords', []).join(', ') : g('seoKeywords')}
                 onChange={(v) => s('seoKeywords', v.split(',').map((k: string) => k.trim()).filter(Boolean))}
-                placeholder="new projects gurgaon, 3 bhk dwarka expressway, luxury apartments..." rows={2} />
+                placeholder="new projects bhiwadi, 2 bhk nh-48, affordable apartments bhiwadi..." rows={2} />
             </Field>
             {token && (
               <ImageUploader label="OG Image (Social Share Image)" value={g('ogImage')} onChange={(v) => s('ogImage', v as string)} token={token} />
@@ -228,8 +229,8 @@ export default function SettingsPage() {
             <Field label="Google Tag Manager ID" hint="Format: GTM-XXXXXXX">
               <Input value={g('gtmId')} onChange={(v) => s('gtmId', v)} placeholder="GTM-XXXXXXX" />
             </Field>
-            <Field label="Facebook Pixel ID">
-              <Input value={g('fbPixelId')} onChange={(v) => s('fbPixelId', v)} placeholder="1234567890123456" />
+            <Field label="Meta Pixel ID (Facebook / Instagram)">
+              <Input value={g('metaPixelId')} onChange={(v) => s('metaPixelId', v)} placeholder="1234567890123456" />
             </Field>
           </div>
         )}
@@ -293,19 +294,107 @@ export default function SettingsPage() {
         {/* WHATSAPP */}
         {activeTab === 'whatsapp' && (
           <div className="space-y-5">
-            <h3 className="font-bold text-slate-900 pb-2 border-b border-slate-100">WhatsApp Cloud API</h3>
-            {[
-              { key: 'whatsappCloud.accessToken', label: 'Access Token', placeholder: 'EAAx...' },
-              { key: 'whatsappCloud.phoneNumberId', label: 'Phone Number ID', placeholder: '123456789...' },
-              { key: 'whatsappCloud.businessAccountId', label: 'Business Account ID', placeholder: '987654321...' },
-              { key: 'whatsappCloud.templateName', label: 'Template Name', placeholder: 'new_lead_notification' },
-            ].map(({ key, label, placeholder }) => (
-              <Field key={key} label={label}>
-                <Input value={g(key)} onChange={(v) => s(key, v)} placeholder={placeholder} />
+            <h3 className="font-bold text-slate-900 pb-2 border-b border-slate-100">WhatsApp Cloud API Setup</h3>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800 space-y-1">
+              <p className="font-semibold">Setup kaise karo:</p>
+              <p className="text-xs">1. <a href="https://developers.facebook.com" target="_blank" rel="noopener noreferrer" className="underline">developers.facebook.com</a> → My Apps → App banao (Business type)</p>
+              <p className="text-xs">2. WhatsApp product add karo → Business Account link karo</p>
+              <p className="text-xs">3. WhatsApp → API Setup → Access Token copy karo</p>
+              <p className="text-xs">4. Phone Number ID aur Business Account ID copy karo</p>
+              <p className="text-xs">5. WhatsApp → Message Templates → sabhi templates approve karao</p>
+            </div>
+
+            {/* API Credentials */}
+            <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+              <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">API Credentials</p>
+              <Field label="Access Token" hint="Meta Developers → WhatsApp → API Setup se copy karo">
+                <Input type="password" value={g('whatsappCloud.accessToken')} onChange={(v) => s('whatsappCloud.accessToken', v)} placeholder="EAAx..." />
               </Field>
-            ))}
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Phone Number ID">
+                  <Input value={g('whatsappCloud.phoneNumberId')} onChange={(v) => s('whatsappCloud.phoneNumberId', v)} placeholder="123456789012345" />
+                </Field>
+                <Field label="Business Account ID (WABA ID)">
+                  <Input value={g('whatsappCloud.businessAccountId')} onChange={(v) => s('whatsappCloud.businessAccountId', v)} placeholder="987654321098765" />
+                </Field>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Admin WhatsApp Number" hint="Lead alerts yahan aayenge (10 digits)">
+                  <Input value={g('whatsappCloud.adminNumber')} onChange={(v) => s('whatsappCloud.adminNumber', v)} placeholder="9999999999" />
+                </Field>
+                <Field label="Webhook Verify Token" hint="Aap khud koi bhi secret string set karo">
+                  <Input value={g('whatsappCloud.verifyToken')} onChange={(v) => s('whatsappCloud.verifyToken', v)} placeholder="my_secret_verify_token" />
+                </Field>
+              </div>
+              <Field label="Template Language Code" hint="Default: en (English). hi = Hindi, en_US = English US">
+                <Input value={g('whatsappCloud.templateLanguage', 'en')} onChange={(v) => s('whatsappCloud.templateLanguage', v)} placeholder="en" />
+              </Field>
+            </div>
+
+            {/* Template Names */}
+            <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+              <div>
+                <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Message Template Names</p>
+                <p className="text-xs text-slate-500">Meta pe approved template ka naam exactly waise hi likhein — lowercase aur underscore mein</p>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+                ⚠️ Template pehle <strong>Meta Business Manager → WhatsApp → Message Templates</strong> mein approve hona chahiye. Tab hi yahan naam daalein.
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                {[
+                  {
+                    key: 'whatsappCloud.otpTemplateName',
+                    label: '🔐 OTP Template',
+                    placeholder: 'otp_verification',
+                    hint: 'User ko OTP send karne ke liye. {{1}} = OTP code variable hona chahiye template mein.',
+                  },
+                  {
+                    key: 'whatsappCloud.thankYouTemplateName',
+                    label: '🙏 Thank You / Welcome Template',
+                    placeholder: 'thank_you_enquiry',
+                    hint: 'OTP verify hone ke baad user ko thank you message. {{1}} = name variable.',
+                  },
+                  {
+                    key: 'whatsappCloud.templateName',
+                    label: '🔔 Admin New Lead Alert Template',
+                    placeholder: 'lead_notification',
+                    hint: 'Jab koi naya lead aaye to admin number pe alert. {{1}} = name, {{2}} = mobile.',
+                  },
+                  {
+                    key: 'whatsappCloud.brochureTemplateName',
+                    label: '📄 Brochure Request Template',
+                    placeholder: 'brochure_send',
+                    hint: 'Jab user brochure maange to yeh template chalta hai.',
+                  },
+                  {
+                    key: 'whatsappCloud.siteVisitTemplateName',
+                    label: '📅 Site Visit Confirm Template',
+                    placeholder: 'site_visit_confirm',
+                    hint: 'Site visit booking confirm karne ke baad user ko message.',
+                  },
+                  {
+                    key: 'whatsappCloud.priceListTemplateName',
+                    label: '💰 Price List Template',
+                    placeholder: 'price_list_send',
+                    hint: 'Jab user price list maange to yeh template chalta hai.',
+                  },
+                  {
+                    key: 'whatsappCloud.reengageTemplateName',
+                    label: '🔄 Re-engagement Template',
+                    placeholder: 'reengage_lead',
+                    hint: 'Purane leads ko re-engage karne ke liye (automation se trigger hota hai).',
+                  },
+                ].map(({ key, label, placeholder, hint }) => (
+                  <Field key={key} label={label} hint={hint}>
+                    <Input value={g(key)} onChange={(v) => s(key, v)} placeholder={placeholder} />
+                  </Field>
+                ))}
+              </div>
+            </div>
+
             <Btn onClick={testWhatsApp} disabled={testingWa} variant="secondary">
-              {testingWa ? '⏳ Testing…' : '🧪 Test WhatsApp'}
+              {testingWa ? '⏳ Testing…' : '🧪 Test WhatsApp Connection'}
             </Btn>
           </div>
         )}
@@ -331,14 +420,88 @@ export default function SettingsPage() {
               </Field>
             </div>
             <Field label="From Name">
-              <Input value={g('smtp.fromName')} onChange={(v) => s('smtp.fromName', v)} placeholder="New Projects Gurgaon" />
+              <Input value={g('smtp.from')} onChange={(v) => s('smtp.from', v)} placeholder="Property in Bhiwadi" />
             </Field>
             <Field label="Notify Email (Lead notifications go here)">
-              <Input value={g('notifyEmail')} onChange={(v) => s('notifyEmail', v)} placeholder="leads@example.com" />
+              <Input value={g('notificationEmail')} onChange={(v) => s('notificationEmail', v)} placeholder="leads@example.com" />
             </Field>
             <Btn onClick={testSmtp} disabled={testingSmtp} variant="secondary">
               {testingSmtp ? '⏳ Testing…' : '🧪 Test SMTP Connection'}
             </Btn>
+          </div>
+        )}
+        {/* WEBMAIL */}
+        {activeTab === 'webmail' && (
+          <div className="space-y-5">
+            <h3 className="font-bold text-slate-900 pb-2 border-b border-slate-100">Hostinger Webmail Setup</h3>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800 space-y-1">
+              <p className="font-semibold">Hostinger pe professional email setup karo:</p>
+              <p className="text-xs">1. hpanel.hostinger.com → Emails → Create Email Account</p>
+              <p className="text-xs">2. Email banao: <strong>info@propertyinbhiwadi.com</strong></p>
+              <p className="text-xs">3. SMTP details neeche se copy karo aur Email/SMTP tab mein daal do</p>
+              <p className="text-xs">4. Webmail access: <a href="https://mail.hostinger.com" target="_blank" rel="noopener noreferrer" className="underline font-semibold">mail.hostinger.com</a></p>
+            </div>
+
+            <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+              <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Hostinger SMTP Settings (Email tab mein yeh dalo)</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'SMTP Host', value: 'smtp.hostinger.com', copy: true },
+                  { label: 'SMTP Port', value: '587 (TLS) / 465 (SSL)', copy: false },
+                  { label: 'IMAP Host', value: 'imap.hostinger.com', copy: true },
+                  { label: 'IMAP Port', value: '993 (SSL)', copy: false },
+                ].map(({ label, value, copy }) => (
+                  <div key={label} className="bg-slate-50 rounded-xl p-3">
+                    <p className="text-xs text-slate-500 mb-1">{label}</p>
+                    <p className="font-mono text-sm text-slate-900 font-semibold">{value}</p>
+                    {copy && (
+                      <button onClick={() => navigator.clipboard.writeText(value.split(' ')[0])}
+                        className="text-xs text-blue-600 hover:underline mt-1">Copy</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 space-y-1">
+                <p className="font-semibold">SMTP User aur Password:</p>
+                <p>User: aapki email address (info@propertyinbhiwadi.com)</p>
+                <p>Password: Hostinger dashboard mein set kiya hua email password</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+              <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Email Accounts (Reference)</p>
+              {[
+                { email: 'info@propertyinbhiwadi.com', purpose: 'Main contact + lead notifications' },
+                { email: 'leads@propertyinbhiwadi.com', purpose: 'Lead alerts only' },
+                { email: 'admin@propertyinbhiwadi.com', purpose: 'Admin panel notifications' },
+              ].map(({ email, purpose }) => (
+                <div key={email} className="flex items-center justify-between border border-slate-100 rounded-xl px-4 py-3">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{email}</p>
+                    <p className="text-xs text-slate-500">{purpose}</p>
+                  </div>
+                  <a href="https://hpanel.hostinger.com" target="_blank" rel="noopener noreferrer"
+                    className="text-xs bg-slate-800 text-white px-3 py-1.5 rounded-lg hover:bg-slate-700 transition-colors">
+                    Setup →
+                  </a>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+              <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Quick Links</p>
+              {[
+                { label: 'Hostinger hPanel (Email Management)', href: 'https://hpanel.hostinger.com' },
+                { label: 'Webmail Login (mail.hostinger.com)', href: 'https://mail.hostinger.com' },
+                { label: 'DNS / MX Records Setup', href: 'https://hpanel.hostinger.com/dns' },
+              ].map(({ label, href }) => (
+                <a key={href} href={href} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-between border border-slate-200 rounded-xl px-4 py-3 hover:bg-slate-50 transition-colors group">
+                  <span className="text-sm text-slate-700 group-hover:text-slate-900">{label}</span>
+                  <span className="text-slate-400 group-hover:text-slate-600">→</span>
+                </a>
+              ))}
+            </div>
           </div>
         )}
       </Card>

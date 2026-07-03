@@ -11,12 +11,12 @@ interface TopbarProps {
 
 export default function Topbar({
   phone = '+91-8619930583',
-  email = 'info@newprojectsingurgaon.com',
-  address = 'Gurgaon, Haryana',
+  email = 'info@newprojectsinbhiwadi.com',
+  address = 'Bhiwadi, Rajasthan',
   totalProjects = '150+',
 }: TopbarProps) {
   const ph = phone.replace(/[^+\d]/g, '');
-  const city = address?.split(',')[0] || 'Gurgaon';
+  const city = address?.split(',')[0] || 'Bhiwadi';
 
   return (
     <div className="topbar-gradient text-white text-xs hidden md:block">
@@ -28,7 +28,7 @@ export default function Topbar({
           </div>
           <div className="flex items-center gap-1.5 text-brand-accent font-semibold">
             <CheckBadgeIcon className="w-3.5 h-3.5" />
-            <span>{totalProjects} Verified New Projects in Gurgaon</span>
+            <span>{totalProjects} Verified New Projects in Bhiwadi</span>
           </div>
         </div>
         <div className="flex items-center gap-5">

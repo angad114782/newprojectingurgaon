@@ -1,7 +1,7 @@
 // Advanced Schema Markup for SEO + AIO (AI Overview) + GEO (Generative Engine Optimization)
 // Targets Google SGE, ChatGPT, Perplexity, Gemini, Claude and voice search
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsingurgaon.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://newprojectsinbhiwadi.com';
 
 interface ProjectSchemaProps {
   name: string;
@@ -47,15 +47,15 @@ export function RealEstateListingSchema({ project }: { project: ProjectSchemaPro
     address: {
       '@type': 'PostalAddress',
       streetAddress: project.location,
-      addressLocality: 'Gurgaon',
-      addressRegion: 'Haryana',
-      postalCode: '122001',
+      addressLocality: 'Bhiwadi',
+      addressRegion: 'Rajasthan',
+      postalCode: '301019',
       addressCountry: 'IN',
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 28.4595,
-      longitude: 77.0266,
+      latitude: 28.2055,
+      longitude: 76.8480,
     },
     offers: {
       '@type': 'Offer',
@@ -86,32 +86,32 @@ export function LocalBusinessSchema({ page = 'home', locationName, phone, phone2
   const schema = {
     '@context': 'https://schema.org',
     '@type': ['RealEstateAgent', 'LocalBusiness'],
-    name: 'New Projects in Gurgaon',
-    alternateName: 'Gurgaon Realty — Property Advisory',
+    name: 'New Projects in Bhiwadi',
+    alternateName: 'Bhiwadi Realty — Property Advisory',
     description:
-      'New Projects in Gurgaon is Gurgaon\'s most trusted real estate advisory platform helping buyers find verified new launch, pre-launch and ready-to-move properties. Free site visit support, transparent pricing, RERA-verified projects.',
+      'New Projects in Bhiwadi is Bhiwadi\'s most trusted real estate advisory platform helping buyers find verified new launch, pre-launch and ready-to-move properties. Free site visit support, transparent pricing, RERA-verified projects.',
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
     image: `${SITE_URL}/og-image.jpg`,
     telephone: phones,
-    email: 'info@newprojectsingurgaon.com',
+    email: 'info@newprojectsinbhiwadi.com',
     foundingDate: '2020',
     areaServed: [
-      { '@type': 'City', name: 'Gurgaon' },
-      { '@type': 'AdministrativeArea', name: 'Haryana' },
+      { '@type': 'City', name: 'Bhiwadi' },
+      { '@type': 'AdministrativeArea', name: 'Rajasthan' },
     ],
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Cyber City',
-      addressLocality: 'Gurgaon',
-      addressRegion: 'Haryana',
-      postalCode: '122002',
+      streetAddress: 'RIICO Industrial Area',
+      addressLocality: 'Bhiwadi',
+      addressRegion: 'Rajasthan',
+      postalCode: '301019',
       addressCountry: 'IN',
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 28.4595,
-      longitude: 77.0266,
+      latitude: 28.2055,
+      longitude: 76.8480,
     },
     openingHoursSpecification: [
       {
@@ -140,7 +140,7 @@ export function LocalBusinessSchema({ page = 'home', locationName, phone, phone2
         author: { '@type': 'Person', name: 'Rajesh Mehta' },
         reviewRating: { '@type': 'Rating', ratingValue: '5' },
         reviewBody:
-          'New Projects in Gurgaon helped me compare 6 projects in one weekend site visit. Booked DLF and got the exact price as quoted — zero surprises.',
+          'New Projects in Bhiwadi helped me compare 6 projects in one weekend site visit. Booked Omaxe and got the exact price as quoted — zero surprises.',
         datePublished: '2024-11-15',
       },
       {
@@ -148,15 +148,15 @@ export function LocalBusinessSchema({ page = 'home', locationName, phone, phone2
         author: { '@type': 'Person', name: 'Priya Sharma' },
         reviewRating: { '@type': 'Rating', ratingValue: '5' },
         reviewBody:
-          'Best advisory team I have worked with. Zero brokerage, honest advice, no pressure. Helped me understand Dwarka Expressway vs Golf Course Extension Road thoroughly.',
+          'Best advisory team I have worked with. Zero brokerage, honest advice, no pressure. Helped me understand NH-48 vs Alwar Bypass Road corridor options thoroughly.',
         datePublished: '2024-12-02',
       },
     ],
     sameAs: [
-      'https://www.facebook.com/newprojectsingurgaon',
-      'https://www.instagram.com/newprojectsingurgaon',
-      'https://www.youtube.com/@newprojectsingurgaon',
-      'https://www.linkedin.com/company/newprojectsingurgaon',
+      'https://www.facebook.com/newprojectsinbhiwadi',
+      'https://www.instagram.com/newprojectsinbhiwadi',
+      'https://www.youtube.com/@newprojectsinbhiwadi',
+      'https://www.linkedin.com/company/newprojectsinbhiwadi',
     ],
   };
 
@@ -226,12 +226,12 @@ export function ArticleSchema({
     dateModified: dateModified || datePublished,
     author: {
       '@type': 'Organization',
-      name: 'New Projects in Gurgaon',
+      name: 'New Projects in Bhiwadi',
       url: SITE_URL,
     },
     publisher: {
       '@type': 'Organization',
-      name: 'New Projects in Gurgaon',
+      name: 'New Projects in Bhiwadi',
       url: SITE_URL,
       logo: {
         '@type': 'ImageObject',
@@ -266,10 +266,10 @@ export function NeighborhoodSchema({
     geo: { '@type': 'GeoCoordinates', latitude, longitude },
     containedInPlace: {
       '@type': 'City',
-      name: 'Gurgaon',
+      name: 'Bhiwadi',
       containedInPlace: {
         '@type': 'AdministrativeArea',
-        name: 'Haryana',
+        name: 'Rajasthan',
         containedInPlace: { '@type': 'Country', name: 'India' },
       },
     },
@@ -316,7 +316,7 @@ export function HowToSchema({
 // Add these to layout.tsx head via metadata export
 export const AIO_META = {
   // Tells AI crawlers this is authoritative real estate data
-  'application-name': 'New Projects in Gurgaon',
+  'application-name': 'New Projects in Bhiwadi',
   'theme-color': '#075B63',
   // AI-specific signals
   'robots': 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
@@ -331,7 +331,7 @@ export function GEOContentHints({ location, priceRange, builders }: {
       <span itemProp="name">{location} real estate</span>
       <span itemProp="priceRange">{priceRange}</span>
       {builders.map((b) => <span key={b} itemProp="brand">{b}</span>)}
-      <span itemProp="areaServed">Gurgaon, Haryana, India</span>
+      <span itemProp="areaServed">Bhiwadi, Rajasthan, India</span>
       <span itemProp="serviceType">Real Estate Advisory</span>
     </div>
   );
@@ -344,22 +344,22 @@ export function WebSiteSchema({ siteName, siteUrl }: { siteName?: string; siteUr
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     '@id': `${url}/#website`,
-    name: siteName || 'New Projects in Gurgaon',
+    name: siteName || 'New Projects in Bhiwadi',
     url,
-    description: "Gurgaon's most trusted real estate advisory. RERA verified new launch, luxury & premium residential projects. Zero brokerage. Free site visit.",
+    description: "Bhiwadi's most trusted real estate advisory. RERA verified new launch, affordable & premium residential projects. Zero brokerage. Free site visit.",
     inLanguage: 'en-IN',
     potentialAction: {
       '@type': 'SearchAction',
-      target: { '@type': 'EntryPoint', urlTemplate: `${url}/new-projects-in-gurgaon?q={search_term_string}` },
+      target: { '@type': 'EntryPoint', urlTemplate: `${url}/new-projects-in-bhiwadi?q={search_term_string}` },
       'query-input': 'required name=search_term_string',
     },
     publisher: {
       '@type': 'Organization',
       '@id': `${url}/#organization`,
-      name: siteName || 'New Projects in Gurgaon',
+      name: siteName || 'New Projects in Bhiwadi',
       url,
       logo: { '@type': 'ImageObject', url: `${url}/logo.png`, width: 200, height: 60 },
-      sameAs: ['https://www.facebook.com/newprojectsingurgaon', 'https://www.instagram.com/newprojectsingurgaon', 'https://www.youtube.com/@newprojectsingurgaon', 'https://www.linkedin.com/company/newprojectsingurgaon'],
+      sameAs: ['https://www.facebook.com/newprojectsinbhiwadi', 'https://www.instagram.com/newprojectsinbhiwadi', 'https://www.youtube.com/@newprojectsinbhiwadi', 'https://www.linkedin.com/company/newprojectsinbhiwadi'],
     },
   };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
@@ -406,7 +406,7 @@ export function PropertyProductSchema({ project }: { project: {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: project.name,
-    description: project.description || `${project.name} by ${project.builder} in ${project.location}, Gurgaon.`,
+    description: project.description || `${project.name} by ${project.builder} in ${project.location}, Bhiwadi.`,
     image: project.heroImage || `${SITE_URL}/og-home.jpg`,
     brand: { '@type': 'Brand', name: project.builder },
     url: `${SITE_URL}/project/${project.slug}`,
@@ -416,7 +416,7 @@ export function PropertyProductSchema({ project }: { project: {
       price: project.priceMin ? project.priceMin * 100000 : 0,
       priceValidUntil: new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
       availability: project.status === 'Ready To Move' ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
-      seller: { '@type': 'Organization', name: 'New Projects in Gurgaon', url: SITE_URL },
+      seller: { '@type': 'Organization', name: 'New Projects in Bhiwadi', url: SITE_URL },
     },
     additionalProperty: [
       { '@type': 'PropertyValue', name: 'RERA Number', value: project.rera || 'Applied' },

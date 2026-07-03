@@ -5,27 +5,19 @@ import { ALL_SEO_PAGES } from '@/lib/projects';
 import LeadCTA from '@/components/lead/LeadCTA';
 
 const NAV_LINKS = [
-  { label: 'New Launch Projects Gurgaon', href: '/new-launch-projects-in-gurgaon' },
-  { label: 'New Projects in Gurgaon', href: '/new-projects-in-gurgaon' },
-  { label: 'Ready to Move Flats Gurgaon', href: '/ready-to-move-flats-gurgaon' },
-  { label: 'Dwarka Expressway Projects', href: '/dwarka-expressway-projects' },
-  { label: 'Golf Course Road Projects', href: '/golf-course-road-projects' },
-  { label: 'Golf Course Extension Road', href: '/golf-course-extension-road-projects' },
-  { label: 'SPR Road Projects', href: '/spr-road-projects' },
-  { label: 'New Gurgaon Projects', href: '/new-gurgaon-projects' },
-  { label: '3 BHK Dwarka Expressway', href: '/3-bhk-flats-in-dwarka-expressway-gurgaon' },
-  { label: '2 BHK Dwarka Expressway', href: '/2-bhk-flats-in-dwarka-expressway-gurgaon' },
-  { label: '3 BHK Golf Course Ext Road', href: '/3-bhk-flats-golf-course-extension-road-gurgaon' },
-  { label: 'Penthouse in Gurgaon', href: '/penthouse-in-gurgaon' },
-  { label: 'Flats Under ₹1 Crore Gurgaon', href: '/flats-under-1-crore-gurgaon' },
-  { label: 'Flats Under ₹50 Lakh Gurgaon', href: '/flats-under-50-lakh-gurgaon' },
-  { label: 'Luxury Flats Above ₹3 Crore', href: '/luxury-apartments-above-3-crore-gurgaon' },
-  { label: 'Residential Property Gurgaon', href: '/residential-property-in-gurgaon' },
-  { label: 'Sector 113 Gurgaon', href: '/sector-113-gurgaon-property' },
-  { label: 'Sector 106 Gurgaon', href: '/sector-106-gurgaon-property' },
-  { label: 'Sector 102 Gurgaon', href: '/sector-102-gurgaon-property' },
-  { label: 'Sector 37D Gurgaon', href: '/sector-37d-gurgaon-property' },
-  { label: 'New Gurgaon Projects', href: '/new-gurgaon-projects' },
+  { label: 'New Launch Projects Bhiwadi', href: '/new-launch-bhiwadi' },
+  { label: 'New Projects in Bhiwadi', href: '/new-projects-in-bhiwadi' },
+  { label: 'Ready to Move Bhiwadi', href: '/ready-to-move-bhiwadi' },
+  { label: 'NH-48 Bhiwadi Projects', href: '/nh-48-bhiwadi-projects' },
+  { label: 'Industrial Plots Bhiwadi', href: '/industrial-plots-bhiwadi' },
+  { label: 'Residential Property Bhiwadi', href: '/residential-property-in-bhiwadi' },
+  { label: '2 BHK Flats in Bhiwadi', href: '/2-bhk-flats-bhiwadi' },
+  { label: '3 BHK Flats in Bhiwadi', href: '/3-bhk-flats-bhiwadi' },
+  { label: 'Flats Under ₹30 Lakh Bhiwadi', href: '/flats-under-30-lakh-bhiwadi' },
+  { label: 'Flats Under ₹50 Lakh Bhiwadi', href: '/flats-under-50-lakh-bhiwadi' },
+  { label: 'Plots in Bhiwadi', href: '/plots-in-bhiwadi' },
+  { label: 'Bhiwadi Extension Projects', href: '/bhiwadi-extension-projects' },
+  { label: 'Khushkhera Bhiwadi Projects', href: '/khushkhera-bhiwadi-projects' },
   { label: 'Property Blog', href: '/blog' },
 ];
 
@@ -44,13 +36,13 @@ interface FooterProps {
 
 export default function Footer({
   phone = '+91-8619930583',
-  email = 'info@newprojectsingurgaon.com',
+  email = 'info@newprojectsinbhiwadi.com',
   whatsapp = '918619930583',
-  siteName = 'New Projects in Gurgaon',
-  address = 'Cyber City, Gurgaon, Haryana',
+  siteName = 'New Projects in Bhiwadi',
+  address = 'Bhiwadi, Alwar, Rajasthan',
   openingHours = 'Mon–Sun: 9 AM – 8 PM',
   reraNumber = '',
-  reraLink = 'https://haryanarera.gov.in',
+  reraLink = 'https://rera.rajasthan.gov.in',
   logoUrl,
   social = {},
 }: FooterProps) {
@@ -70,7 +62,7 @@ export default function Footer({
   const INITIAL = 6;
   const displayedProjects = showAllProjects ? projects : projects.slice(0, INITIAL);
   const displayedPages = showAllPages ? NAV_LINKS : NAV_LINKS.slice(0, INITIAL);
-  const waLink = `https://wa.me/${whatsapp}?text=Hi, I am looking for property in Gurgaon`;
+  const waLink = `https://wa.me/${whatsapp}?text=Hi, I am looking for property in Bhiwadi`;
 
   return (
     <footer className="bg-brand-dark text-white">
@@ -111,7 +103,7 @@ export default function Footer({
               )}
             </Link>
             <p className="text-white/60 text-sm leading-relaxed mb-5">
-              Gurgaon's most trusted real estate advisory. 4,200+ families helped. Zero brokerage for buyers. RERA verified projects only.
+              Bhiwadi's most trusted real estate advisory. 4,200+ families helped. Zero brokerage for buyers. RERA verified projects only.
             </p>
             <div className="space-y-2 text-sm text-white/70">
               <a href={`tel:${phone.replace(/[^+\d]/g, '')}`} className="flex items-center gap-2 hover:text-white transition-colors">📞 {phone}</a>
@@ -173,11 +165,11 @@ export default function Footer({
                 { label: 'Get Price List', modal: true, ctaType: 'price_list' },
                 { label: 'Download Brochure', modal: true, ctaType: 'brochure' },
                 { label: 'Property Blog', href: '/blog' },
-                { label: 'Best Sectors 2025', href: '/blog/best-sectors-to-invest-in-gurgaon' },
-                { label: 'Dwarka Expressway Guide', href: '/blog/dwarka-expressway-investment-guide' },
+                { label: 'Best Areas in Bhiwadi 2025', href: '/blog/property-investment-in-bhiwadi-guide' },
+                { label: 'NH-48 Investment Guide', href: '/blog/nh-48-bhiwadi-investment-guide' },
                 { label: 'New Launch vs RTM', href: '/blog/new-launch-vs-ready-to-move-property' },
                 { label: 'How to Check RERA', href: '/blog/how-to-check-rera-before-buying-property' },
-                { label: 'Best Builders Guide', href: '/blog/best-builders-in-gurgaon' },
+                { label: 'Best Builders in Bhiwadi', href: '/blog/best-builders-in-bhiwadi' },
               ].map((l: any) => (
                 <li key={l.label}>
                   {l.modal ? (
@@ -229,7 +221,7 @@ export default function Footer({
         <div className="border-t border-white/10 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <p className="text-white/40 text-xs">© {new Date().getFullYear()} {siteName}. All rights reserved.</p>
-            <p className="text-white/30 text-xs mt-1">Real estate advisory for new projects in Gurgaon. RERA verified. Zero brokerage.</p>
+            <p className="text-white/30 text-xs mt-1">Real estate advisory for new projects in Bhiwadi. RERA verified. Zero brokerage.</p>
             {reraNumber && (
               <a href={reraLink} target="_blank" rel="noopener noreferrer"
                 className="text-white/30 hover:text-brand-accent text-xs mt-1 block transition-colors">
@@ -257,7 +249,7 @@ export default function Footer({
         </div>
 
         <p className="text-white/25 text-xs mt-6 leading-relaxed">
-          Disclaimer: All property information is indicative and subject to change. Prices, availability and specifications are as provided by respective developers. {siteName} is an independent advisory platform and not the developer or owner of any property listed. Verify all details directly with the builder and on haryanarera.gov.in before making any investment decision. Images shown are for representational purposes only.
+          Disclaimer: All property information is indicative and subject to change. Prices, availability and specifications are as provided by respective developers. {siteName} is an independent advisory platform and not the developer or owner of any property listed. Verify all details directly with the builder and on rera.rajasthan.gov.in before making any investment decision. Images shown are for representational purposes only.
         </p>
       </div>
     </footer>

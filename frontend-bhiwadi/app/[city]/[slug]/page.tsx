@@ -41,7 +41,7 @@ export async function generateStaticParams() {
     const projects: any[] = res.data;
     return projects.flatMap((p: any) => {
       const corridor = corridors.find((c: any) => c.name.toLowerCase() === (p.corridor || '').toLowerCase());
-      if (!corridor || (corridor.city || 'Gurgaon') === 'Gurgaon') return [];
+      if (!corridor || !(corridor.city)) return [];
       const citySlug = corridor.city.toLowerCase().replace(/\s+/g, '-');
       return [{ city: citySlug, slug: p.slug }];
     });
@@ -82,7 +82,7 @@ export default async function CityProjectPage({ params }: Props) {
   const corridor = corridors.find((c: any) =>
     c.name.toLowerCase() === (project.corridor || '').toLowerCase()
   );
-  const projectCitySlug = (corridor?.city || 'Gurgaon').toLowerCase().replace(/\s+/g, '-');
+  const projectCitySlug = (corridor?.city || 'Bhiwadi').toLowerCase().replace(/\s+/g, '-');
 
   // If city doesn't match, 404 (prevents duplicate content across city slugs)
   if (projectCitySlug !== params.city) notFound();

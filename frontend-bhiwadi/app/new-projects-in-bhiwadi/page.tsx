@@ -4,6 +4,7 @@ import LeadForm from '@/components/home/LeadForm';
 import { fetchApiProjects } from '@/lib/api-projects';
 import { fetchSettings } from '@/lib/settings';
 import LeadCTA from '@/components/lead/LeadCTA';
+import ProjectFilterBar from '@/components/projects/ProjectFilterBar';
 
 export const revalidate = 60;
 
@@ -13,31 +14,61 @@ export async function generateMetadata(): Promise<Metadata> {
   const pageUrl = `${siteUrl}/new-projects-in-bhiwadi`;
   return {
     title: `New Projects in Bhiwadi 2025 | Latest Residential Launches | ${settings.siteName}`,
-    description: `Latest new residential projects in Bhiwadi 2025. Compare all new launches — Omaxe, GLS, Eldeco, Adani, Hero Homes — from ₹28L. RERA verified. Free advisory. Free site visit. Zero brokerage. RERA verified. Call ${settings.phone}.`,
+    description: `Latest new residential projects in Bhiwadi 2025. Compare all new launches — Omaxe, GLS, Eldeco, Adani, Hero Homes — from ₹28L. RERA verified. Free advisory. Free site visit. Zero brokerage. Call ${settings.phone}.`,
     keywords: 'new projects in bhiwadi 2025, bhiwadi new residential projects, latest bhiwadi projects',
     openGraph: { title: `New Projects in Bhiwadi 2025 | Latest Residential Launches | ${settings.siteName}`, url: pageUrl, type: 'website' },
     alternates: { canonical: pageUrl },
   };
 }
 
-export default async function Page() {
-  const params: any = {};
-  params.limit = 12;
-  const projects = await fetchApiProjects(params);
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined };
+}) {
+  const corridor = searchParams.location || searchParams.corridor || '';
+  const status   = searchParams.status   || '';
+  const config   = searchParams.config   || searchParams.bhk || '';
+  const maxPrice = searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined;
+  const minPrice = searchParams.minPrice ? Number(searchParams.minPrice) : undefined;
+
+  const projects = await fetchApiProjects({
+    corridor:  corridor  || undefined,
+    status:    status    || undefined,
+    config:    config    || undefined,
+    maxPrice,
+    minPrice,
+    limit: 50,
+  });
+
+  // Active filter label for heading
+  const filterLabel = [
+    corridor && `in ${corridor}`,
+    status,
+    config,
+    maxPrice && `Under ₹${maxPrice}L`,
+  ].filter(Boolean).join(' · ');
+
   return (
     <>
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">
         <div className="max-w-7xl mx-auto px-4 text-sm text-brand-muted">
           <Link href="/" className="hover:text-brand-dark">Home</Link> <span className="mx-2">/</span>
           <span className="text-brand-dark font-medium">New Projects in Bhiwadi 2025</span>
+          {filterLabel && <><span className="mx-2">/</span><span className="text-brand-accent">{filterLabel}</span></>}
         </div>
       </nav>
+
       <section className="hero-gradient py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="max-w-3xl">
             <span className="inline-block bg-brand-accent/20 text-brand-accent text-sm font-semibold px-4 py-1.5 rounded-full mb-4">🆕 Latest Projects</span>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white leading-tight mb-4">New Projects in Bhiwadi 2025</h1>
-            <p className="text-white/80 text-lg leading-relaxed mb-8">Latest new residential projects in Bhiwadi 2025. Compare all new launches — Omaxe, GLS, Eldeco, Adani, Hero Homes — from ₹28L. RERA verified. Free advisory.</p>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white leading-tight mb-4">
+              New Projects in Bhiwadi 2025{filterLabel && ` — ${filterLabel}`}
+            </h1>
+            <p className="text-white/80 text-lg leading-relaxed mb-8">
+              {projects.length} RERA-verified project{projects.length !== 1 ? 's' : ''} found{filterLabel ? ` for ${filterLabel}` : ' in Bhiwadi'}. Free advisory — get full pricing on WhatsApp.
+            </p>
             <div className="flex flex-wrap gap-3">
               <a href="#projects" className="btn-primary">View Properties</a>
               <LeadCTA ctaType="site_visit" className="btn-white">Book Free Site Visit</LeadCTA>
@@ -45,9 +76,18 @@ export default async function Page() {
           </div>
         </div>
       </section>
+
+      <ProjectFilterBar
+        basePath="/new-projects-in-bhiwadi"
+        active={{ location: corridor, status, config, maxPrice: searchParams.maxPrice || '' }}
+        totalCount={projects.length}
+      />
+
       <section className="py-14 bg-brand-mint/20" id="projects">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-display font-bold text-brand-text mb-2 text-center">New Projects in Bhiwadi 2025</h2>
+          <h2 className="text-2xl font-display font-bold text-brand-text mb-2 text-center">
+            {filterLabel ? `${filterLabel} — Projects in Bhiwadi` : 'All Projects in Bhiwadi 2025'}
+          </h2>
           <p className="text-brand-muted text-center mb-10">RERA-registered properties with current pricing</p>
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -68,12 +108,13 @@ export default async function Page() {
             </div>
           ) : (
             <div className="text-center py-12 text-brand-muted">
-              <p className="text-lg mb-4">Projects coming soon — please call us for latest options.</p>
+              <p className="text-lg mb-4">No projects found for this filter. Try removing a filter or call us for latest options.</p>
               <LeadCTA ctaType="site_visit" className="btn-primary">Get WhatsApp Update</LeadCTA>
             </div>
           )}
         </div>
       </section>
+
       <section className="py-10 bg-white border-y border-brand-border/30">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-3">
@@ -91,6 +132,7 @@ export default async function Page() {
           </div>
         </div>
       </section>
+
       <section className="py-16 bg-brand-dark" id="lead-form">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-display font-bold text-white mb-3">Get Property Details — New Projects in Bhiwadi 2025</h2>

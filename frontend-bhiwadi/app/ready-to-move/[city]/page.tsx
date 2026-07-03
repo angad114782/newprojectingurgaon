@@ -35,7 +35,7 @@ export async function generateStaticParams() {
   const corridors = await getCorridors();
   const cities = Array.from(new Set(
     corridors
-      .filter((c: any) => c.city && c.city !== 'Gurgaon')
+      .filter((c: any) => c.city)
       .map((c: any) => c.city.toLowerCase().replace(/\s+/g, '-'))
   )) as string[];
   return cities.map(city => ({ city }));
@@ -62,7 +62,7 @@ export default async function ReadyToMoveCityPage({ params }: Props) {
   const cityName = toDisplayName(params.city);
   const corridors = await getCorridors();
   const cityCorridors = corridors.filter(
-    (c: any) => (c.city || 'Gurgaon').toLowerCase().replace(/\s+/g, '-') === params.city
+    (c: any) => (c.city || 'Bhiwadi').toLowerCase().replace(/\s+/g, '-') === params.city
   );
 
   if (!cityCorridors.length) notFound();

@@ -10,33 +10,32 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://propertyinbhiwadi.com';
   const settings = await fetchSettings();
-  const pageUrl = `${siteUrl}/flats-under-30-lakh-bhiwadi`;
+  const pageUrl = `${siteUrl}/chopanki-bhiwadi-projects`;
   return {
-    title: `Flats Under 30 Lakh in Bhiwadi 2025 | Budget Homes | PMAY | ${settings.siteName}`,
-    description: `Most affordable flats in Bhiwadi under ₹30 Lakh. Ratan Pearl Residency — 1 BHK from ₹28L. PMAY subsidy eligible. First-time homebuyer scheme. EMI from ₹22,000/month. Free site visit. Zero brokerage. RERA verified. Call ${settings.phone}.`,
-    keywords: 'flats under 30 lakh bhiwadi, affordable flats bhiwadi, bhiwadi under 30 lakh, budget homes bhiwadi',
-    openGraph: { title: `Flats Under 30 Lakh in Bhiwadi 2025 | Budget Homes | PMAY | ${settings.siteName}`, url: pageUrl, type: 'website' },
+    title: `Chopanki Bhiwadi Projects 2025 | Industrial Zone Properties | Flats from ₹28L | ${settings.siteName}`,
+    description: `Residential projects in Chopanki Industrial Area Bhiwadi. 1 BHK from ₹28L. High rental demand from Chopanki RIICO industrial belt. Free site visit. Zero brokerage. RERA verified. Call ${settings.phone}.`,
+    keywords: 'chopanki bhiwadi projects, chopanki industrial area property, chopanki flats bhiwadi',
+    openGraph: { title: `Chopanki Bhiwadi Projects 2025 | Industrial Zone | Flats from ₹28L | ${settings.siteName}`, url: pageUrl, type: 'website' },
     alternates: { canonical: pageUrl },
   };
 }
 
 export default async function Page() {
-  const all = await fetchApiProjects({ maxPrice: 30, limit: 50 });
-  const projects = all.filter(p => !(p.configurations || []).some((c: string) => /plot/i.test(c)));
+  const projects = await fetchApiProjects({ corridor: 'Chopanki', limit: 50 });
   return (
     <>
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">
         <div className="max-w-7xl mx-auto px-4 text-sm text-brand-muted">
           <Link href="/" className="hover:text-brand-dark">Home</Link> <span className="mx-2">/</span>
-          <span className="text-brand-dark font-medium">Flats Under 30 Lakh in Bhiwadi</span>
+          <span className="text-brand-dark font-medium">Chopanki Bhiwadi Projects</span>
         </div>
       </nav>
       <section className="hero-gradient py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="max-w-3xl">
-            <span className="inline-block bg-brand-accent/20 text-brand-accent text-sm font-semibold px-4 py-1.5 rounded-full mb-4">💰 Budget Homes</span>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white leading-tight mb-4">Flats Under 30 Lakh in Bhiwadi</h1>
-            <p className="text-white/80 text-lg leading-relaxed mb-8">Most affordable flats in Bhiwadi under ₹30 Lakh. Ratan Pearl Residency — 1 BHK from ₹28L. PMAY subsidy eligible. First-time homebuyer scheme. EMI from ₹22,000/month.</p>
+            <span className="inline-block bg-brand-accent/20 text-brand-accent text-sm font-semibold px-4 py-1.5 rounded-full mb-4">🏭 Chopanki Industrial Belt</span>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white leading-tight mb-4">Chopanki Bhiwadi Projects</h1>
+            <p className="text-white/80 text-lg leading-relaxed mb-8">Properties near Chopanki Industrial Area on NH-48, Bhiwadi. Affordable 1–2 BHK from ₹28L with strong rental demand from RIICO industrial professionals. 95%+ occupancy year-round.</p>
             <div className="flex flex-wrap gap-3">
               <a href="#projects" className="btn-primary">View Properties</a>
               <LeadCTA ctaType="site_visit" className="btn-white">Book Free Site Visit</LeadCTA>
@@ -46,7 +45,7 @@ export default async function Page() {
       </section>
       <section className="py-14 bg-brand-mint/20" id="projects">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-display font-bold text-brand-text mb-2 text-center">Flats Under 30 Lakh in Bhiwadi</h2>
+          <h2 className="text-2xl font-display font-bold text-brand-text mb-2 text-center">Chopanki Bhiwadi Projects</h2>
           <p className="text-brand-muted text-center mb-10">RERA-registered properties with current pricing</p>
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -67,7 +66,7 @@ export default async function Page() {
             </div>
           ) : (
             <div className="text-center py-12 text-brand-muted">
-              <p className="text-lg mb-4">Projects coming soon — please call us for latest options.</p>
+              <p className="text-lg mb-4">Projects coming soon — please call us for latest options in Chopanki.</p>
               <LeadCTA ctaType="site_visit" className="btn-primary">Get WhatsApp Update</LeadCTA>
             </div>
           )}
@@ -78,9 +77,9 @@ export default async function Page() {
           <div className="flex flex-wrap justify-center gap-3">
             {[
               { label: 'All Bhiwadi Properties', href: '/residential-property-in-bhiwadi' },
-              { label: 'Alwar Bypass Road', href: '/alwar-bypass-road-projects' },
               { label: 'NH-48 Projects', href: '/nh-48-bhiwadi-projects' },
-              { label: 'Neemrana Projects', href: '/neemrana-bhiwadi-projects' },
+              { label: 'Bhiwadi Extension', href: '/bhiwadi-extension-projects' },
+              { label: 'Khushkhera Projects', href: '/khushkhera-bhiwadi-projects' },
               { label: 'Tapukara Projects', href: '/tapukara-bhiwadi-projects' },
               { label: 'Ready to Move', href: '/ready-to-move-bhiwadi' },
               { label: 'Flats Under 30 Lakh', href: '/flats-under-30-lakh-bhiwadi' },
@@ -92,7 +91,7 @@ export default async function Page() {
       </section>
       <section className="py-16 bg-brand-dark" id="lead-form">
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-display font-bold text-white mb-3">Get Property Details — Flats Under 30 Lakh in Bhiwadi</h2>
+          <h2 className="text-3xl font-display font-bold text-white mb-3">Get Property Details — Chopanki Bhiwadi</h2>
           <p className="text-white/70 mb-8">We'll share matching properties with pricing on WhatsApp within 2 hours.</p>
           <LeadForm />
         </div>

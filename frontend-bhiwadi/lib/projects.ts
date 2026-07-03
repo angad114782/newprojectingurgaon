@@ -22,7 +22,7 @@ export const UNSPLASH = {
   lobby: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80',
   terrace: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80',
   garden: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
-  gurgaon: 'https://images.unsplash.com/photo-1586892477838-2b96e85e0f96?w=1200&q=80',
+  bhiwadi: 'https://images.unsplash.com/photo-1586892477838-2b96e85e0f96?w=1200&q=80',
   hero: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1400&q=80',
   hero2: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1400&q=80',
 };

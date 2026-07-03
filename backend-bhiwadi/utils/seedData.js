@@ -1523,20 +1523,20 @@ const PROJECTS = [
 
 // ── Export seedProjects — upsert so existing user data is preserved ────────────
 async function seedProjects() {
+  // Use Bhiwadi projects — the old Gurgaon PROJECTS array is kept for reference but not used
+  const ALL = typeof BHIWADI_PROJECTS !== 'undefined' ? BHIWADI_PROJECTS : PROJECTS;
   const count = await Project.countDocuments();
   if (count === 0) {
-    // Fresh DB — insert all
-    await Project.insertMany(PROJECTS);
-    console.log(`✅ Seeded ${PROJECTS.length} projects`);
+    await Project.insertMany(ALL);
+    console.log(`✅ Seeded ${ALL.length} projects`);
     return;
   }
-  // Existing DB — upsert: add new, update existing (preserves user-added projects)
   let added = 0, updated = 0;
-  for (const p of PROJECTS) {
+  for (const p of ALL) {
     const result = await Project.findOneAndUpdate({ slug: p.slug }, p, { upsert: true, new: true });
     if (result) updated++; else added++;
   }
-  console.log(`✅ Projects synced — ${PROJECTS.length} total (upserted without wiping user data)`);
+  console.log(`✅ Projects synced — ${ALL.length} total (upserted without wiping user data)`);
 }
 
 // ── Seed Team Members (E-E-A-T) ───────────────────────────────────────────────
@@ -1548,15 +1548,15 @@ async function seedTeam() {
       slug: 'sanjeev-kumar',
       designation: 'Founder & Managing Director',
       experience: '14+ years',
-      specializations: ['Luxury Properties', 'Golf Course Road', 'DLF Projects', 'NRI Investment Advisory'],
-      credentials: 'RERA Agent ID: HRERA-PKL-REA-0451-2021 | CREDAI Member | Certified Real Estate Advisor',
-      reraAgentId: 'HRERA-PKL-REA-0451-2021',
-      bio: 'Founder of New Projects in Gurgaon with 14+ years of expertise in luxury and premium real estate. Specialises in DLF, Sobha and Golf Course Road micro-market.',
-      fullBio: 'Sanjeev Kumar founded New Projects in Gurgaon in 2019 after 14 years in Gurgaon\'s real estate industry. Having personally closed 400+ transactions across DLF, Sobha, M3M and Godrej projects, he brings unmatched market intelligence to every advisory. Sanjeev has helped 500+ families find their dream homes and has been recognised as one of Gurgaon\'s top 10 real estate advisors.',
+      specializations: ['NH-48 Corridor', 'Bhiwadi Investment', 'RIICO Industrial Zone', 'NRI Investment Advisory'],
+      credentials: 'RERA Agent ID: RAJ/RERA/AGENT/2021/001 | CREDAI Member | Rajasthan Certified Real Estate Advisor',
+      reraAgentId: 'RAJ/RERA/AGENT/2021/001',
+      bio: 'Founder of Property in Bhiwadi with 14+ years of expertise in Rajasthan real estate. Specialises in NH-48 corridor, RIICO industrial zone, and affordable housing.',
+      fullBio: 'Sanjeev Kumar founded Property in Bhiwadi in 2021 after 14 years in the Rajasthan real estate industry. Having personally closed 400+ transactions across Bhiwadi, Khushkhera, Tapukara and Neemrana, he brings unmatched market intelligence to every advisory. Sanjeev has helped 1,200+ families find their homes and investments in Bhiwadi.',
       education: 'MBA — Real Estate Management, RICS School of Built Environment, Amity University',
-      languages: ['English', 'Hindi', 'Punjabi'],
+      languages: ['English', 'Hindi', 'Rajasthani'],
       dealsCount: '400+ deals closed',
-      awards: ['Top 10 Real Estate Advisor Gurgaon 2023', 'CREDAI Excellence Award 2022', 'Best Advisory Platform NCR 2024'],
+      awards: ['Top Real Estate Advisor Rajasthan 2023', 'CREDAI Excellence Award 2022', 'Best Advisory Platform NCR Periphery 2024'],
       isFeatured: true, sortOrder: 1, isActive: true,
     },
     {
@@ -1564,11 +1564,11 @@ async function seedTeam() {
       slug: 'angad-yadav',
       designation: 'Co-Founder & Digital Strategy Head',
       experience: '6+ years',
-      specializations: ['Dwarka Expressway', 'New Launch Projects', 'Digital Marketing', 'SEO & AIO for Real Estate'],
-      credentials: 'RERA Agent ID: HRERA-PKL-REA-0677-2021 | Google Certified Digital Marketer | Real Estate Tech Specialist',
-      reraAgentId: 'HRERA-PKL-REA-0677-2021',
-      bio: 'Co-Founder driving digital growth and technology at New Projects in Gurgaon. Expert in Dwarka Expressway micro-market and new launch investment strategies.',
-      fullBio: 'Angad Yadav co-founded New Projects in Gurgaon and leads the digital strategy and technology division. With deep expertise in Dwarka Expressway — Gurgaon\'s fastest-growing corridor — Angad has advised 200+ buyers and investors on new launch investments. He built the AI-powered advisory platform that helps buyers compare projects intelligently.',
+      specializations: ['NH-48 New Launch Projects', 'Digital Marketing', 'SEO & AIO for Real Estate', 'PropTech'],
+      credentials: 'RERA Agent ID: RAJ/RERA/AGENT/2021/002 | Google Certified Digital Marketer | Real Estate Tech Specialist',
+      reraAgentId: 'RAJ/RERA/AGENT/2021/002',
+      bio: 'Co-Founder driving digital growth and technology at Property in Bhiwadi. Expert in NH-48 corridor micro-markets and new launch investment strategies.',
+      fullBio: 'Angad Yadav co-founded Property in Bhiwadi and leads the digital strategy and technology division. With deep expertise in the NH-48 belt — from Bhiwadi to Neemrana — Angad has advised 200+ buyers and investors on new launch investments. He built the AI-powered advisory platform that helps buyers compare projects intelligently.',
       education: 'B.Tech Computer Science | Digital Marketing Certification — Google & HubSpot',
       languages: ['English', 'Hindi'],
       dealsCount: '200+ advisory consultations',
@@ -1576,51 +1576,51 @@ async function seedTeam() {
       isFeatured: true, sortOrder: 2, isActive: true,
     },
     {
-      name: 'Ajay Singh',
-      slug: 'ajay-singh',
-      designation: 'Senior Property Advisor — Dwarka Expressway Specialist',
+      name: 'Rohit Sharma',
+      slug: 'rohit-sharma',
+      designation: 'Senior Property Advisor — NH-48 & RIICO Specialist',
       experience: '10+ years',
-      specializations: ['Dwarka Expressway', 'Sector 102-115', 'Airport Zone Properties', 'Mid-Segment Investment'],
-      credentials: 'RERA Agent ID: HRERA-PKL-REA-0512-2021 | CREDAI Certified | 10 Years Dwarka Expressway Experience',
-      reraAgentId: 'HRERA-PKL-REA-0512-2021',
-      bio: 'Gurgaon\'s most experienced Dwarka Expressway advisor. 10 years, 300+ transactions. Expert in Sector 102–115 micro-markets and airport-zone investment.',
-      fullBio: 'Ajay Singh has spent 10 years exclusively focused on Dwarka Expressway — Gurgaon\'s most dynamic real estate corridor. He has personally witnessed the transformation of Sectors 102–115 from agricultural land to India\'s most sought-after real estate belt. His sector-level market intelligence helps buyers identify the right unit, floor, and facing for maximum appreciation.',
-      education: 'B.Com — Delhi University | Post Graduate Diploma in Real Estate Management',
-      languages: ['English', 'Hindi', 'Haryanvi'],
+      specializations: ['NH-48 Highway Belt', 'RIICO Industrial Zone', 'Bhiwadi Extension', 'Industrial Plots'],
+      credentials: 'RERA Agent ID: RAJ/RERA/AGENT/2021/003 | CREDAI Certified | 10 Years NH-48 Experience',
+      reraAgentId: 'RAJ/RERA/AGENT/2021/003',
+      bio: "Bhiwadi's most experienced NH-48 corridor advisor. 10 years, 300+ transactions. Expert in Bhiwadi Extension, Khushkhera and industrial zone micro-markets.",
+      fullBio: 'Rohit Sharma has spent 10 years exclusively focused on the NH-48 belt from Bhiwadi to Neemrana. He has personally witnessed the transformation of this corridor from small industrial town to NCR\'s most promising affordable housing destination. His sector-level market intelligence helps buyers identify the right location for maximum rental yield and appreciation.',
+      education: 'B.Com — University of Rajasthan | Post Graduate Diploma in Real Estate Management',
+      languages: ['English', 'Hindi', 'Rajasthani'],
       dealsCount: '300+ transactions',
-      awards: ['Best Dwarka Expressway Advisor 2023', 'CREDAI Emerging Leader 2022'],
+      awards: ['Best NH-48 Property Advisor 2023', 'CREDAI Emerging Leader 2022'],
       isFeatured: true, sortOrder: 3, isActive: true,
     },
     {
-      name: 'Kamal Sharma',
-      slug: 'kamal-sharma',
-      designation: 'Investment Advisor — Golf Course Road & Luxury Expert',
-      experience: '12+ years',
-      specializations: ['Golf Course Road', 'Golf Course Extension Road', 'Luxury Investment', 'HNI & NRI Advisory'],
-      credentials: 'RERA Agent ID: HRERA-PKL-REA-0389-2021 | Certified Luxury Property Advisor | 12 Years Golf Course Road Experience',
-      reraAgentId: 'HRERA-PKL-REA-0389-2021',
-      bio: 'Gurgaon\'s leading luxury real estate advisor with 12 years on Golf Course Road. Expert in DLF, Sobha and Emaar luxury projects. Trusted by 150+ HNI and NRI clients.',
-      fullBio: 'Kamal Sharma is Gurgaon\'s go-to expert for luxury real estate investment on Golf Course Road and Golf Course Extension Road. Having advised 150+ High-Net-Worth and NRI clients, he brings a finance-first approach to luxury property decisions — ROI analysis, rental yield projections, and resale market intelligence. Kamal is fluent in Hindi and English and conducts virtual tours for NRI clients.',
-      education: 'CA (semi-qualified) | RICS Certified Real Estate Professional',
+      name: 'Priya Mehra',
+      slug: 'priya-mehra',
+      designation: 'Investment Advisor — Bhiwadi & NRI Expert',
+      experience: '9+ years',
+      specializations: ['Bhiwadi Investment', 'NRI Advisory', 'RERA Compliance', 'Rental Yield Analysis'],
+      credentials: 'RERA Agent ID: RAJ/RERA/AGENT/2021/004 | NRI Investment Specialist | 9 Years Bhiwadi Market',
+      reraAgentId: 'RAJ/RERA/AGENT/2021/004',
+      bio: "Bhiwadi's leading NRI and investment advisor with 9 years in the Rajasthan market. Expert in rental yield analysis, RERA compliance, and Bhiwadi project selection.",
+      fullBio: "Priya Mehra is Property in Bhiwadi's go-to expert for NRI and investment-focused buyers. Having advised 150+ NRI and HNI clients, she brings a finance-first approach to property decisions — ROI analysis, rental yield projections, and RERA risk assessment. Priya is fluent in Hindi and English and conducts virtual tours for NRI clients worldwide.",
+      education: 'MBA — Finance | Certified Real Estate Investment Advisor',
       languages: ['English', 'Hindi'],
-      dealsCount: '250+ luxury transactions',
-      awards: ['Luxury Real Estate Advisor of the Year NCR 2023', 'Top NRI Advisor Gurgaon 2024'],
+      dealsCount: '250+ investment transactions',
+      awards: ['NRI Investment Advisor of the Year Rajasthan 2023', 'Best Bhiwadi Property Expert 2024'],
       isFeatured: true, sortOrder: 4, isActive: true,
     },
     {
-      name: 'Surinder Kumar',
-      slug: 'surinder-kumar',
-      designation: 'Property Advisor — New Gurgaon & Affordable Homes',
+      name: 'Vikram Joshi',
+      slug: 'vikram-joshi',
+      designation: 'Property Advisor — Affordable Homes & First-Time Buyers',
       experience: '8+ years',
-      specializations: ['New Gurgaon', 'Sohna Road', 'Affordable Housing', 'First-Time Homebuyers', 'DDJAY Scheme'],
-      credentials: 'RERA Agent ID: HRERA-PKL-REA-0598-2021 | DDJAY Scheme Expert | Haryana Affordable Housing Specialist',
-      reraAgentId: 'HRERA-PKL-REA-0598-2021',
-      bio: 'Expert in New Gurgaon, Sohna Road and affordable housing. 8 years helping first-time homebuyers navigate DDJAY scheme and affordable RERA projects.',
-      fullBio: 'Surinder Kumar has spent 8 years helping first-time homebuyers and young families find their first home in Gurgaon. As the team\'s DDJAY scheme expert, he has guided 180+ first-time buyers through government-backed affordable housing — from eligibility check to registration. Surinder specialises in New Gurgaon (Sectors 80–95), Sohna Road, and Sector 37D where he knows every project inside out.',
-      education: 'BA — Kurukshetra University | Real Estate Agent Certification — RERA Haryana',
-      languages: ['Hindi', 'Haryanvi', 'Punjabi', 'English'],
+      specializations: ['Bhiwadi Affordable Housing', 'First-Time Homebuyers', 'PMAY Scheme', 'Budget Properties'],
+      credentials: 'RERA Agent ID: RAJ/RERA/AGENT/2021/005 | PMAY Expert | Rajasthan Affordable Housing Specialist',
+      reraAgentId: 'RAJ/RERA/AGENT/2021/005',
+      bio: 'Expert in Bhiwadi affordable housing and PMAY scheme. 8 years helping first-time homebuyers find quality homes under Rs.40 Lakh.',
+      fullBio: 'Vikram Joshi has spent 8 years helping first-time homebuyers and young families find their first home in Bhiwadi. As the team\'s PMAY scheme expert, he has guided 180+ first-time buyers through government-backed affordable housing — from eligibility check to registration. Vikram specialises in Bhiwadi Extension, Chopanki, and affordable projects from builders like RPS and Ramprastha.',
+      education: 'BA — University of Rajasthan | Real Estate Agent Certification — RERA Rajasthan',
+      languages: ['Hindi', 'Rajasthani', 'English'],
       dealsCount: '280+ first-home transactions',
-      awards: ['Affordable Housing Champion Award 2023', 'Best First-Time Buyer Advisor Gurgaon 2022'],
+      awards: ['Affordable Housing Champion Award 2023', 'Best First-Time Buyer Advisor Bhiwadi 2022'],
       isFeatured: false, sortOrder: 5, isActive: true,
     },
   ];
@@ -1639,18 +1639,18 @@ const seedAll = async () => {
     await User.deleteMany({});
     console.log('✅ Cleared existing data');
 
-    await Project.insertMany(PROJECTS);
-    console.log(`✅ Inserted ${PROJECTS.length} projects (DLF, M3M, Krisumi, Godrej, Oberoi & more)`);
+    await Project.insertMany(BHIWADI_PROJECTS);
+    console.log(`✅ Inserted ${BHIWADI_PROJECTS.length} Bhiwadi projects`);
 
-    await User.create({ name: 'Admin', email: 'admin@newprojectsingurgaon.com', mobile: '9999999999', password: 'Admin@123', role: 'admin' });
-    await User.create({ name: 'Sales Manager', email: 'manager@newprojectsingurgaon.com', mobile: '9988776655', password: 'Manager@123', role: 'manager' });
-    await User.create({ name: 'Rahul Sharma', email: 'rahul@newprojectsingurgaon.com', mobile: '9876543210', password: 'Sales@123', role: 'salesman' });
+    await User.create({ name: 'Admin', email: 'admin@propertyinbhiwadi.com', mobile: '9999999999', password: 'Admin@123', role: 'admin' });
+    await User.create({ name: 'Sales Manager', email: 'manager@propertyinbhiwadi.com', mobile: '9988776655', password: 'Manager@123', role: 'manager' });
+    await User.create({ name: 'Rahul Sharma', email: 'rahul@propertyinbhiwadi.com', mobile: '9876543210', password: 'Sales@123', role: 'salesman' });
     console.log('✅ Created admin, manager and salesman users');
 
     await seedTeam();
 
-    console.log('\n🔑 Admin: admin@newprojectsingurgaon.com / Admin@123');
-    console.log('🔑 Manager: manager@newprojectsingurgaon.com / Manager@123\n');
+    console.log('\n🔑 Admin: admin@propertyinbhiwadi.com / Admin@123');
+    console.log('🔑 Manager: manager@propertyinbhiwadi.com / Manager@123\n');
     process.exit(0);
   } catch (err) {
     console.error('Seed error:', err);
@@ -1659,71 +1659,8 @@ const seedAll = async () => {
 };
 
 const seedSettings = async () => {
-  const SiteSettings = require('../models/SiteSettings');
-  await SiteSettings.create({
-    siteName: 'New Projects in Gurgaon',
-    phone: '+91-8619930583',
-    phone2: '+91-7378006609',
-    whatsapp: '918619930583',
-    email: 'info@newprojectsingurgaon.com',
-    address: 'DLF Cyber City, Gurgaon, Haryana 122002',
-    streetAddress: 'DLF Cyber City',
-    postalCode: '122002',
-    openingHours: 'Mon–Sun: 9 AM – 8 PM',
-    geoLat: '28.4595',
-    geoLng: '77.0266',
-    seoTitle: 'New Projects in Gurgaon 2025 | New Launch & Premium Property | New Projects in Gurgaon',
-    seoDescription: "Gurgaon's most trusted real estate advisory. Verified new launch projects, 2 BHK homes, luxury apartments on Dwarka Expressway, Golf Course Extension Road by DLF, M3M, Godrej, Oberoi. Free site visit. Zero brokerage.",
-    seoKeywords: ['new projects in Gurgaon 2025', 'new launch projects in Gurgaon', 'property in Gurgaon', '2 bhk homes in Gurgaon', 'luxury apartments in Gurgaon', 'property on Dwarka Expressway', 'residential property in Gurgaon', 'DLF projects Gurgaon', 'M3M projects Gurgaon'],
-    ogImage: '/og-home.jpg',
-    marketStats: {
-      totalProjects: '150+', familiesHelped: '4,200+', topBuilders: '50+',
-      avgAppreciation: '32%', avgRentalYield: '3.5%', yearsActive: '5+',
-      reviewCount: '847', rating: '4.9',
-    },
-    testimonials: [
-      { name: 'Rajesh Mehta', city: 'Delhi', role: 'IT Professional', review: 'New Projects in Gurgaon helped me compare 6 projects in Sector 106 and Sector 113 before I finalised Krisumi Waterside. Their zero-pressure approach and detailed price analysis saved me at least ₹8 Lakh.', rating: 5, avatar: 'R', project: 'Krisumi Waterside' },
-      { name: 'Priya Sharma', city: 'Gurgaon', role: 'Doctor', review: 'Found my dream 3 BHK on Dwarka Expressway through New Projects in Gurgaon. The team organized 3 site visits in a single day without any sales pressure. Bought DLF Privana South with full confidence.', rating: 5, avatar: 'P', project: 'DLF Privana South' },
-      { name: 'Ankit Gupta', city: 'Noida', role: 'NRI Investor', review: 'As an NRI, I needed someone trustworthy for investment property in Gurgaon. The ROI analysis and rental yield projections were data-driven and accurate. Invested in M3M Antalya Hills.', rating: 5, avatar: 'A', project: 'M3M Antalya Hills' },
-      { name: 'Sunita Kapoor', city: 'Faridabad', role: 'Business Owner', review: 'First-time homebuyer. New Projects in Gurgaon explained RERA, payment plans and OC clearly. Zero brokerage is real — I paid nothing. Booked Sobha Altus in Sector 106.', rating: 5, avatar: 'S', project: 'Sobha Altus' },
-    ],
-    locations: [
-      { name: 'Dwarka Expressway', projects: '35+', icon: '🛣️', href: '/dwarka-expressway-projects', highlight: 'Fastest Growing', img: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=70', color: 'from-blue-900/80' },
-      { name: 'Sector 113', projects: '12+', icon: '✈️', href: '/sector-113-gurgaon-property', highlight: 'Near Airport', img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=70', color: 'from-green-900/80' },
-      { name: 'Sector 106', projects: '10+', icon: '🏢', href: '/sector-106-gurgaon-property', highlight: 'Premium Belt', img: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=70', color: 'from-purple-900/80' },
-      { name: 'Golf Course Ext Road', projects: '20+', icon: '⛳', href: '/golf-course-extension-road-projects', highlight: 'Top Rated', img: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&q=70', color: 'from-teal-900/80' },
-      { name: 'Sector 102', projects: '8+', icon: '🌿', href: '/sector-102-gurgaon-property', highlight: 'Green Sector', img: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=70', color: 'from-indigo-900/80' },
-      { name: 'SPR Road', projects: '15+', icon: '📈', href: '/spr-road-projects', highlight: 'High ROI', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=70', color: 'from-orange-900/80' },
-      { name: 'New Gurgaon', projects: '25+', icon: '🌆', href: '/new-gurgaon-projects', highlight: 'Emerging', img: 'https://images.unsplash.com/photo-1574362848149-11496d93a7c7?w=400&q=70', color: 'from-red-900/80' },
-      { name: 'Sector 37D', projects: '6+', icon: '🏡', href: '/sector-37d-gurgaon-property', highlight: 'Affordable', img: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&q=70', color: 'from-yellow-900/80' },
-    ],
-    builders: [
-      { name: 'DLF' }, { name: 'Sobha' }, { name: 'M3M' }, { name: 'Godrej' },
-      { name: 'Emaar' }, { name: 'Tata' }, { name: 'Signature Global' }, { name: 'Hero Homes' },
-      { name: 'Krisumi' }, { name: 'Elan' }, { name: 'Smartworld' }, { name: 'Shapoorji' },
-    ],
-    social: { facebook: 'https://facebook.com/newprojectsingurgaon', instagram: 'https://instagram.com/newprojectsingurgaon', youtube: '', linkedin: '', twitter: '' },
-    faqs: [
-      { q: 'What are new launch projects in Gurgaon?', a: 'New launch projects in Gurgaon are freshly announced residential developments that have received RERA registration and opened bookings for the first time. They offer the best entry pricing — typically 10–25% below what the same project will cost in 12–18 months.' },
-      { q: 'Which is the best location to invest in Gurgaon in 2025?', a: 'Dwarka Expressway (Sectors 99–115), Golf Course Extension Road and SPR Road are the top investment zones in 2025, with 15–45% appreciation potential driven by metro expansion, airport proximity and corporate demand.' },
-      { q: 'Is there any fee for using New Projects in Gurgaon?', a: 'No. Our advisory, site visits, price comparisons and documentation support are completely free for buyers. We earn only from verified builders, never from you.' },
-      { q: 'How do I verify a project\'s RERA registration?', a: 'Visit haryanarera.gov.in and search by project name or RERA number. All projects listed on New Projects in Gurgaon are RERA-verified before listing.' },
-      { q: 'What is the difference between new launch and ready-to-move?', a: 'New launch offers lower pricing but requires 3–4 year wait. Ready-to-move has higher pricing but immediate possession and rental income potential.' },
-      { q: 'What is the minimum budget to buy in Gurgaon?', a: 'Properties in Gurgaon start from ₹40 Lakh for 1BHK in New Gurgaon (Sector 37D) under DDJAY scheme. Premium 2BHK on Dwarka Expressway start from ₹80 Lakh. Luxury options from ₹2 Cr.' },
-    ],
-    heroImages: [
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85',
-      'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1400&q=80',
-    ],
-    heroTagline: "Gurgaon's #1 Real Estate Advisory",
-    heroTitle: 'Luxury & Premium Projects in Gurgaon 2025',
-    heroTitleAccent: 'From ₹2 Cr — No Brokerage',
-    heroSubtitle: '150+ verified new launch, pre-launch & ready-to-move luxury homes. RERA approved. Free site visit. Transparent pricing.',
-    heroCTAPrimary: '🏠 Book Free Site Visit',
-    heroCTASecondary: 'View New Launches →',
-    heroImageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1600&q=85',
-  });
-  console.log('✅ Default site settings seeded');
+  // Delegates to Bhiwadi settings seeder
+  return seedBhiwadiSettings();
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -2170,6 +2107,7 @@ const seedBhiwadiSettings = async () => {
 
   await SiteSettings.create({
     siteKey: 'bhiwadi',
+    siteUrl: 'https://propertyinbhiwadi.com',
     siteName: 'Property in Bhiwadi',
     phone: '+91-8619930583',
     phone2: '+91-7378006609',

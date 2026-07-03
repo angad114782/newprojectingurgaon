@@ -17,11 +17,15 @@ const getWaSettings = async () => {
         phoneNumberId: settings.whatsappCloud.phoneNumberId,
         accessToken: settings.whatsappCloud.accessToken,
         adminNumber: settings.whatsappCloud.adminNumber || '',
+        templateLanguage: settings.whatsappCloud.templateLanguage || 'en',
         templateName: settings.whatsappCloud.templateName || 'lead_notification',
         otpTemplateName: settings.whatsappCloud.otpTemplateName || 'otp_verification',
         thankYouTemplateName: settings.whatsappCloud.thankYouTemplateName || 'thank_you_enquiry',
-        templateLanguage: settings.whatsappCloud.templateLanguage || 'en',
-        siteName: settings.siteName || 'New Projects in Gurgaon',
+        brochureTemplateName: settings.whatsappCloud.brochureTemplateName || 'brochure_send',
+        siteVisitTemplateName: settings.whatsappCloud.siteVisitTemplateName || 'site_visit_confirm',
+        priceListTemplateName: settings.whatsappCloud.priceListTemplateName || 'price_list_send',
+        reengageTemplateName: settings.whatsappCloud.reengageTemplateName || 'reengage_lead',
+        siteName: settings.siteName || 'Property in Bhiwadi',
         sitePhone: settings.phone || '+91-8619930583',
         configured: true,
       };
@@ -33,11 +37,15 @@ const getWaSettings = async () => {
       phoneNumberId: process.env.WA_PHONE_NUMBER_ID || '',
       accessToken: process.env.WA_ACCESS_TOKEN || '',
       adminNumber: process.env.WA_ADMIN_NUMBER || '',
+      templateLanguage: 'en',
       templateName: process.env.WA_TEMPLATE_NAME || 'lead_notification',
       otpTemplateName: process.env.WA_OTP_TEMPLATE_NAME || 'otp_verification',
       thankYouTemplateName: process.env.WA_THANKYOU_TEMPLATE_NAME || 'thank_you_enquiry',
-      templateLanguage: 'en',
-      siteName: process.env.SITE_NAME || 'New Projects in Gurgaon',
+      brochureTemplateName: process.env.WA_BROCHURE_TEMPLATE_NAME || 'brochure_send',
+      siteVisitTemplateName: process.env.WA_SITE_VISIT_TEMPLATE_NAME || 'site_visit_confirm',
+      priceListTemplateName: process.env.WA_PRICE_LIST_TEMPLATE_NAME || 'price_list_send',
+      reengageTemplateName: process.env.WA_REENGAGE_TEMPLATE_NAME || 'reengage_lead',
+      siteName: process.env.SITE_NAME || 'Property in Bhiwadi',
       sitePhone: process.env.SITE_PHONE || '+91-8619930583',
       configured: !!(process.env.WA_PHONE_NUMBER_ID && process.env.WA_ACCESS_TOKEN),
     };
@@ -101,7 +109,7 @@ const sendUserThankYouWhatsApp = async (lead) => {
 
   const cfg = await getWaSettings();
   const firstName = (lead.name || 'there').split(' ')[0];
-  const project = lead.interestedProject || 'New Projects in Gurgaon';
+  const project = lead.interestedProject || 'Property in Bhiwadi';
 
   // Plain text fallback message (used if template not approved yet)
   const textMessage =
@@ -182,25 +190,25 @@ const sendAdminLeadNotification = async (lead) => {
 // ─── Message Templates (for lead follow-up) ──────────────────────────────────
 const templates = {
   brochureRequested: ({ name, projectName }) =>
-    `Hi ${name || 'there'}! 👋\n\nThanks for your interest in *${projectName}*.\n\nI'm sharing the latest brochure, price range and floor plans. Would you like to compare this with 2 similar projects nearby?\n\nReply *YES* to get a detailed comparison, or *CALL* to speak with our advisor. 😊\n\n_${name ? `— ${name}` : ''} | New Projects in Gurgaon_`,
+    `Hi ${name || 'there'}! 👋\n\nThanks for your interest in *${projectName}*.\n\nI'm sharing the latest brochure, price range and floor plans. Would you like to compare this with 2 similar projects nearby?\n\nReply *YES* to get a detailed comparison, or *CALL* to speak with our advisor. 😊\n\n_${name ? `— ${name}` : ''} | Property in Bhiwadi_`,
 
   priceListRequested: ({ name, projectName, priceRange }) =>
-    `Hi ${name || 'there'}! 🏡\n\nThe latest price range for *${projectName}*:\n📌 ${priceRange || 'Price on request'}\n\nPrices are subject to availability. Would you like to book a free site visit to get the best deal?\n\nReply *VISIT* to schedule one. ✅\n\n_New Projects in Gurgaon – Transparent Pricing, Zero Brokerage_`,
+    `Hi ${name || 'there'}! 🏡\n\nThe latest price range for *${projectName}*:\n📌 ${priceRange || 'Price on request'}\n\nPrices are subject to availability. Would you like to book a free site visit to get the best deal?\n\nReply *VISIT* to schedule one. ✅\n\n_Property in Bhiwadi – Transparent Pricing, Zero Brokerage_`,
 
   revisitProject: ({ name, projectName }) =>
-    `Hi ${name || 'there'}! 👋\n\nI noticed you've been looking at *${projectName}* again. Looks like it's caught your attention!\n\nWould you like me to share a detailed comparison with 2 similar options in the same budget range?\n\nReply *COMPARE* and I'll send it right away. 📊\n\n_New Projects in Gurgaon_`,
+    `Hi ${name || 'there'}! 👋\n\nI noticed you've been looking at *${projectName}* again. Looks like it's caught your attention!\n\nWould you like me to share a detailed comparison with 2 similar options in the same budget range?\n\nReply *COMPARE* and I'll send it right away. 📊\n\n_Property in Bhiwadi_`,
 
   investmentAngle: ({ name, location }) =>
-    `Hi ${name || 'there'}! 📈\n\nFor investment in *${location}*, here's what matters most:\n✅ Entry price vs current market rate\n✅ Expected rental yield: 3–4% p.a.\n✅ Appreciation potential: 15–25% in 3 years\n✅ Possession timeline & builder track record\n\nWant me to send a quick investment comparison for top 3 projects? Reply *INVEST*.\n\n_New Projects in Gurgaon – Smart Property Investment_`,
+    `Hi ${name || 'there'}! 📈\n\nFor investment in *${location}*, here's what matters most:\n✅ Entry price vs current market rate\n✅ Expected rental yield: 4–6% p.a. (best in NCR)\n✅ Appreciation potential: 22–35% in 3 years\n✅ Possession timeline & builder track record\n\nWant me to send a quick investment comparison for top 3 projects? Reply *INVEST*.\n\n_Property in Bhiwadi – Smart Property Investment_`,
 
   selfUseAngle: ({ name, projectName }) =>
-    `Hi ${name || 'there'}! 🏠\n\nFor your home at *${projectName}*, here's what you'll love:\n✅ Spacious floor plans with natural light\n✅ Premium amenities – pool, gym, kids' zone\n✅ Close to schools, hospitals & metro\n✅ 24/7 security & gated community\n\nWant to book a free site visit? Reply *VISIT* and we'll set it up! 🌿\n\n_New Projects in Gurgaon – Home You'll Love_`,
+    `Hi ${name || 'there'}! 🏠\n\nFor your home at *${projectName}*, here's what you'll love:\n✅ Spacious floor plans with natural light\n✅ Premium amenities – pool, gym, kids' zone\n✅ Close to schools, hospitals & metro\n✅ 24/7 security & gated community\n\nWant to book a free site visit? Reply *VISIT* and we'll set it up! 🌿\n\n_Property in Bhiwadi – Home You'll Love_`,
 
   siteVisitConfirm: ({ name, projectName, date, sitePhone }) =>
-    `Hi ${name || 'there'}! ✅\n\nYour free site visit for *${projectName}* is confirmed!\n📅 Date: ${date || 'To be confirmed'}\n📍 We'll send you the exact meeting point.\n\nOur property advisor will pick you up and give you a full tour.\n\nFor any changes, call: ${sitePhone || '+91-8619930583'}\n\n_New Projects in Gurgaon – Your Trusted Advisor_`,
+    `Hi ${name || 'there'}! ✅\n\nYour free site visit for *${projectName}* is confirmed!\n📅 Date: ${date || 'To be confirmed'}\n📍 We'll send you the exact meeting point.\n\nOur property advisor will pick you up and give you a full tour.\n\nFor any changes, call: ${sitePhone || '+91-8619930583'}\n\n_Property in Bhiwadi – Your Trusted Advisor_`,
 
   followUp: ({ name }) =>
-    `Hi ${name || 'there'}! 👋\n\nJust checking in – did you get a chance to review the property details I shared?\n\nIf you have any questions about pricing, location or availability, I'm here to help.\n\nReply *CALL* to speak with our advisor or *MORE* for more options. 😊\n\n_New Projects in Gurgaon_`,
+    `Hi ${name || 'there'}! 👋\n\nJust checking in – did you get a chance to review the property details I shared?\n\nIf you have any questions about pricing, location or availability, I'm here to help.\n\nReply *CALL* to speak with our advisor or *MORE* for more options. 😊\n\n_Property in Bhiwadi_`,
 };
 
 // ─── Send lead WhatsApp message (follow-up automations) ──────────────────────

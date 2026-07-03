@@ -94,6 +94,7 @@ export async function fetchApiProjects(params: {
   city?: string;
   sector?: string;
   status?: string;
+  config?: string;
   featured?: boolean;
   limit?: number;
   page?: number;
@@ -104,9 +105,10 @@ export async function fetchApiProjects(params: {
   try {
     const qs = new URLSearchParams();
     if (params.corridor) qs.set('corridor', params.corridor);
-    qs.set('city', params.city || CITY_FILTER);
+    if (params.city) qs.set('city', params.city);
     if (params.sector) qs.set('sector', params.sector);
     if (params.status) qs.set('status', params.status);
+    if (params.config) qs.set('config', params.config);
     if (params.featured) qs.set('featured', 'true');
     if (params.minPrice) qs.set('minPrice', String(params.minPrice));
     if (params.maxPrice) qs.set('maxPrice', String(params.maxPrice));

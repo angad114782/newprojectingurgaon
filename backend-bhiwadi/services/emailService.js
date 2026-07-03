@@ -20,7 +20,7 @@ const getSmtpSettings = async () => {
         pass: settings.smtp.pass,
         from: settings.smtp.from || settings.smtp.user,
         notificationEmail: settings.notificationEmail || settings.email || '',
-        siteName: settings.siteName || 'New Projects in Gurgaon',
+        siteName: settings.siteName || 'New Projects in Bhiwadi',
         sitePhone: settings.phone || '+91-8619930583',
         siteEmail: settings.email || '',
         siteUrl: process.env.SITE_URL || 'http://localhost:3000',
@@ -37,7 +37,7 @@ const getSmtpSettings = async () => {
       pass: process.env.EMAIL_PASS || '',
       from: process.env.EMAIL_FROM || '',
       notificationEmail: process.env.ADMIN_EMAIL || process.env.EMAIL_USER || '',
-      siteName: process.env.SITE_NAME || 'New Projects in Gurgaon',
+      siteName: process.env.SITE_NAME || 'New Projects in Bhiwadi',
       sitePhone: process.env.SITE_PHONE || '+91-8619930583',
       siteEmail: process.env.SITE_EMAIL || '',
       siteUrl: process.env.SITE_URL || 'http://localhost:3000',
@@ -97,11 +97,11 @@ const baseTemplate = (content, cfg) => `
 <div class="wrapper">
   <div class="header">
     <h1>🏙️ ${cfg.siteName}</h1>
-    <p>Premium Real Estate Advisory in Gurgaon</p>
+    <p>Premium Real Estate Advisory in Bhiwadi, Rajasthan</p>
   </div>
   <div class="body">${content}</div>
   <div class="footer">
-    © ${new Date().getFullYear()} ${cfg.siteName} · Gurgaon, Haryana
+    © ${new Date().getFullYear()} ${cfg.siteName} · Bhiwadi, Rajasthan
     <br>📞 ${cfg.sitePhone} · <a href="mailto:${cfg.siteEmail}" style="color:#075B63;">${cfg.siteEmail}</a>
   </div>
 </div>
@@ -179,7 +179,7 @@ const sendLeadWelcomeEmail = async (lead) => {
     <p>Hi ${lead.name || 'there'},</p>
     <p>Thank you for exploring premium properties on <strong>${cfg.siteName}</strong>. Our expert property advisor will reach out to you within <strong>2 hours</strong>.</p>
     <p>Here's a summary of your inquiry:</p>
-    <div class="info-row"><span class="label">Interested In</span><span class="value">${lead.interestedProject || 'New Projects in Gurgaon'}</span></div>
+    <div class="info-row"><span class="label">Interested In</span><span class="value">${lead.interestedProject || 'New Projects in Bhiwadi'}</span></div>
     <div class="info-row"><span class="label">Budget Range</span><span class="value">${lead.budget || 'To be discussed'}</span></div>
     <div class="info-row"><span class="label">Purpose</span><span class="value">${lead.buyingPurpose || 'To be discussed'}</span></div>
     <div class="info-row"><span class="label">Timeline</span><span class="value">${lead.timeline || 'To be discussed'}</span></div>

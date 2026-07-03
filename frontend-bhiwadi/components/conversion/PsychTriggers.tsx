@@ -303,7 +303,7 @@ export function ROICalculator({ config }: { config?: { enabled?: boolean } }) {
   return (
     <div className="bg-gradient-to-br from-brand-dark to-[#065B63] rounded-2xl p-6 text-white border border-brand-accent/30 mb-6 mt-10">
       <h3 className="font-display font-bold text-lg mb-1">📈 Investment Return Calculator</h3>
-      <p className="text-white/70 text-xs mb-5">See how much your Gurgaon property investment can grow</p>
+      <p className="text-white/70 text-xs mb-5">See how much your Bhiwadi property investment can grow</p>
       <div className="space-y-4 mb-5">
         {[
           { label: 'Investment Amount', value: investment, setValue: setInvestment, min: 50, max: 500, step: 10, format: (v: number) => `₹${v} Lakh`, left: '₹50L', right: '₹5Cr' },
@@ -329,7 +329,7 @@ export function ROICalculator({ config }: { config?: { enabled?: boolean } }) {
       </div>
       <div className="bg-brand-accent/20 border border-brand-accent/30 rounded-xl px-4 py-2.5 text-center">
         <p className="text-brand-accent text-sm font-semibold">💰 Profit of ₹{profit} Lakh in just {years} years</p>
-        <p className="text-white/60 text-xs mt-0.5">Based on Dwarka Expressway historical data</p>
+        <p className="text-white/60 text-xs mt-0.5">Based on Bhiwadi NH-48 corridor historical data</p>
       </div>
       <button type="button" onClick={() => document.dispatchEvent(new CustomEvent('open-lead-modal', { detail: { ctaType: 'price_list' } }))}
         className="btn-primary w-full text-center block mt-4">Calculate for My Budget →</button>
@@ -482,7 +482,7 @@ type UrgencyConfig = { enabled?: boolean; message?: string; linkText?: string; l
 
 export function UrgencyBanner({ config }: { config?: UrgencyConfig }) {
   const enabled = config?.enabled !== false;
-  const message = config?.message || 'Price hike alert: Dwarka Expressway projects raising prices by 5–8% in June 2026.';
+  const message = config?.message || 'Price hike alert: Bhiwadi NH-48 projects raising prices by 5–8% in Q3 2026.';
   const linkText = config?.linkText || "Lock today's price →";
   const linkHref = config?.linkHref || '#lead-form';
 

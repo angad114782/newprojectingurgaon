@@ -5,6 +5,7 @@ import { fetchApiProjects } from '@/lib/api-projects';
 import { fetchSettings } from '@/lib/settings';
 import LeadCTA from '@/components/lead/LeadCTA';
 import { ALL_SEO_PAGES } from '@/lib/projects';
+import ProjectFilterBar from '@/components/projects/ProjectFilterBar';
 
 export const revalidate = 60;
 
@@ -40,8 +41,22 @@ const CORRIDORS = [
   { name: 'Bhiwadi Extension', desc: 'Upcoming zone. Most affordable entry. Best for first-time buyers.', projects: '15+', href: '/bhiwadi-extension-projects', badge: 'Affordable' },
 ];
 
-export default async function ResidentialPropertyBhiwadiPage() {
-  const allProjects = await fetchApiProjects({ limit: 12 });
+export default async function ResidentialPropertyBhiwadiPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined };
+}) {
+  const corridor = searchParams.location || searchParams.corridor || '';
+  const status   = searchParams.status   || '';
+  const config   = searchParams.config   || searchParams.bhk || '';
+  const maxPrice = searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined;
+  const allProjects = await fetchApiProjects({
+    corridor:  corridor  || undefined,
+    status:    status    || undefined,
+    config:    config    || undefined,
+    maxPrice,
+    limit: 50,
+  });
 
   return (
     <>
@@ -54,6 +69,11 @@ export default async function ResidentialPropertyBhiwadiPage() {
           <span className="text-brand-dark font-medium">Residential Property in Bhiwadi</span>
         </div>
       </nav>
+      <ProjectFilterBar
+        basePath="/residential-property-in-bhiwadi"
+        active={{ location: corridor, status, config, maxPrice: searchParams.maxPrice || '' }}
+        totalCount={allProjects.length}
+      />
 
       <section className="hero-gradient py-16">
         <div className="max-w-7xl mx-auto px-4">

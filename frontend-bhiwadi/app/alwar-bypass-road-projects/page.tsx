@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page() {
   const params: any = {};
   params.corridor = 'Alwar Bypass Road';
-  params.limit = 12;
+  params.limit = 50;
   const projects = await fetchApiProjects(params);
   return (
     <>

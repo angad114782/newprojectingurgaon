@@ -26,7 +26,7 @@ export default function StickyButtons({
         </span>
       </a>
 
-      <a href={`https://wa.me/${wa}?text=${encodeURIComponent('Hi, I want to know about new projects in Gurgaon.')}`}
+      <a href={`https://wa.me/${wa}?text=${encodeURIComponent('Hi, I want to know about new projects in Bhiwadi.')}`}
         target="_blank" rel="noopener noreferrer"
         className="group flex items-center bg-green-500 text-white px-3 py-3 rounded-l-xl hover:bg-green-600 transition-colors shadow-lg"
         title="WhatsApp">

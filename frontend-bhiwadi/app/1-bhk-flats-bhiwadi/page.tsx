@@ -10,33 +10,32 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://propertyinbhiwadi.com';
   const settings = await fetchSettings();
-  const pageUrl = `${siteUrl}/flats-under-30-lakh-bhiwadi`;
+  const pageUrl = `${siteUrl}/1-bhk-flats-bhiwadi`;
   return {
-    title: `Flats Under 30 Lakh in Bhiwadi 2025 | Budget Homes | PMAY | ${settings.siteName}`,
-    description: `Most affordable flats in Bhiwadi under ₹30 Lakh. Ratan Pearl Residency — 1 BHK from ₹28L. PMAY subsidy eligible. First-time homebuyer scheme. EMI from ₹22,000/month. Free site visit. Zero brokerage. RERA verified. Call ${settings.phone}.`,
-    keywords: 'flats under 30 lakh bhiwadi, affordable flats bhiwadi, bhiwadi under 30 lakh, budget homes bhiwadi',
-    openGraph: { title: `Flats Under 30 Lakh in Bhiwadi 2025 | Budget Homes | PMAY | ${settings.siteName}`, url: pageUrl, type: 'website' },
+    title: `1 BHK Flats in Bhiwadi 2025 | Affordable from ₹28 Lakh | ${settings.siteName}`,
+    description: `1 BHK flats in Bhiwadi starting from ₹28 Lakh. Compact, affordable apartments on Alwar Bypass Road and NH-48. RERA verified. Ideal for first-time buyers and investors. Free site visit. Zero brokerage. Call ${settings.phone}.`,
+    keywords: '1 bhk flats bhiwadi, 1 bhk bhiwadi price, bhiwadi 1 bhk apartments, affordable flats bhiwadi',
+    openGraph: { title: `1 BHK Flats in Bhiwadi 2025 | Affordable from ₹28 Lakh | ${settings.siteName}`, url: pageUrl, type: 'website' },
     alternates: { canonical: pageUrl },
   };
 }
 
 export default async function Page() {
-  const all = await fetchApiProjects({ maxPrice: 30, limit: 50 });
-  const projects = all.filter(p => !(p.configurations || []).some((c: string) => /plot/i.test(c)));
+  const projects = await fetchApiProjects({ config: '1 BHK', limit: 50 });
   return (
     <>
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">
         <div className="max-w-7xl mx-auto px-4 text-sm text-brand-muted">
           <Link href="/" className="hover:text-brand-dark">Home</Link> <span className="mx-2">/</span>
-          <span className="text-brand-dark font-medium">Flats Under 30 Lakh in Bhiwadi</span>
+          <span className="text-brand-dark font-medium">1 BHK Flats in Bhiwadi</span>
         </div>
       </nav>
       <section className="hero-gradient py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="max-w-3xl">
-            <span className="inline-block bg-brand-accent/20 text-brand-accent text-sm font-semibold px-4 py-1.5 rounded-full mb-4">💰 Budget Homes</span>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white leading-tight mb-4">Flats Under 30 Lakh in Bhiwadi</h1>
-            <p className="text-white/80 text-lg leading-relaxed mb-8">Most affordable flats in Bhiwadi under ₹30 Lakh. Ratan Pearl Residency — 1 BHK from ₹28L. PMAY subsidy eligible. First-time homebuyer scheme. EMI from ₹22,000/month.</p>
+            <span className="inline-block bg-brand-accent/20 text-brand-accent text-sm font-semibold px-4 py-1.5 rounded-full mb-4">🏠 1 BHK</span>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white leading-tight mb-4">1 BHK Flats in Bhiwadi</h1>
+            <p className="text-white/80 text-lg leading-relaxed mb-8">Compact 1 BHK flats in Bhiwadi starting from ₹28 Lakh. Ideal for first-time buyers, investors and working professionals. All RERA registered.</p>
             <div className="flex flex-wrap gap-3">
               <a href="#projects" className="btn-primary">View Properties</a>
               <LeadCTA ctaType="site_visit" className="btn-white">Book Free Site Visit</LeadCTA>
@@ -46,7 +45,7 @@ export default async function Page() {
       </section>
       <section className="py-14 bg-brand-mint/20" id="projects">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-display font-bold text-brand-text mb-2 text-center">Flats Under 30 Lakh in Bhiwadi</h2>
+          <h2 className="text-2xl font-display font-bold text-brand-text mb-2 text-center">1 BHK Flats in Bhiwadi</h2>
           <p className="text-brand-muted text-center mb-10">RERA-registered properties with current pricing</p>
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -77,13 +76,13 @@ export default async function Page() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-3">
             {[
-              { label: 'All Bhiwadi Properties', href: '/residential-property-in-bhiwadi' },
-              { label: 'Alwar Bypass Road', href: '/alwar-bypass-road-projects' },
-              { label: 'NH-48 Projects', href: '/nh-48-bhiwadi-projects' },
-              { label: 'Neemrana Projects', href: '/neemrana-bhiwadi-projects' },
-              { label: 'Tapukara Projects', href: '/tapukara-bhiwadi-projects' },
+              { label: '2 BHK in Bhiwadi', href: '/2-bhk-flats-bhiwadi' },
+              { label: '3 BHK in Bhiwadi', href: '/3-bhk-flats-bhiwadi' },
+              { label: 'Flats Under ₹30 Lakh', href: '/flats-under-30-lakh-bhiwadi' },
+              { label: 'Flats Under ₹50 Lakh', href: '/flats-under-50-lakh-bhiwadi' },
               { label: 'Ready to Move', href: '/ready-to-move-bhiwadi' },
-              { label: 'Flats Under 30 Lakh', href: '/flats-under-30-lakh-bhiwadi' },
+              { label: 'New Launch', href: '/new-launch-bhiwadi' },
+              { label: 'All Flats in Bhiwadi', href: '/flats-in-bhiwadi' },
             ].map((l) => (
               <Link key={l.href} href={l.href} className="bg-brand-mint/40 border border-brand-border/60 px-4 py-2 rounded-full text-brand-muted text-sm hover:text-brand-dark transition-all">{l.label}</Link>
             ))}
@@ -92,7 +91,7 @@ export default async function Page() {
       </section>
       <section className="py-16 bg-brand-dark" id="lead-form">
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-display font-bold text-white mb-3">Get Property Details — Flats Under 30 Lakh in Bhiwadi</h2>
+          <h2 className="text-3xl font-display font-bold text-white mb-3">Get Property Details — 1 BHK Flats in Bhiwadi</h2>
           <p className="text-white/70 mb-8">We'll share matching properties with pricing on WhatsApp within 2 hours.</p>
           <LeadForm />
         </div>

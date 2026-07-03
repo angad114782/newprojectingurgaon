@@ -21,9 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
-  const params: any = {};
-  params.limit = 12;
-  const projects = await fetchApiProjects(params);
+  const projects = await fetchApiProjects({ corridor: 'RIICO Industrial Area', config: 'Plot', limit: 20 })
+    .then(all => all.length > 0 ? all : fetchApiProjects({ config: 'Plot', limit: 20 }));
   return (
     <>
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">

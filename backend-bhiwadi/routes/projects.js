@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
       const settings = await SiteSettings.findOne().lean().select('corridors');
       const cityName = city.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
       const corridorNames = (settings?.corridors || [])
-        .filter(c => (c.city || 'Gurgaon').toLowerCase() === city.toLowerCase())
+        .filter(c => (c.city || 'Bhiwadi').toLowerCase() === city.toLowerCase())
         .map(c => c.name);
       if (!corridorNames.length) {
         return res.json({ success: true, data: [], total: 0, page: 1, pages: 0 });
@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
       if (minPrice) query.priceMin.$gte = Number(minPrice);
       if (maxPrice) query.priceMin.$lte = Number(maxPrice);
     }
-    if (config) query.configurations = { $in: [config] };
+    if (config) query.configurations = { $elemMatch: { $regex: config, $options: 'i' } };
 
     const [projects, total] = await Promise.all([
       Project.find(query).sort(sort).skip((page - 1) * limit).limit(Number(limit)),

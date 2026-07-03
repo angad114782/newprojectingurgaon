@@ -1,41 +1,49 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTracking } from '@/components/lead/TrackingProvider';
 import toast from 'react-hot-toast';
-import { fireLeadEvent } from '@/lib/tracking';
+import { fireLeadEvent, fireCompleteRegistrationEvent } from '@/lib/tracking';
+import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
 
-export default function LeadForm({ compact }: { compact?: boolean }) {
+type Step = 'form' | 'otp' | 'done';
+
+export default function LeadForm({ compact, projectName }: { compact?: boolean; projectName?: string }) {
   const { visitorId } = useTracking();
+  const [step, setStep] = useState<Step>('form');
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [form, setForm] = useState({
     name: '', mobile: '', email: '', budget: '', preferredLocation: '',
     buyingPurpose: '', timeline: '', whatsappConsent: true,
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // ── Step 1: Send OTP ──────────────────────────────────────────────────────────
+  const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.mobile || form.mobile.length < 10) {
-      toast.error('Please enter name and valid mobile number');
-      return;
-    }
+    if (!form.name.trim()) { toast.error('Please enter your name'); return; }
+    if (!form.mobile || form.mobile.length < 10) { toast.error('Please enter a valid 10-digit mobile number'); return; }
     setLoading(true);
     try {
-      const utmData = JSON.parse(sessionStorage.getItem('gr_utm') || '{}');
-      const res = await fetch(`${API_URL}/leads/submit`, {
+      const res = await fetch(`${API_URL}/leads/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, visitorId, sourcePage: window.location.pathname, utmData }),
+        body: JSON.stringify({ mobile: form.mobile, visitorId, name: form.name, email: form.email }),
       });
       const data = await res.json();
       if (data.success) {
-        setSubmitted(true);
-        fireLeadEvent();
-        toast.success('Thank you! Our advisor will contact you shortly.');
+        setStep('otp');
+        const msg = data.devMode
+          ? 'Dev mode: OTP in backend console'
+          : data.channel === 'whatsapp'
+          ? '✅ OTP sent on WhatsApp!'
+          : '✅ OTP sent via SMS!';
+        toast.success(msg);
+        setTimeout(() => otpRefs.current[0]?.focus(), 100);
       } else {
-        toast.error(data.message || 'Submission failed');
+        toast.error(data.message || 'Failed to send OTP');
       }
     } catch {
       toast.error('Network error. Please try again.');
@@ -44,7 +52,65 @@ export default function LeadForm({ compact }: { compact?: boolean }) {
     }
   };
 
-  if (submitted) {
+  // ── OTP input handlers ────────────────────────────────────────────────────────
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const next = [...otp];
+    next[index] = value.slice(-1);
+    setOtp(next);
+    if (value && index < 5) otpRefs.current[index + 1]?.focus();
+  };
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      const next = [...otp]; next[index - 1] = '';
+      setOtp(next);
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  // ── Step 2: Verify OTP ────────────────────────────────────────────────────────
+  const handleVerifyOTP = async () => {
+    const otpString = otp.join('');
+    if (otpString.length !== 6) { toast.error('Enter all 6 digits'); return; }
+    setLoading(true);
+    try {
+      const utmData = JSON.parse(sessionStorage.getItem('gr_utm') || '{}');
+      const res = await fetch(`${API_URL}/leads/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mobile: form.mobile,
+          otp: otpString,
+          visitorId,
+          leadData: {
+            ...form,
+            interestedProject: projectName || '',
+            sourcePage: window.location.pathname,
+            utmData,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem('gr_lead_token', data.token);
+        localStorage.setItem('gr_lead_name', form.name);
+        fireLeadEvent();
+        fireCompleteRegistrationEvent();
+        setStep('done');
+      } else {
+        toast.error(data.message || 'Invalid OTP');
+        setOtp(['', '', '', '', '', '']);
+        otpRefs.current[0]?.focus();
+      }
+    } catch {
+      toast.error('Verification failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Step: Done ────────────────────────────────────────────────────────────────
+  if (step === 'done') {
     return (
       <div id="lead-form" className="bg-brand-mint rounded-3xl p-10 text-center max-w-xl mx-auto">
         <div className="w-16 h-16 bg-brand-accent rounded-full flex items-center justify-center mx-auto mb-4">
@@ -61,6 +127,62 @@ export default function LeadForm({ compact }: { compact?: boolean }) {
     );
   }
 
+  // ── Step: OTP ─────────────────────────────────────────────────────────────────
+  if (step === 'otp') {
+    return (
+      <div id="lead-form" className="bg-white rounded-3xl shadow-card border border-brand-border/50 p-8 max-w-xl mx-auto">
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 bg-brand-mint rounded-full flex items-center justify-center mx-auto mb-3">
+            <ShieldCheckIcon className="w-7 h-7 text-brand-accent" />
+          </div>
+          <h3 className="font-display text-xl font-bold text-brand-text">Verify Your Mobile</h3>
+          <p className="text-brand-muted text-sm mt-1">OTP sent to <strong>+91-{form.mobile}</strong> via WhatsApp</p>
+          <p className="text-xs text-brand-muted mt-0.5">Valid for 10 minutes</p>
+        </div>
+
+        <div className="flex justify-center gap-2 mb-6">
+          {otp.map((digit, i) => (
+            <input
+              key={i}
+              ref={(el) => { otpRefs.current[i] = el; }}
+              type="tel"
+              inputMode="numeric"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleOtpChange(i, e.target.value)}
+              onKeyDown={(e) => handleOtpKeyDown(i, e)}
+              className="otp-input"
+              autoFocus={i === 0}
+            />
+          ))}
+        </div>
+
+        <button
+          onClick={handleVerifyOTP}
+          disabled={loading || otp.join('').length !== 6}
+          className="btn-primary w-full justify-center py-4 text-base disabled:opacity-60"
+        >
+          {loading ? (
+            <><span className="animate-spin inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full mr-2"></span>Verifying...</>
+          ) : '✅ Verify & Submit'}
+        </button>
+
+        <button
+          onClick={() => { setStep('form'); setOtp(['', '', '', '', '', '']); }}
+          className="w-full text-center text-sm text-brand-muted hover:text-brand-dark transition-colors mt-3"
+        >
+          ← Change number
+        </button>
+
+        <p className="text-center text-xs text-brand-muted flex items-center justify-center gap-1.5 mt-4">
+          <ShieldCheckIcon className="w-3.5 h-3.5 text-brand-accent" />
+          100% Secure · Zero Spam · Expert Guidance
+        </p>
+      </div>
+    );
+  }
+
+  // ── Step: Form ────────────────────────────────────────────────────────────────
   return (
     <div id="lead-form" className="bg-white rounded-3xl shadow-card border border-brand-border/50 p-8 max-w-xl mx-auto">
       <div className="text-center mb-6">
@@ -69,7 +191,7 @@ export default function LeadForm({ compact }: { compact?: boolean }) {
         <p className="text-brand-muted text-sm mt-1.5">Fill in your details and our advisor will share the best options for your budget and preference.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSendOTP} className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input
             className="input-field"
@@ -83,6 +205,7 @@ export default function LeadForm({ compact }: { compact?: boolean }) {
             type="tel"
             placeholder="Mobile Number *"
             maxLength={10}
+            inputMode="numeric"
             value={form.mobile}
             onChange={(e) => setForm({ ...form, mobile: e.target.value.replace(/\D/, '') })}
             required
@@ -104,15 +227,13 @@ export default function LeadForm({ compact }: { compact?: boolean }) {
           </select>
           <select className="select-field" value={form.preferredLocation} onChange={(e) => setForm({ ...form, preferredLocation: e.target.value })}>
             <option value="">Preferred Location</option>
-            <option>Dwarka Expressway</option>
-            <option>Golf Course Extension Road</option>
-            <option>Golf Course Road</option>
-            <option>SPR Road</option>
-            <option>Sector 113</option>
-            <option>Sector 106</option>
-            <option>Sector 102</option>
-            <option>New Gurgaon</option>
-            <option>Any in Gurgaon</option>
+            <option>NH-48 Corridor</option>
+            <option>Bhiwadi Extension</option>
+            <option>Chopanki</option>
+            <option>Khushkhera</option>
+            <option>Tapukara</option>
+            <option>Bhiwadi Phase 3</option>
+            <option>Any in Bhiwadi</option>
           </select>
           <select className="select-field" value={form.buyingPurpose} onChange={(e) => setForm({ ...form, buyingPurpose: e.target.value })}>
             <option value="">Buying Purpose</option>
@@ -129,7 +250,6 @@ export default function LeadForm({ compact }: { compact?: boolean }) {
           </select>
         </div>
 
-        {/* Consent */}
         <label className="flex items-start gap-2.5 cursor-pointer py-1">
           <input
             type="checkbox"
@@ -148,8 +268,8 @@ export default function LeadForm({ compact }: { compact?: boolean }) {
           className="btn-primary w-full justify-center py-4 text-base disabled:opacity-60"
         >
           {loading ? (
-            <><span className="animate-spin inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full mr-2"></span>Submitting...</>
-          ) : '📅 Get Free Property Guidance →'}
+            <><span className="animate-spin inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full mr-2"></span>Sending OTP...</>
+          ) : '💬 Get OTP & Submit →'}
         </button>
 
         <p className="text-center text-xs text-brand-muted flex items-center justify-center gap-1.5">

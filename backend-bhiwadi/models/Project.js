@@ -25,8 +25,8 @@ const ProjectSchema = new mongoose.Schema({
   location: { type: String, required: true },
   sector: String,
   corridor: String, // Dwarka Expressway, Golf Course Ext Road, SPR Road, etc.
-  city: { type: String, default: 'Gurgaon' },
-  state: { type: String, default: 'Haryana' },
+  city: { type: String, default: 'Bhiwadi' },
+  state: { type: String, default: 'Rajasthan' },
   pincode: String,
   googleMapsUrl: String,
 

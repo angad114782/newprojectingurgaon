@@ -7,16 +7,17 @@ import clsx from 'clsx';
 
 const NAV = [
   { href: '/admin', label: 'Dashboard', icon: '▦', exact: true },
-  { href: '/admin/leads', label: 'Leads', icon: '👥', badge: 'live' },
+  { href: '/admin/leads', label: 'Lead CMS', icon: '👥', badge: 'live' },
   { href: '/admin/projects', label: 'Projects', icon: '🏗️' },
   { href: '/admin/blog', label: 'Blog', icon: '✍️' },
   { href: '/admin/analytics', label: 'Analytics', icon: '📊' },
   { href: '/admin/seo-intel', label: 'SEO Intelligence', icon: '🧠', accent: true },
+  { href: '/admin/seo-score', label: 'SEO Score', icon: '🎯' },
+  { href: '/admin/gsc', label: 'Search Console', icon: '🔍' },
   { href: '/admin/indexing', label: 'Instant Indexing', icon: '⚡' },
-  { href: '/admin/conversion', label: 'Conversion Tools', icon: '🎯' },
+  { href: '/admin/tracking', label: 'Meta / Google Ads', icon: '📈' },
+  { href: '/admin/conversion', label: 'Psych Triggers', icon: '🔮' },
   { href: '/admin/branding', label: 'Branding', icon: '🏢' },
-  { href: '/admin/tracking', label: 'Ads & Tracking', icon: '📈' },
-  { href: '/admin/gsc', label: 'Google Search Console', icon: '🔍' },
 ];
 const BOTTOM_NAV = [
   { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
@@ -272,7 +273,7 @@ function LoginGate() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/30">
-            <span className="text-white text-3xl font-bold select-none">G</span>
+            <span className="text-white text-3xl font-bold select-none">P</span>
           </div>
           <h1 className="text-white text-2xl font-bold">Admin Login</h1>
           <p className="text-slate-400 text-sm mt-1">Bhiwadi Property Dashboard</p>
@@ -332,7 +333,7 @@ function LoginGate() {
 // ── Shell ──────────────────────────────────────────────────────────────────
 function AdminShell({ children }: { children: ReactNode }) {
   const { token, ready, authH } = useAdmin();
-  const [siteName, setSiteName] = useState('Gurgaon Realty');
+  const [siteName, setSiteName] = useState('Property in Bhiwadi');
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 

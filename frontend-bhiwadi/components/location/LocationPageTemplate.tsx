@@ -16,21 +16,19 @@ const statusColors: Record<string, string> = {
 
 // Known corridor coordinates for NeighborhoodSchema
 const GEO_COORDS: Record<string, { latitude: number; longitude: number }> = {
-  'Dwarka Expressway'           : { latitude: 28.5923, longitude: 77.0284 },
-  'Golf Course Extension Road'  : { latitude: 28.4089, longitude: 77.0455 },
-  'Golf Course Road'            : { latitude: 28.4421, longitude: 77.0960 },
-  'SPR Road'                    : { latitude: 28.3900, longitude: 77.0600 },
-  'Sohna Road'                  : { latitude: 28.3936, longitude: 77.0313 },
-  'New Gurgaon'                 : { latitude: 28.3515, longitude: 76.9690 },
-  'Sector 113'                  : { latitude: 28.5987, longitude: 77.0456 },
-  'Sector 106'                  : { latitude: 28.5601, longitude: 77.0567 },
-  'Sector 102'                  : { latitude: 28.5396, longitude: 77.0457 },
-  'Sector 37D'                  : { latitude: 28.4680, longitude: 77.0157 },
+  'NH-48 Corridor'              : { latitude: 28.2055, longitude: 76.8480 },
+  'Bhiwadi Extension'           : { latitude: 28.2200, longitude: 76.8600 },
+  'Chopanki'                    : { latitude: 28.1850, longitude: 76.8350 },
+  'Khushkhera'                  : { latitude: 28.1700, longitude: 76.8200 },
+  'Tapukara'                    : { latitude: 28.1600, longitude: 76.8100 },
+  'Bhiwadi Phase 3'             : { latitude: 28.2100, longitude: 76.8550 },
+  'RIICO Industrial Area'       : { latitude: 28.2050, longitude: 76.8450 },
+  'Bhiwadi'                     : { latitude: 28.2055, longitude: 76.8480 },
 };
 
 function resolveGeo(title: string) {
   const match = Object.keys(GEO_COORDS).find((k) => title.toLowerCase().includes(k.toLowerCase()));
-  return match ? GEO_COORDS[match] : { latitude: 28.4595, longitude: 77.0266 };
+  return match ? GEO_COORDS[match] : { latitude: 28.2055, longitude: 76.8480 };
 }
 
 interface LocationPageProps {
@@ -69,8 +67,8 @@ export default function LocationPageTemplate({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://newprojectsingurgaon.com' },
-      { '@type': 'ListItem', position: 2, name: 'Projects', item: 'https://newprojectsingurgaon.com/new-projects-in-gurgaon' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://newprojectsinbhiwadi.com' },
+      { '@type': 'ListItem', position: 2, name: 'Projects', item: 'https://newprojectsinbhiwadi.com/new-projects-in-bhiwadi' },
       { '@type': 'ListItem', position: 3, name: title },
     ],
   };
@@ -84,10 +82,10 @@ export default function LocationPageTemplate({
     geo: { '@type': 'GeoCoordinates', latitude: geo.latitude, longitude: geo.longitude },
     containedInPlace: {
       '@type': 'City',
-      name: 'Gurgaon',
+      name: 'Bhiwadi',
       containedInPlace: {
         '@type': 'AdministrativeArea',
-        name: 'Haryana',
+        name: 'Rajasthan',
         containedInPlace: { '@type': 'Country', name: 'India' },
       },
     },
@@ -120,7 +118,7 @@ export default function LocationPageTemplate({
         <div className="max-w-7xl mx-auto px-4 text-sm text-brand-muted">
           <Link href="/" className="hover:text-brand-dark">Home</Link>
           <span className="mx-2">/</span>
-          <Link href="/new-projects-in-gurgaon" className="hover:text-brand-dark">Projects</Link>
+          <Link href="/new-projects-in-bhiwadi" className="hover:text-brand-dark">Projects</Link>
           <span className="mx-2">/</span>
           <span className="text-brand-dark font-medium">{title}</span>
         </div>
@@ -222,7 +220,7 @@ export default function LocationPageTemplate({
                   <div className="relative h-48 rounded-t-2xl overflow-hidden">
                     <Image
                       src={p.heroImage || DEFAULT_IMG}
-                      alt={`${p.name} — ${p.location || 'Gurgaon'}`}
+                      alt={`${p.name} — ${p.location || 'Bhiwadi'}`}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                       sizes="(max-width: 768px) 100vw, 33vw"
@@ -287,9 +285,9 @@ export default function LocationPageTemplate({
           <p className="text-brand-muted text-xs font-semibold uppercase tracking-widest mb-6 text-center">Expert Guides for Property Buyers</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { href: '/blog/best-sectors-to-invest-in-gurgaon', label: 'Best Sectors to Invest in Gurgaon 2025', icon: '📊' },
-              { href: '/blog/dwarka-expressway-investment-guide', label: 'Dwarka Expressway Investment Guide', icon: '✈️' },
-              { href: '/blog/best-builders-in-gurgaon', label: 'Best Builders in Gurgaon — Ranked', icon: '🏗️' },
+              { href: '/blog/best-areas-to-invest-in-bhiwadi', label: 'Best Areas to Invest in Bhiwadi 2025', icon: '📊' },
+              { href: '/blog/nh-48-bhiwadi-investment-guide', label: 'NH-48 Bhiwadi Investment Guide', icon: '✈️' },
+              { href: '/blog/best-builders-in-bhiwadi', label: 'Best Builders in Bhiwadi — Ranked', icon: '🏗️' },
               { href: '/blog/how-to-check-rera-before-buying-property', label: 'How to Check RERA Before Buying', icon: '✅' },
               { href: '/blog/new-launch-vs-ready-to-move-property', label: 'New Launch vs Ready to Move', icon: '🔑' },
               { href: '/blog', label: 'All Real Estate Guides & Market Updates', icon: '📚' },

@@ -37,7 +37,7 @@ router.post('/bulk-sitemap', auth, authorize('admin'), async (req, res) => {
     const base = siteUrl.replace(/\/$/, '');
     const urls = [
       base + '/',
-      base + '/new-projects-in-gurgaon',
+      base + '/new-projects-in-bhiwadi',
       base + '/about',
       base + '/contact',
       ...projects.map(p => `${base}/projects/${p.slug}`),
@@ -128,7 +128,7 @@ router.post('/test-google', auth, authorize('admin'), async (req, res) => {
 
     if (!sa.private_key) return res.status(400).json({ success: false, message: 'private_key field missing hai JSON mein. Sahi service account .json file download karo.' });
     if (!sa.client_email) return res.status(400).json({ success: false, message: 'client_email field missing hai JSON mein. Sahi service account .json file download karo.' });
-    if (!siteUrl || !siteUrl.startsWith('http')) return res.status(400).json({ success: false, message: `Site URL "${siteUrl || '(empty)'}" invalid hai. https://newprojectsingurgaon.com format mein hona chahiye (sc-domain: nahi chalega).` });
+    if (!siteUrl || !siteUrl.startsWith('http')) return res.status(400).json({ success: false, message: `Site URL "${siteUrl || '(empty)'}" invalid hai. https://propertyinbhiwadi.com format mein hona chahiye (sc-domain: nahi chalega).` });
 
     // Try getting a token — this confirms the key is valid
     const { getGoogleToken: _getToken } = (() => {

@@ -22,7 +22,7 @@ export default function MobileBottomCTA({
           <PhoneIcon className="w-5 h-5" />
           <span className="text-xs font-semibold">Call Now</span>
         </a>
-        <a href={`https://wa.me/${wa}?text=${encodeURIComponent('Hi, I want to know about new projects in Gurgaon.')}`}
+        <a href={`https://wa.me/${wa}?text=${encodeURIComponent('Hi, I want to know about new projects in Bhiwadi.')}`}
           target="_blank" rel="noopener noreferrer"
           className="flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-green-600 hover:bg-green-50 transition-colors">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

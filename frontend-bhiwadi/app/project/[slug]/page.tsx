@@ -374,7 +374,7 @@ export default async function ProjectDetailPage({ params }: Props) {
                   <p className="text-brand-muted text-xs mb-4">
                     Free advisory · No obligation · RERA verified
                   </p>
-                  <LeadForm compact />
+                  <LeadForm compact projectName={project.name} />
                 </div>
               </div>
             </div>
@@ -838,7 +838,7 @@ export default async function ProjectDetailPage({ params }: Props) {
           <p className="text-white/70 mb-8">
             Price list · Floor plans · Payment schedule · Brochure — all on WhatsApp in minutes.
           </p>
-          <LeadForm />
+          <LeadForm projectName={project.name} />
         </div>
       </section>
     </>

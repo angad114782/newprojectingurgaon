@@ -154,7 +154,7 @@ router.post('/verify-otp', async (req, res) => {
     sendUserThankYouWhatsApp(lead).catch(e => console.error('WA thankyou error:', e.message));
     if (lead.whatsappConsent) {
       if (lead.buyingPurpose === 'Investment') {
-        triggerAutomation(lead, 'investment_intent', { location: lead.preferredLocation || lead.interestedLocation || 'Gurgaon' }).catch(() => {});
+        triggerAutomation(lead, 'investment_intent', { location: lead.preferredLocation || lead.interestedLocation || 'Bhiwadi' }).catch(() => {});
       } else if (lead.buyingPurpose === 'Self Use' && lead.interestedProject) {
         triggerAutomation(lead, 'self_use_intent', { projectName: lead.interestedProject }).catch(() => {});
       }

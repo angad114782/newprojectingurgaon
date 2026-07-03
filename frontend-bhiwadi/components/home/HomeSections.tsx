@@ -618,7 +618,7 @@ export function LatestGuidesSection() {
 }
 
 // ── Bhiwadi Real Estate Guide ──────────────────────────────────────────────────
-export function GurgaonRealEstateGuide() {
+export function BhiwadiRealEstateGuide() {
   return (
     <section className="py-16 bg-white border-t border-brand-border/30">
       <div className="max-w-4xl mx-auto px-4">

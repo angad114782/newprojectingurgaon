@@ -26,7 +26,7 @@ const BlogSchema = new mongoose.Schema({
   status:      { type: String, enum: ['draft', 'published'], default: 'published' },
 
   author: {
-    name:        { type: String, default: 'New Projects in Gurgaon' },
+    name:        { type: String, default: 'New Projects in Bhiwadi' },
     bio:         { type: String, default: '' },
     credentials: { type: String, default: '' },
     avatar:      { type: String, default: '' },

@@ -1,18 +1,19 @@
 const mongoose = require('mongoose');
 
 const SiteSettingsSchema = new mongoose.Schema({
-  siteKey: { type: String, default: 'gurgaon', index: true },  // 'gurgaon' | 'bhiwadi' | etc.
-  siteName: { type: String, default: 'New Projects in Gurgaon' },
+  siteKey: { type: String, default: 'bhiwadi', index: true },  // 'bhiwadi' | etc.
+  siteName: { type: String, default: 'New Projects in Bhiwadi' },
+  tagline: { type: String, default: "Bhiwadi's #1 Real Estate Advisory" },
   phone: { type: String, default: '+91-8619930583' },
   phone2: { type: String, default: '+91-7378006609' },
   whatsapp: { type: String, default: '918619930583' },
-  email: { type: String, default: 'info@newprojectsingurgaon.com' },
-  address: { type: String, default: 'DLF Cyber City, Gurgaon, Haryana 122002' },
-  streetAddress: { type: String, default: 'DLF Cyber City' },
-  postalCode: { type: String, default: '122002' },
+  email: { type: String, default: 'info@propertyinbhiwadi.com' },
+  address: { type: String, default: 'Bhiwadi, Alwar, Rajasthan 301019' },
+  streetAddress: { type: String, default: 'RIICO Industrial Area' },
+  postalCode: { type: String, default: '301019' },
   openingHours: { type: String, default: 'Mon–Sun: 9 AM – 8 PM' },
-  geoLat: { type: String, default: '28.4595' },
-  geoLng: { type: String, default: '77.0266' },
+  geoLat: { type: String, default: '28.2055' },
+  geoLng: { type: String, default: '76.8480' },
 
   logoUrl: { type: String, default: '' },
   footerLogoUrl: { type: String, default: '' },
@@ -69,6 +70,8 @@ const SiteSettingsSchema = new mongoose.Schema({
     twitter: { type: String, default: '' },
   },
 
+  googleBusinessProfile: { type: String, default: '' }, // Google Maps/Business profile URL
+
   faqs: [{
     q: { type: String, required: true },
     a: { type: String, required: true },
@@ -92,21 +95,28 @@ const SiteSettingsSchema = new mongoose.Schema({
     phoneNumberId: { type: String, default: '' },
     accessToken: { type: String, default: '' },
     adminNumber: { type: String, default: '' },
-    templateName: { type: String, default: 'lead_notification' },
-    otpTemplateName: { type: String, default: 'otp_verification' },
-    thankYouTemplateName: { type: String, default: 'thank_you_enquiry' },
+    businessAccountId: { type: String, default: '' },
+    verifyToken: { type: String, default: '' },
     templateLanguage: { type: String, default: 'en' },
+    // Template names (must match Meta-approved template names exactly)
+    templateName: { type: String, default: 'lead_notification' },         // admin new lead alert
+    otpTemplateName: { type: String, default: 'otp_verification' },       // OTP to user
+    thankYouTemplateName: { type: String, default: 'thank_you_enquiry' }, // thank you to user after OTP
+    brochureTemplateName: { type: String, default: 'brochure_send' },     // brochure request
+    siteVisitTemplateName: { type: String, default: 'site_visit_confirm' }, // site visit booking confirm
+    priceListTemplateName: { type: String, default: 'price_list_send' },  // price list request
+    reengageTemplateName: { type: String, default: 'reengage_lead' },     // re-engagement
   },
 
   // RERA Info (shown in footer)
   reraNumber: { type: String, default: '' },
-  reraLink: { type: String, default: 'https://haryanarera.gov.in' },
+  reraLink: { type: String, default: 'https://rera.rajasthan.gov.in' },
 
   // Conversion / Psych Triggers — fully admin-configurable
   conversion: {
     urgencyBanner: {
       enabled: { type: Boolean, default: true },
-      message: { type: String, default: 'Price hike alert: Dwarka Expressway projects raising prices by 5–8% in June 2026.' },
+      message: { type: String, default: 'Price hike alert: Bhiwadi NH-48 projects raising prices by 5–8% in Q3 2026.' },
       linkText: { type: String, default: 'Lock today\'s price →' },
       linkHref: { type: String, default: '#lead-form' },
     },
@@ -154,6 +164,12 @@ const SiteSettingsSchema = new mongoose.Schema({
     priceGate: { enabled: { type: Boolean, default: true } },
   },
 
+  // Third-party portal API keys
+  integrations: {
+    '99acres':    { type: String, default: '' },
+    magicbricks:  { type: String, default: '' },
+  },
+
   // AI / LLM — stored in DB so admin can update without touching .env
   anthropicApiKey: { type: String, default: '' },
 
@@ -184,21 +200,21 @@ const SiteSettingsSchema = new mongoose.Schema({
       slug:  { type: String, required: true },
       href:  { type: String, required: true },
       icon:  { type: String, default: '🛣️' },
-      city:  { type: String, default: 'Gurgaon' },
+      city:  { type: String, default: 'Bhiwadi' },
     }],
     default: [
-      { name: 'Dwarka Expressway',          slug: 'dwarka-expressway',          href: '/dwarka-expressway-projects',          icon: '✈️', city: 'Gurgaon' },
-      { name: 'Golf Course Road',            slug: 'golf-course-road',            href: '/golf-course-road-projects',            icon: '⛳', city: 'Gurgaon' },
-      { name: 'Golf Course Extension Road',  slug: 'golf-course-extension-road',  href: '/golf-course-extension-road-projects',  icon: '🏌️', city: 'Gurgaon' },
-      { name: 'SPR Road',                    slug: 'spr-road',                    href: '/spr-road-projects',                    icon: '🛣️', city: 'Gurgaon' },
-      { name: 'Sohna Road',                  slug: 'sohna-road',                  href: '/sohna-road-projects',                  icon: '🌳', city: 'Gurgaon' },
-      { name: 'New Gurgaon',                 slug: 'new-gurgaon',                 href: '/new-gurgaon-projects',                 icon: '🌿', city: 'Gurgaon' },
-      { name: 'MG Road',                     slug: 'mg-road',                     href: '/mg-road-projects',                     icon: '🏙️', city: 'Gurgaon' },
+      { name: 'NH-48 Corridor',          slug: 'nh-48',                   href: '/nh-48-bhiwadi-projects',         icon: '🛣️', city: 'Bhiwadi' },
+      { name: 'Bhiwadi Extension',       slug: 'bhiwadi-extension',        href: '/bhiwadi-extension-projects',     icon: '🏗️', city: 'Bhiwadi' },
+      { name: 'Khushkhera',              slug: 'khushkhera',               href: '/khushkhera-bhiwadi-projects',    icon: '🌿', city: 'Bhiwadi' },
+      { name: 'Tapukara',               slug: 'tapukara',                 href: '/tapukara-bhiwadi-projects',      icon: '🌳', city: 'Bhiwadi' },
+      { name: 'Chopanki',               slug: 'chopanki',                 href: '/chopanki-bhiwadi-projects',      icon: '🏭', city: 'Bhiwadi' },
+      { name: 'Bhiwadi Phase 3',        slug: 'bhiwadi-phase-3',          href: '/new-projects-in-bhiwadi',        icon: '🏢', city: 'Bhiwadi' },
+      { name: 'RIICO Industrial Area',  slug: 'riico',                    href: '/industrial-plots-bhiwadi',       icon: '🏗️', city: 'Bhiwadi' },
     ],
   },
 
-  heroTagline: { type: String, default: "Gurgaon's #1 Real Estate Advisory" },
-  heroTitle: { type: String, default: 'New Projects in Gurgaon 2025' },
+  heroTagline: { type: String, default: "Bhiwadi's #1 Real Estate Advisory" },
+  heroTitle: { type: String, default: 'New Projects in Bhiwadi 2025' },
   heroTitleAccent: { type: String, default: '' },
   heroSubtitle: { type: String, default: '150+ verified new launch, pre-launch and ready-to-move properties. Free site visit. Transparent pricing. RERA approved.' },
   heroCTAPrimary: { type: String, default: '🏠 Book Free Site Visit' },

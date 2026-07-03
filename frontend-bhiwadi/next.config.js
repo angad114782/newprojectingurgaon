@@ -12,7 +12,9 @@ const nextConfig = {
       { protocol: 'https', hostname: 'plus.unsplash.com', pathname: '/**' },
       { protocol: 'https', hostname: 'propertyinbhiwadi.com', pathname: '/**' },
       { protocol: 'https', hostname: 'www.propertyinbhiwadi.com', pathname: '/**' },
+      { protocol: 'http', hostname: 'localhost', port: '5007', pathname: '/**' },
       { protocol: 'http', hostname: 'localhost', port: '5008', pathname: '/**' },
+      { protocol: 'http', hostname: '127.0.0.1', port: '5007', pathname: '/**' },
       { protocol: 'http', hostname: '127.0.0.1', port: '5008', pathname: '/**' },
     ],
   },
@@ -28,7 +30,7 @@ const nextConfig = {
 
   // ── Bundle Optimization ─────────────────────────────────────
   experimental: {
-    optimizePackageImports: ['framer-motion', '@heroicons/react', 'swiper', 'react-hot-toast'],
+    optimizePackageImports: ['framer-motion', 'swiper', 'react-hot-toast'],
   },
 
   // ── Webpack: reduce number of JS chunks ─────────────────────

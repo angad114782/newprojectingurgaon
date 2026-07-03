@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Bars3Icon, XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
@@ -13,38 +13,40 @@ type NavItem = { label: string; href: string; dropdown?: { label: string; href: 
 const BASE_NAV: NavItem[] = [
   {
     label: 'New Launch',
-    href: '/new-launch-projects-in-gurgaon',
+    href: '/new-launch-bhiwadi',
     dropdown: [], // corridors injected dynamically
   },
   {
     label: 'By BHK',
-    href: '/residential-property-in-gurgaon',
+    href: '/residential-property-in-bhiwadi',
     dropdown: [
-      { label: '2 BHK — Dwarka Expressway', href: '/2-bhk-flats-in-dwarka-expressway-gurgaon' },
-      { label: '3 BHK — Dwarka Expressway', href: '/3-bhk-flats-in-dwarka-expressway-gurgaon' },
-      { label: '3 BHK — Golf Course Ext Road', href: '/3-bhk-flats-golf-course-extension-road-gurgaon' },
-      { label: 'Penthouse in Gurgaon', href: '/penthouse-in-gurgaon' },
+      { label: '1 BHK in Bhiwadi', href: '/1-bhk-flats-bhiwadi' },
+      { label: '2 BHK in Bhiwadi', href: '/2-bhk-flats-bhiwadi' },
+      { label: '3 BHK in Bhiwadi', href: '/3-bhk-flats-bhiwadi' },
+      { label: 'Plots in Bhiwadi', href: '/plots-in-bhiwadi' },
+      { label: 'Industrial Plots', href: '/industrial-plots-bhiwadi' },
     ],
   },
   {
     label: 'By Budget',
-    href: '/flats-under-1-crore-gurgaon',
+    href: '/flats-under-50-lakh-bhiwadi',
     dropdown: [
-      { label: 'Under ₹50 Lakh', href: '/flats-under-50-lakh-gurgaon' },
-      { label: 'Under ₹1 Crore', href: '/flats-under-1-crore-gurgaon' },
-      { label: 'Luxury Above ₹3 Crore', href: '/luxury-apartments-above-3-crore-gurgaon' },
+      { label: 'Under ₹30 Lakh', href: '/flats-under-30-lakh-bhiwadi' },
+      { label: 'Under ₹50 Lakh', href: '/flats-under-50-lakh-bhiwadi' },
+      { label: 'All Flats in Bhiwadi', href: '/flats-in-bhiwadi' },
     ],
   },
-  { label: 'Ready To Move', href: '/ready-to-move-flats-gurgaon' },
+  { label: 'Ready To Move', href: '/ready-to-move-bhiwadi' },
   {
     label: 'Explore',
     href: '#',
     dropdown: [
-      { label: 'Sector 113 Gurgaon', href: '/sector-113-gurgaon-property' },
-      { label: 'Sector 106 Gurgaon', href: '/sector-106-gurgaon-property' },
-      { label: 'Sector 102 Gurgaon', href: '/sector-102-gurgaon-property' },
-      { label: 'Sector 37D Gurgaon', href: '/sector-37d-gurgaon-property' },
-      { label: 'New Gurgaon Projects', href: '/new-gurgaon-projects' },
+      { label: 'NH-48 Projects', href: '/nh-48-bhiwadi-projects' },
+      { label: 'Bhiwadi Extension', href: '/bhiwadi-extension-projects' },
+      { label: 'Under Construction', href: '/under-construction-bhiwadi' },
+      { label: 'Khushkhera Projects', href: '/khushkhera-bhiwadi-projects' },
+      { label: 'Tapukara Projects', href: '/tapukara-bhiwadi-projects' },
+      { label: 'New Projects Bhiwadi', href: '/new-projects-in-bhiwadi' },
       { label: 'Blog & Guides', href: '/blog' },
     ],
   },
@@ -52,11 +54,23 @@ const BASE_NAV: NavItem[] = [
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5007/api';
 
-export default function Header({ phone = '{phone}', siteName = 'New Projects in Gurgaon', logoUrl }: { phone?: string; siteName?: string; logoUrl?: string }) {
+export default function Header({ phone = '{phone}', siteName = 'New Projects in Bhiwadi', logoUrl }: { phone?: string; siteName?: string; logoUrl?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [navLinks, setNavLinks] = useState<NavItem[]>(BASE_NAV);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openDropdown = (label: string) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setActiveDropdown(label);
+  };
+  const scheduleClose = () => {
+    closeTimer.current = setTimeout(() => setActiveDropdown(null), 300);
+  };
+  const cancelClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  };
   const pathname = usePathname();
 
   useEffect(() => {
@@ -66,14 +80,14 @@ export default function Header({ phone = '{phone}', siteName = 'New Projects in 
         if (!d.success || !d.data?.length) return;
         const raw: { name: string; href: string; city?: string }[] = d.data;
         // Group by city — if only one city, flat list; if multiple, add city headers
-        const cities = Array.from(new Set(raw.map(c => c.city || 'Gurgaon')));
+        const cities = Array.from(new Set(raw.map(c => c.city || 'Bhiwadi')));
         let corridorDropdown: { label: string; href: string; isHeader?: boolean }[];
         if (cities.length <= 1) {
           corridorDropdown = raw.map(c => ({ label: c.name, href: c.href }));
         } else {
           corridorDropdown = cities.flatMap(city => [
             { label: `— ${city} —`, href: '#', isHeader: true },
-            ...raw.filter(c => (c.city || 'Gurgaon') === city).map(c => ({ label: c.name, href: c.href })),
+            ...raw.filter(c => (c.city || 'Bhiwadi') === city).map(c => ({ label: c.name, href: c.href })),
           ]);
         }
         setNavLinks(prev => prev.map(n =>
@@ -131,8 +145,8 @@ export default function Header({ phone = '{phone}', siteName = 'New Projects in 
               <div
                 key={link.label}
                 className="relative group"
-                onMouseEnter={() => link.dropdown && setActiveDropdown(link.label)}
-                onMouseLeave={() => setActiveDropdown(null)}
+                onMouseEnter={() => link.dropdown && openDropdown(link.label)}
+                onMouseLeave={scheduleClose}
               >
                 <Link
                   href={link.href}
@@ -149,7 +163,11 @@ export default function Header({ phone = '{phone}', siteName = 'New Projects in 
 
                 {/* Dropdown */}
                 {link.dropdown && activeDropdown === link.label && (
-                  <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-card border border-brand-border/60 py-2 z-50 animate-fade-in">
+                  <div
+                    className="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-card border border-brand-border/60 py-2 z-50 animate-fade-in"
+                    onMouseEnter={cancelClose}
+                    onMouseLeave={scheduleClose}
+                  >
                     {link.dropdown.map((item: any) => item.isHeader ? (
                       <div key={item.label}
                         className="px-4 pt-3 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest first:pt-1">

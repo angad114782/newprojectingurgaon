@@ -299,7 +299,7 @@ export default function IndexingPage() {
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               rows={6}
-              placeholder={`https://propertyinbhiwadi.com/projects/dlf-the-camellias\nhttps://propertyinbhiwadi.com/blog/gurgaon-real-estate-2025`}
+              placeholder={`https://propertyinbhiwadi.com/projects/ashiana-anmol-bhiwadi\nhttps://propertyinbhiwadi.com/blog/best-areas-to-invest-in-bhiwadi`}
               className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             <div className="flex justify-between items-center mt-3">

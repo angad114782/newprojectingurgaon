@@ -16,8 +16,8 @@ export default function FeaturedProjects({ phone, initialProjects = [] }: { phon
   const [activeTab, setActiveTab] = useState('');
 
   const displayed = (() => {
-    if (activeTab) return initialProjects.filter((p) => p.status === activeTab).slice(0, 6);
-    return initialProjects.filter((p) => p.isFeatured).concat(initialProjects.filter((p) => !p.isFeatured)).slice(0, 6);
+    if (activeTab) return initialProjects.filter((p) => p.status === activeTab).slice(0, 9);
+    return initialProjects.filter((p) => p.isFeatured).concat(initialProjects.filter((p) => !p.isFeatured)).slice(0, 9);
   })();
 
   const callPhone = phone || process.env.NEXT_PUBLIC_PHONE || '+91-8619930583';
@@ -28,12 +28,12 @@ export default function FeaturedProjects({ phone, initialProjects = [] }: { phon
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
             <span className="badge bg-brand-mint text-brand-dark border border-brand-border mb-3">🏙️ Premium Collection</span>
-            <h2 className="section-title">Luxury & Premium Projects in Gurgaon</h2>
+            <h2 className="section-title">New & Premium Projects in Bhiwadi</h2>
             <p className="section-subtitle mt-2">
               Handpicked, RERA-verified luxury apartments, villas and penthouses — from ₹2 Cr to ₹15 Cr+.
             </p>
           </div>
-          <Link href="/new-projects-in-gurgaon"
+          <Link href="/new-projects-in-bhiwadi"
             className="btn-outline whitespace-nowrap flex-shrink-0 flex items-center gap-2">
             View All Projects <ArrowRightIcon className="w-4 h-4" />
           </Link>
@@ -65,7 +65,7 @@ export default function FeaturedProjects({ phone, initialProjects = [] }: { phon
               Our Representative Will Connect You Soon
             </h3>
             <p className="text-brand-muted text-sm mb-6 max-w-md mx-auto">
-              We're curating the finest luxury projects in Gurgaon for you. Call us now for exclusive pre-launch pricing and brochures.
+              We're curating the finest projects in Bhiwadi for you. Call us now for exclusive pre-launch pricing and brochures.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <a href={`tel:${callPhone.replace(/[^+\d]/g, '')}`}
@@ -81,8 +81,8 @@ export default function FeaturedProjects({ phone, initialProjects = [] }: { phon
 
         {displayed.length > 0 && (
           <div className="mt-10 text-center">
-            <Link href="/new-projects-in-gurgaon" className="btn-primary inline-flex items-center gap-2">
-              Explore All Projects in Gurgaon <ArrowRightIcon className="w-4 h-4" />
+            <Link href="/new-projects-in-bhiwadi" className="btn-primary inline-flex items-center gap-2">
+              Explore All Projects in Bhiwadi <ArrowRightIcon className="w-4 h-4" />
             </Link>
           </div>
         )}

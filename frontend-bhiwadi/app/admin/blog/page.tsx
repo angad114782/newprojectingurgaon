@@ -183,10 +183,10 @@ export default function BlogPage() {
                 <ImageUploader label="Hero Image" value={form.heroImage} onChange={(v) => f('heroImage', v as string)} token={token} />
               )}
               <Field label="Title *">
-                <Input value={form.title} onChange={(v) => { f('title', v); if (mode === 'add') f('slug', slugify(v)); }} placeholder="5 Best Luxury Apartments in Gurgaon 2025" />
+                <Input value={form.title} onChange={(v) => { f('title', v); if (mode === 'add') f('slug', slugify(v)); }} placeholder="5 Best Apartments in Bhiwadi 2025" />
               </Field>
               <Field label="URL Slug *">
-                <Input value={form.slug} onChange={(v) => f('slug', v)} placeholder="luxury-apartments-gurgaon-2025" />
+                <Input value={form.slug} onChange={(v) => f('slug', v)} placeholder="apartments-bhiwadi-2025" />
               </Field>
               <Field label="Excerpt">
                 <Input value={form.excerpt} onChange={(v) => f('excerpt', v)} placeholder="Brief summary shown in blog cards..." rows={2} />
@@ -259,7 +259,7 @@ export default function BlogPage() {
           {activeSection === 'seo' && (
             <>
               <Field label="Meta Keywords (comma-separated)">
-                <Input value={form.keywords} onChange={(v) => f('keywords', v)} placeholder="luxury apartments gurgaon, 3 bhk dwarka expressway..." rows={2} />
+                <Input value={form.keywords} onChange={(v) => f('keywords', v)} placeholder="apartments bhiwadi, 2 bhk nh-48 bhiwadi..." rows={2} />
               </Field>
               <div>
                 <div className="flex items-center justify-between mb-2">

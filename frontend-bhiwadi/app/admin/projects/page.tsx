@@ -7,7 +7,7 @@ import {
   ListInput, ImageUploader, FloorPlansInput, FAQInput, Toast,
 } from '../_components/shared';
 
-const DEFAULT_CORRIDORS = ['Alwar Bypass Road', 'NH-48', 'Tapukara', 'Neemrana', 'Khushkhera', 'Bhiwadi Extension', 'RIICO Area', 'Other'];
+const DEFAULT_CORRIDORS = ['Alwar Bypass Road', 'NH-48 Highway', 'Bhiwadi Extension', 'Tapukara', 'Khushkhera', 'Neemrana', 'Chopanki', 'RIICO Industrial Area'];
 const STATUSES = ['New Launch', 'Pre Launch', 'Under Construction', 'Ready To Move'];
 const SECTIONS = [
   { key: 'basic', label: 'Basic Info' },
@@ -55,7 +55,7 @@ export default function ProjectsPage() {
   const [corridors, setCorridors] = useState<{ name: string; slug: string; city?: string }[]>([]);
   const [newCorridorName, setNewCorridorName] = useState('');
   const [newCorridorIcon, setNewCorridorIcon] = useState('🛣️');
-  const [newCorridorCity, setNewCorridorCity] = useState('Gurgaon');
+  const [newCorridorCity, setNewCorridorCity] = useState('Bhiwadi');
   const [corridorModalOpen, setCorridorModalOpen] = useState(false);
   const [corridorSaving, setCorridorSaving] = useState(false);
 
@@ -354,10 +354,9 @@ export default function ProjectsPage() {
                       <select value={newCorridorCity} onChange={e => setNewCorridorCity(e.target.value)}
                         className="text-xs px-2 py-2 border border-slate-200 rounded-xl bg-white text-slate-700 shrink-0">
                         <option value="Bhiwadi">Bhiwadi</option>
-                        <option value="Bhiwadi">Bhiwadi</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Noida">Noida</option>
-                        <option value="Faridabad">Faridabad</option>
+                        <option value="Neemrana">Neemrana</option>
+                        <option value="Tapukara">Tapukara</option>
+                        <option value="Alwar">Alwar</option>
                         <option value="NCR">NCR</option>
                       </select>
                       <input type="text" value={newCorridorIcon} onChange={e => setNewCorridorIcon(e.target.value)}
@@ -531,7 +530,7 @@ export default function ProjectsPage() {
               <ListInput label="Nearby Landmarks" items={form.nearbyLandmarks || []}
                 onAdd={(v) => f('nearbyLandmarks', [...(form.nearbyLandmarks || []), v])}
                 onRemove={(i) => f('nearbyLandmarks', (form.nearbyLandmarks || []).filter((_: any, idx: number) => idx !== i))}
-                placeholder="DLF CyberCity, AIIMS..." />
+                placeholder="RIICO Industrial Area, Bhiwadi Extension..." />
               <ListInput label="Why Buy" items={form.whyBuy || []}
                 onAdd={(v) => f('whyBuy', [...(form.whyBuy || []), v])}
                 onRemove={(i) => f('whyBuy', (form.whyBuy || []).filter((_: any, idx: number) => idx !== i))}

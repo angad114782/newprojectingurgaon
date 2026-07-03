@@ -44,8 +44,8 @@ router.post('/seo-advisor', verifyToken, async (req, res) => {
     ]);
 
     const siteContext = {
-      siteName: settings?.siteName || 'New Projects in Gurgaon',
-      domain: 'newprojectsingurgaon.com',
+      siteName: settings?.siteName || 'New Projects in Bhiwadi',
+      domain: settings?.siteUrl ? settings.siteUrl.replace(/https?:\/\//, '') : 'propertyinbhiwadi.com',
       totalProjects: projectCount,
       publishedBlogs: blogCount,
       totalLeads: leadCount,
@@ -64,7 +64,7 @@ router.post('/seo-advisor', verifyToken, async (req, res) => {
     const userContext = req.body.context || '';
     const focus = req.body.focus || 'all'; // 'seo' | 'aio' | 'geo' | 'content' | 'all'
 
-    const prompt = `You are a senior SEO + AIO (AI Overview) + GEO (Generative Engine Optimization) expert specializing in Indian real estate websites. You are analyzing a Gurgaon real estate advisory website and must provide precise, actionable, prioritized recommendations.
+    const prompt = `You are a senior SEO + AIO (AI Overview) + GEO (Generative Engine Optimization) expert specializing in Indian real estate websites. You are analyzing a Bhiwadi (Rajasthan) real estate advisory website and must provide precise, actionable, prioritized recommendations.
 
 WEBSITE DATA:
 ${JSON.stringify(siteContext, null, 2)}

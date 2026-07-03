@@ -170,7 +170,7 @@ export default function BrandingPage() {
             <ol className="text-xs text-slate-500 space-y-1.5 list-decimal list-inside">
               <li><a href="https://favicon.io/favicon-generator/" target="_blank" rel="noopener noreferrer" className="text-emerald-600 underline">favicon.io</a> pe jaao → Text ya Image se generate karo</li>
               <li>Download → <code className="bg-white border px-1 rounded">favicon.ico</code> aur <code className="bg-white border px-1 rounded">apple-touch-icon.png</code></li>
-              <li>VPS upload: <code className="bg-white border px-1 rounded">/var/www/gurgaon-realestate/frontend/public/</code></li>
+              <li>VPS upload: <code className="bg-white border px-1 rounded">/var/www/bhiwadi-realestate/frontend/public/</code></li>
               <li>PM2 restart karo</li>
             </ol>
           </div>

@@ -7,6 +7,7 @@ const fs = require('fs');
 const Lead = require('../models/Lead');
 const User = require('../models/User');
 const Project = require('../models/Project');
+const Blog = require('../models/Blog');
 const { protect, authorize } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -61,7 +62,7 @@ async function downloadImageFromUrl(url, baseUrl) {
     const response = await axios.get(url, {
       responseType: 'stream',
       timeout: 20000,
-      headers: { 'User-Agent': 'Mozilla/5.0 New Projects in GurgaonBot/1.0' },
+      headers: { 'User-Agent': 'Mozilla/5.0 PropertyInBhiwadiBot/1.0' },
     });
     const writer = fs.createWriteStream(filepath);
     await new Promise((resolve, reject) => {
@@ -224,7 +225,7 @@ router.get('/dashboard', async (req, res) => {
     // Only count real leads (with mobile number captured)
     const R = { mobile: { $exists: true, $nin: [null, ''] } };
 
-    const [totalLeads, todayLeads, weekLeads, verifiedLeads, hotLeads, priorityLeads, siteVisits, statusCounts, sourceStats, projectStats, locationStats] = await Promise.all([
+    const [totalLeads, todayLeads, weekLeads, verifiedLeads, hotLeads, priorityLeads, siteVisits, statusCounts, sourceStats, projectStats, locationStats, activeProjects, publishedBlogs] = await Promise.all([
       Lead.countDocuments(R),
       Lead.countDocuments({ ...R, createdAt: { $gte: today } }),
       Lead.countDocuments({ ...R, createdAt: { $gte: weekAgo } }),
@@ -236,12 +237,14 @@ router.get('/dashboard', async (req, res) => {
       Lead.aggregate([{ $match: R }, { $group: { _id: '$utmSource', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]),
       Lead.aggregate([{ $match: { ...R, interestedProject: { $ne: null } } }, { $group: { _id: '$interestedProject', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]),
       Lead.aggregate([{ $match: { ...R, preferredLocation: { $ne: null } } }, { $group: { _id: '$preferredLocation', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }]),
+      Project.countDocuments({ isActive: true }),
+      Blog.countDocuments({ status: 'published' }),
     ]);
 
     res.json({
       success: true,
       data: {
-        overview: { totalLeads, todayLeads, weekLeads, verifiedLeads, hotLeads, priorityLeads, siteVisits },
+        overview: { totalLeads, todayLeads, weekLeads, verifiedLeads, hotLeads, priorityLeads, siteVisits, activeProjects, publishedBlogs },
         statusCounts: Object.fromEntries(statusCounts.map(s => [s._id, s.count])),
         sourceStats,
         projectStats,
@@ -418,28 +421,28 @@ router.get('/projects/csv-template', authorize('admin', 'manager'), (req, res) =
     'isFeatured', 'isNew', 'metaTitle', 'metaDescription',
   ];
   const sample = [
-    'Sobha City Gurgaon', 'sobha-city-gurgaon', 'Sobha Limited', '', 'https://sobha.com',
-    'Sector 108 Dwarka Expressway', 'Sector 108', 'Dwarka Expressway', 'New Launch',
-    '₹1.8 Cr – ₹3.5 Cr', '₹8500 – ₹10200', '180', '350',
-    '3 BHK (1800 sqft)|4 BHK (2500 sqft)', 'Dec 2026', '1200', '8', '25 Acres', 'G+38',
-    'RC/REP/HARERA/GGM/123', 'Premium 3 & 4 BHK on Dwarka Expressway',
-    'Sobha City Gurgaon is a landmark luxury residential project by Sobha Limited.',
-    'Smart home tech|Skybridge clubhouse|Olympic pool',
-    'Gymnasium|Swimming Pool|Tennis Court|Clubhouse|Children Play Area',
-    'IGI Airport 15 min|Cyber City 20 min|NH-48 3 min',
-    'Ambience Mall|Udyog Vihar|Rajiv Chowk',
-    'Top RERA builder|Proven delivery record',
-    'luxury,dwarka-expressway',
+    'Ashiana Anmol Phase 4', 'ashiana-anmol-phase-4-bhiwadi', 'Ashiana Housing', '', 'https://ashianahousing.com',
+    'NH-48 Frontage, Bhiwadi', 'Bhiwadi Phase 2', 'NH-48 Corridor', 'New Launch',
+    '₹45 L – ₹75 L', '₹4200 – ₹5500', '45', '75',
+    '2 BHK (1050 sqft)|3 BHK (1400 sqft)', 'Dec 2027', '450', '4', '6 Acres', 'G+12',
+    'RAJ/RERA/2025/GRP/045', 'Premium 2 & 3 BHK on NH-48 Bhiwadi',
+    'Ashiana Anmol Phase 4 — trusted builder, NH-48 frontage, high rental demand from RIICO workers.',
+    'Swimming Pool|Clubhouse|Gym',
+    'Gymnasium|Swimming Pool|Badminton Court|Clubhouse|Children Play Area',
+    'NH-48 adjacent|Bhiwadi 3 km|Dharuhera 12 km',
+    'City Centre Mall|Ryan International|Fortis Hospital',
+    'Ashiana brand — best delivery record in Bhiwadi|High rental demand',
+    'nh-48,ashiana,bhiwadi',
     'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200',
     'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
-    '35–45% (3Y)', '3.8%',
+    '22–30% (3Y)', '4.5%',
     'true', 'true',
-    'Sobha City Gurgaon | Price Floor Plans RERA | New Projects in Gurgaon',
-    'Sobha City by Sobha Limited in Sector 108. 3 & 4 BHK from ₹1.8 Cr.',
+    'Ashiana Anmol Phase 4 Bhiwadi | Price Floor Plans RERA | Property in Bhiwadi',
+    'Ashiana Anmol Phase 4 Bhiwadi — 2 BHK from ₹45L on NH-48. RERA verified. Free site visit.',
   ];
   const csv = [headers.join(','), sample.map(v => `"${v}"`).join(',')].join('\n');
   res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename="gurgaonrealty-projects-template.csv"');
+  res.setHeader('Content-Disposition', 'attachment; filename="bhiwadi-projects-template.csv"');
   res.send(csv);
 });
 

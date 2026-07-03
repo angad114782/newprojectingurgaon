@@ -4,6 +4,7 @@ import LeadForm from '@/components/home/LeadForm';
 import { fetchApiProjects } from '@/lib/api-projects';
 import { fetchSettings } from '@/lib/settings';
 import LeadCTA from '@/components/lead/LeadCTA';
+import ProjectFilterBar from '@/components/projects/ProjectFilterBar';
 
 export const revalidate = 60;
 
@@ -20,10 +21,23 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function Page() {
-  const params: any = {};
-  params.limit = 12;
-  const projects = await fetchApiProjects(params);
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined };
+}) {
+  const corridor = searchParams.location || searchParams.corridor || '';
+  const status   = searchParams.status   || '';
+  const config   = searchParams.config   || searchParams.bhk || '';
+  const maxPrice = searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined;
+  const allProjects = await fetchApiProjects({
+    corridor:  corridor  || undefined,
+    status:    status    || undefined,
+    config:    config    || undefined,
+    maxPrice,
+    limit: 50,
+  });
+  const projects = allProjects.filter(p => !(p.configurations || []).some((c: string) => /plot/i.test(c)));
   return (
     <>
       <nav className="bg-brand-mint/30 border-b border-brand-border/40 py-3">
@@ -32,6 +46,11 @@ export default async function Page() {
           <span className="text-brand-dark font-medium">Flats in Bhiwadi</span>
         </div>
       </nav>
+      <ProjectFilterBar
+        basePath="/flats-in-bhiwadi"
+        active={{ location: corridor, status, config, maxPrice: searchParams.maxPrice || '' }}
+        totalCount={projects.length}
+      />
       <section className="hero-gradient py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="max-w-3xl">
